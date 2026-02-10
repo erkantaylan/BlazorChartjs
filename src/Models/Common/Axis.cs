@@ -137,6 +137,16 @@
         public Ticks? Ticks { get; set; }
 
         /// <summary>
+        /// Gets or sets the time options for time-based axes.
+        /// </summary>
+        /// <value>
+        /// The time options.
+        /// </value>
+        [JsonPropertyName("time")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public AxesTime? Time { get; set; }
+
+        /// <summary>
         /// Gets or sets the title.
         /// </summary>
         /// <value>

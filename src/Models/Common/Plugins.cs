@@ -62,5 +62,15 @@
         [JsonPropertyName("zoom")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Zoom? Zoom { get; set; }
+
+        /// <summary>
+        /// Gets or sets the annotation plugin options.
+        /// </summary>
+        /// <value>
+        /// The annotation options.
+        /// </value>
+        [JsonPropertyName("annotation")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public AnnotationOptions? Annotation { get; set; }
     }
 }

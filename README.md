@@ -2,6 +2,26 @@
 This library is a wrap around [Chart.js](https://www.chartjs.org/) for using it with [Blazor WebAssembly](https://www.puresourcecode.com/tag/blazor-webassembly/) and [Blazor Server](https://www.puresourcecode.com/tag/blazor-server/). The component was built with [NET6](https://puresourcecode.com/tag/net6/) until the version [6.0.44](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/). The version [7.0](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/7.0.0) is for [NET7](https://puresourcecode.com/tag/net7/).
 The version [8.x](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/8.0.4) is for [NET8](https://puresourcecode.com/tag/net8).
 
+## Fork Changelog (erkantaylan/BlazorChartjs)
+
+This fork extends the upstream [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs) with the following changes:
+
+### .NET 10 + Chart.js 4.x Upgrade
+- Upgraded `TargetFramework` from `net8.0` to `net10.0` in both `PSC.Blazor.Components.Chartjs` and `ChartjsDemo`
+- Updated all NuGet packages to 10.0.x versions
+- Upgraded Chart.js from **3.9.1** to **4.4.1** (UMD build: `chart.umd.js`)
+- Upgraded chartjs-plugin-zoom from **1.2.1** to **2.2.0**
+- Removed old Chart.js 3.x module chunks and type definitions
+
+### New Features
+- Added `Time` property to `Axis` class — enables time-based x-axis configuration (`unit`, `displayFormats`, `tooltipFormat`, `parser`)
+- Added `Annotation` property to `Plugins` class — enables [chartjs-plugin-annotation](https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/) support for lines, boxes, points, and labels
+
+### Compatibility
+- Designed for use as a **git submodule** in .NET 10 projects
+- Builds from source — no NuGet package dependency required
+- Compatible with `chartjs-plugin-annotation` and `chartjs-plugin-zoom`
+
 ## Links
 * [Demo website](https://chartjs.puresourcecode.com/)
 * Source code on [GitHub](https://github.com/erossini/BlazorChartjs)

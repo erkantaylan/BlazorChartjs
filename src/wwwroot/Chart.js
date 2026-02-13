@@ -215,6 +215,23 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
         Chart.unregister(ChartDataLabels);
     }
 
+    // Clean up floating-point noise on tick values (e.g. after zoom plugin
+    // recalculates axis bounds, 0 can become 1.42e-14, 100 becomes 100.00000000001).
+    // Rounding to 10 decimal places removes this noise while preserving meaningful precision.
+    if (!config.plugins) config.plugins = [];
+    config.plugins.push({
+        id: 'floatCleanup',
+        afterBuildTicks: function (chart, args) {
+            var scale = args.scale;
+            if (scale && scale.ticks &&
+                (scale.type === 'linear' || scale.type === 'logarithmic' || scale.type === 'radialLinear')) {
+                for (var i = 0; i < scale.ticks.length; i++) {
+                    scale.ticks[i].value = Math.round(scale.ticks[i].value * 1e10) / 1e10;
+                }
+            }
+        }
+    });
+
     var chart = new Chart(context2d, config);
     if (crosshair_plugin) {
         chart.canvas.addEventListener("mousemove", (evt) => {

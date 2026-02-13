@@ -37,7 +37,11 @@ _adapters._date.override(typeof moment === 'function' ? {
   },
 
   format: function(time, format) {
-    return moment(time).format(format);
+    const m = moment(time);
+    if (this.options?.locale) {
+      m.locale(this.options.locale);
+    }
+    return m.format(format);
   },
 
   add: function(time, amount, unit) {

@@ -185,6 +185,18 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
         }
     }
 
+    if (config?.options?.locale && config?.options?.scales != null) {
+        var scaleKeys = Object.keys(config.options.scales);
+        for (let key of scaleKeys) {
+            var scl = config.options.scales[key];
+            if (scl?.type === 'time' || scl?.time) {
+                if (!scl.adapters) scl.adapters = {};
+                if (!scl.adapters.date) scl.adapters.date = {};
+                if (!scl.adapters.date.locale) scl.adapters.date.locale = config.options.locale;
+            }
+        }
+    }
+
     if (config?.options?.scales != null) {
         var scales = Object.keys(config.options.scales);
         for (let scale of scales) {

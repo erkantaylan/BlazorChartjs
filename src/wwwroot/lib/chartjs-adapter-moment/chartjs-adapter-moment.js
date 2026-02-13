@@ -44,7 +44,11 @@ chart_js._adapters._date.override(typeof moment__default['default'] === 'functio
   },
 
   format: function(time, format) {
-    return moment__default['default'](time).format(format);
+    const m = moment__default['default'](time);
+    if (this.options?.locale) {
+      m.locale(this.options.locale);
+    }
+    return m.format(format);
   },
 
   add: function(time, amount, unit) {

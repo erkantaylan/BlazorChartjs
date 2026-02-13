@@ -170,6 +170,16 @@ namespace PSC.Blazor.Components.Chartjs.Models.Common
         public Interaction? Interaction { get; set; }
 
         /// <summary>
+        /// Gets or sets the locale for the chart. This is passed to Chart.js as the
+        /// <c>locale</c> option and propagated to date adapters for time-based axes.
+        /// Use a BCP 47 language tag (e.g. "tr-TR" for Turkish, "de-DE" for German).
+        /// </summary>
+        /// <value>A BCP 47 locale string, or null to use the default locale.</value>
+        [JsonPropertyName("locale")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Locale { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether [maintain aspect ratio].
         /// </summary>
         /// <value>

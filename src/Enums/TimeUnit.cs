@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Enums
+﻿namespace Erkan.Blazor.Chartjs.Enums
 {
 
     /// <summary>

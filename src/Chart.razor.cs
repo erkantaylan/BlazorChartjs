@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using PSC.Blazor.Components.Chartjs.Models.Bar;
+using Erkan.Blazor.Chartjs.Models.Bar;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace PSC.Blazor.Components.Chartjs 
+namespace Erkan.Blazor.Chartjs 
 {
     /// <summary>
     /// Class Chart.

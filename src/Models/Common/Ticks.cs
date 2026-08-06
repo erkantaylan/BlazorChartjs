@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace PSC.Blazor.Components.Chartjs.Models.Common 
+namespace Erkan.Blazor.Chartjs.Models.Common 
 {
     /// <summary>
     /// Ticks

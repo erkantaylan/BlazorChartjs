@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Bubble
+﻿namespace Erkan.Blazor.Chartjs.Models.Bubble
 {
     /// <summary>
     /// Bubble Coords

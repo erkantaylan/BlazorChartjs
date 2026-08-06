@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Radar
+﻿namespace Erkan.Blazor.Chartjs.Models.Radar
 {
     public class RadarData : Data<RadarDataset>
     {

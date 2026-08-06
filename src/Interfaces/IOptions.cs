@@ -1,7 +1,7 @@
-﻿using PSC.Blazor.Components.Chartjs.Models.Pie;
-using PSC.Blazor.Components.Chartjs.Models.Radar;
+﻿using Erkan.Blazor.Chartjs.Models.Pie;
+using Erkan.Blazor.Chartjs.Models.Radar;
 
-namespace PSC.Blazor.Components.Chartjs.Interfaces 
+namespace Erkan.Blazor.Chartjs.Interfaces 
 {
     /// <summary>
     /// IOptions

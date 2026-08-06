@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Common
+﻿namespace Erkan.Blazor.Chartjs.Models.Common
 {
     /// <summary>
     /// Class DataLabels.
@@ -95,7 +95,7 @@
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int BorderWidth { get; set; }
 
-        /// <summary>Gets or sets a value indicating whether this <see cref="T:PSC.Blazor.Components.Chartjs.Models.Common.DataLabels" /> is clamp.</summary>
+        /// <summary>Gets or sets a value indicating whether this <see cref="T:Erkan.Blazor.Chartjs.Models.Common.DataLabels" /> is clamp.</summary>
         /// <value>
         ///   <para>The clamp option, when <strong>true</strong>, enforces the anchor position to be calculated based on the visible geometry of the associated element.</para>
         ///   <para>For more details, see <a href="https://chartjs-plugin-datalabels.netlify.app/guide/positioning.html#clamping">this link</a>.</para>

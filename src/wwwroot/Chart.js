@@ -76,7 +76,7 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
             jsonArray.splice(1, 0, `"$type":"${dataType}",`);
             json = jsonArray.join("");
 
-            return DotNet.invokeMethod('PSC.Blazor.Components.Chartjs', 'LegendLabelsFilter',
+            return DotNet.invokeMethod('Erkan.Blazor.Chartjs', 'LegendLabelsFilter',
                 dotnetConfig, item, JSON.parse(json))
         };
     }
@@ -92,7 +92,7 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
                 dIndex = ctx.dataIndex;
                 vl = chart.data.datasets[dsIndex].data[dIndex];
             }
-            return DotNet.invokeMethod('PSC.Blazor.Components.Chartjs', 'TooltipCallbacksLabel',
+            return DotNet.invokeMethod('Erkan.Blazor.Chartjs', 'TooltipCallbacksLabel',
                 dotnetConfig, [dsIndex, dIndex, vl]);
         };
     }
@@ -108,7 +108,7 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
                 dIndex = ctx[0].dataIndex;
                 vl = chart.data.datasets[dsIndex].data[dIndex];
             }
-            return DotNet.invokeMethod('PSC.Blazor.Components.Chartjs', 'TitleCallbacks',
+            return DotNet.invokeMethod('Erkan.Blazor.Chartjs', 'TitleCallbacks',
                 dotnetConfig, [dsIndex, dIndex, vl]);
         };
     }
@@ -132,7 +132,7 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
                 DataY: dataY
             };
 
-            return DotNet.invokeMethodAsync('PSC.Blazor.Components.Chartjs', 'OnHoverAsync',
+            return DotNet.invokeMethodAsync('Erkan.Blazor.Chartjs', 'OnHoverAsync',
                 dotnetConfig, rtn);
         };
     }
@@ -201,30 +201,60 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
         var scales = Object.keys(config.options.scales);
         for (let scale of scales) {
             if (config.options.scales[scale]?.ticks?.hasCallback) {
-                config.options.scales[scale].ticks.hasCallback = undefined;
-                config.options.scales[scale].ticks.hasCallback = undefined;
+                delete config.options.scales[scale].ticks.hasCallback;
                 config.options.scales[scale].ticks.callback = function (value, index, ticks) {
-                    return DotNet.invokeMethod('PSC.Blazor.Components.Chartjs', 'TicksCallback',
+                    return DotNet.invokeMethod('Erkan.Blazor.Chartjs', 'TicksCallback',
                         dotnetConfig, scale, value, index, ticks.map(tick => tick.value));
                 };
             }
             if (config.options.scales[scale]?.ticks?.hasAsyncCallback) {
-                config.options.scales[scale].ticks.hasAsyncCallback = undefined;
-                config.options.scales[scale].ticks.callbackAsync = function (value, index, ticks) {
-                    return DotNet.invokeMethodAsync('PSC.Blazor.Components.Chartjs', 'TicksCallbackAsync',
-                        dotnetConfig, scale, value, index, ticks.map(tick => tick.value));
+                delete config.options.scales[scale].ticks.hasAsyncCallback;
+                // Chart.js tick callbacks are synchronous - a Promise return value would be
+                // rendered as "[object Promise]". Resolve the labels up front instead: render
+                // the raw values on the first pass, then re-label once .NET replies.
+                let asyncLabels = {};
+                let asyncPending = false;
+                config.options.scales[scale].ticks.callback = function (value, index, ticks) {
+                    if (Object.prototype.hasOwnProperty.call(asyncLabels, index))
+                        return asyncLabels[index];
+
+                    if (!asyncPending) {
+                        asyncPending = true;
+                        let chartRef = this.chart;
+                        DotNet.invokeMethodAsync('Erkan.Blazor.Chartjs', 'TicksCallbackAsync',
+                            dotnetConfig, scale, value, index, ticks.map(tick => tick.value))
+                            .then(labels => {
+                                asyncPending = false;
+                                if (!labels) return;
+                                labels.forEach((lbl, i) => asyncLabels[i] = lbl);
+                                chartRef.update('none');
+                            })
+                            .catch(() => { asyncPending = false; });
+                    }
+
+                    return this.getLabelForValue(value);
                 };
             }
         }
     }
 
-    if (typeof ChartDataLabels !== 'undefined' && config?.options?.registerDataLabels) {
-        config?.options?.registerDataLabels == undefined;
-        Chart.register(ChartDataLabels);
+    if (typeof ChartDataLabels !== 'undefined') {
+        if (config?.options?.registerDataLabels)
+            Chart.register(ChartDataLabels);
+        else
+            Chart.unregister(ChartDataLabels);
     }
-    if (typeof ChartDataLabels !== 'undefined' && !config?.options?.registerDataLabels) {
-        config?.options?.registerDataLabels == undefined;
-        Chart.unregister(ChartDataLabels);
+    if (config?.options?.registerDataLabels !== undefined)
+        delete config.options.registerDataLabels;
+
+    // chartjs-plugin-annotation is only registered when the chart actually declares
+    // annotations, so charts without them keep the plugin out of the draw loop.
+    if (config?.options?.plugins?.annotation) {
+        const annotationPlugin = window['chartjs-plugin-annotation'];
+        if (annotationPlugin)
+            Chart.register(annotationPlugin);
+        else
+            console.warn('[BlazorChartjs] plugins.annotation is set but chartjs-plugin-annotation.min.js is not loaded.');
     }
 
     // Clean up floating-point noise on tick values (e.g. after zoom plugin
@@ -267,20 +297,24 @@ export function chartSetup(id, dotnetConfig, jsonConfig) {
                 Value: vl
             };
 
-            DotNet.invokeMethodAsync('PSC.Blazor.Components.Chartjs', 'OnClickAsync',
+            DotNet.invokeMethodAsync('Erkan.Blazor.Chartjs', 'OnClickAsync',
                 dotnetConfig, rtn);
         }
     };
 
-    chart.options.plugins.legend.onClick = function (e, legendItem) {
-        var rtn = {
-            LegendIndex: legendItem.index,
-            LegendText: legendItem.text
-        };
+    // Radar/polar/pie charts and charts configured with Plugins = null may have no
+    // resolved legend options, so guard before overriding onClick.
+    if (chart.options.plugins?.legend) {
+        chart.options.plugins.legend.onClick = function (e, legendItem) {
+            var rtn = {
+                LegendIndex: legendItem.index,
+                LegendText: legendItem.text
+            };
 
-        DotNet.invokeMethodAsync('PSC.Blazor.Components.Chartjs', 'OnLegendClickAsync',
-            dotnetConfig, rtn);
-    };
+            DotNet.invokeMethodAsync('Erkan.Blazor.Chartjs', 'OnLegendClickAsync',
+                dotnetConfig, rtn);
+        };
+    }
 }
 
 export function addData(id, label, dataset, data) {

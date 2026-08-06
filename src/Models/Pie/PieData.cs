@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Pie
+﻿namespace Erkan.Blazor.Chartjs.Models.Pie
 {
     public class PieData : Data<PieDataset>
     {

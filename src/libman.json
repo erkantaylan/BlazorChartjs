@@ -3,7 +3,7 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "Chart.js@4.4.1",
+      "library": "Chart.js@4.5.1",
       "destination": "wwwroot/lib/Chart.js/"
     },
     {
@@ -17,6 +17,18 @@
     {
       "library": "chartjs-plugin-datalabels@2.2.0",
       "destination": "wwwroot/lib/chartjs-plugin-datalabels/"
+    },
+    {
+      "library": "chartjs-plugin-annotation@3.1.0",
+      "destination": "wwwroot/lib/chartjs-plugin-annotation/"
+    },
+    {
+      "library": "chartjs-plugin-autocolors@0.3.1",
+      "destination": "wwwroot/lib/chartjs-plugin-autocolors/"
+    },
+    {
+      "library": "moment.js@2.30.1",
+      "destination": "wwwroot/lib/moment/"
     }
   ]
 }

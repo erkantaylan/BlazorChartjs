@@ -1,4 +1,4 @@
-namespace PSC.Blazor.Components.Chartjs.Models.Common
+namespace Erkan.Blazor.Chartjs.Models.Common
 {
     /// <summary>
     /// Options for the chartjs-plugin-annotation plugin.

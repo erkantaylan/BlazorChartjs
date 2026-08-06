@@ -1,4 +1,4 @@
-﻿using PSC.Blazor.Components.Chartjs.Models.Radar;
+﻿using Erkan.Blazor.Chartjs.Models.Radar;
 
 namespace ChartjsDemo.Data
 {

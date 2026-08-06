@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Scatter
+﻿namespace Erkan.Blazor.Chartjs.Models.Scatter
 {
     public class ScatterChartConfig : IChartConfig
     {

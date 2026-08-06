@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PSC.Blazor.Components.Chartjs.Models.Common.StringEnums
+namespace Erkan.Blazor.Chartjs.Models.Common.StringEnums
 {
     /// <summary>
     /// Class StepMode.

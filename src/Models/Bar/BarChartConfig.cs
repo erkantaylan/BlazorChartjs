@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Bar
+﻿namespace Erkan.Blazor.Chartjs.Models.Bar
 {
     /// <summary>
     /// Chart config for Bars

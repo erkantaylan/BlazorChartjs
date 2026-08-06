@@ -1,10 +1,10 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Pie
+﻿namespace Erkan.Blazor.Chartjs.Models.Pie
 {
     /// <summary>
     /// Pie Options
     /// </summary>
-    /// <seealso cref="PSC.Blazor.Components.Chartjs.Models.Common.Options" />
-    /// <seealso cref="PSC.Blazor.Components.Chartjs.Interfaces.IOptions" />
+    /// <seealso cref="Erkan.Blazor.Chartjs.Models.Common.Options" />
+    /// <seealso cref="Erkan.Blazor.Chartjs.Interfaces.IOptions" />
     public class PieOptions : Options, IOptions
     {
         /// <summary>

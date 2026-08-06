@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models
+﻿namespace Erkan.Blazor.Chartjs.Models
 {
     /// <summary>
     /// Point Style

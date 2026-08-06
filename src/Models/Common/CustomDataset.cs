@@ -1,7 +1,7 @@
-﻿using PSC.Blazor.Components.Chartjs.Models.Bubble;
-using PSC.Blazor.Components.Chartjs.Models.Scatter;
+﻿using Erkan.Blazor.Chartjs.Models.Bubble;
+using Erkan.Blazor.Chartjs.Models.Scatter;
 
-namespace PSC.Blazor.Components.Chartjs.Models.Common 
+namespace Erkan.Blazor.Chartjs.Models.Common 
 {
     [JsonDerivedType(typeof(CustomDataset), typeDiscriminator: "base")]
     [JsonDerivedType(typeof(BubbleDataset), typeDiscriminator: "bubbleData")]

@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Interfaces
+﻿namespace Erkan.Blazor.Chartjs.Interfaces
 {
     /// <summary>
     /// Interface IDataset
@@ -20,11 +20,11 @@
 
     /// <summary>
     /// Interface IDataset
-    /// Extends the <see cref="PSC.Blazor.Components.Chartjs.Interfaces.IDataset" />
+    /// Extends the <see cref="Erkan.Blazor.Chartjs.Interfaces.IDataset" />
     /// Extends the <see cref="System.Collections.Generic.IList{T}" />
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <seealso cref="PSC.Blazor.Components.Chartjs.Interfaces.IDataset" />
+    /// <seealso cref="Erkan.Blazor.Chartjs.Interfaces.IDataset" />
     /// <seealso cref="System.Collections.Generic.IList{T}" />
     public interface IDataset<T> : IDataset, IList<T>
     {

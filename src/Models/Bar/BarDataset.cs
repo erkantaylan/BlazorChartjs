@@ -1,9 +1,9 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Bar
+﻿namespace Erkan.Blazor.Chartjs.Models.Bar
 {
     /// <summary>
     /// Bar Dataset
     /// </summary>
-    /// <seealso cref="PSC.Blazor.Components.Chartjs.Models.Common.Dataset" />
+    /// <seealso cref="Erkan.Blazor.Chartjs.Models.Common.Dataset" />
     public class BarDataset : Dataset
     {
         /// <summary>

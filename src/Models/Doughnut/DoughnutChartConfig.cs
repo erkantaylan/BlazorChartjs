@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Doughnut
+﻿namespace Erkan.Blazor.Chartjs.Models.Doughnut
 {
     public class DoughnutChartConfig : IChartConfig
     {

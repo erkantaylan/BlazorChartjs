@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace PSC.Blazor.Components.Chartjs 
+namespace Erkan.Blazor.Chartjs 
 {
     /// <summary>
     /// Class ChartJsInterop.
@@ -22,7 +22,7 @@ namespace PSC.Blazor.Components.Chartjs
         public ChartJsInterop(IJSRuntime jsRuntime) 
         {
             moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>("import",
-                "./_content/PSC.Blazor.Components.Chartjs/Chart.js").AsTask());
+                "./_content/Erkan.Blazor.Chartjs/Chart.js").AsTask());
         }
 
         /// <summary>

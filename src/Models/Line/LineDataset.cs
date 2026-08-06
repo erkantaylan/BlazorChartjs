@@ -1,11 +1,11 @@
-﻿using PSC.Blazor.Components.Chartjs.Models.Common.StringEnums;
+﻿using Erkan.Blazor.Chartjs.Models.Common.StringEnums;
 
-namespace PSC.Blazor.Components.Chartjs.Models.Line
+namespace Erkan.Blazor.Chartjs.Models.Line
 {
     /// <summary>
     /// Line Dataset
     /// </summary>
-    /// <seealso cref="PSC.Blazor.Components.Chartjs.Models.Common.Dataset" />
+    /// <seealso cref="Erkan.Blazor.Chartjs.Models.Common.Dataset" />
     public class LineDataset : Dataset
     {
         /// <summary>

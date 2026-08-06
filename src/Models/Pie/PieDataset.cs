@@ -1,9 +1,9 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Pie
+﻿namespace Erkan.Blazor.Chartjs.Models.Pie
 {
     /// <summary>
     /// Pie Dataset
     /// </summary>
-    /// <seealso cref="PSC.Blazor.Components.Chartjs.Models.Common.Dataset" />
+    /// <seealso cref="Erkan.Blazor.Chartjs.Models.Common.Dataset" />
     public class PieDataset : Dataset
     {
         /// <summary>

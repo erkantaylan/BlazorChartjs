@@ -1,7 +1,7 @@
 /*!
- * chartjs-plugin-autocolors v0.2.2
+ * chartjs-plugin-autocolors v0.3.1
  * https://github.com/kurkle/chartjs-plugin-autocolors#readme
- * (c) 2023 Jukka Kurkela <jukka.kurkela@gmail.com>
+ * (c) 2024 Jukka Kurkela <jukka.kurkela@gmail.com>
  * Released under the MIT license
  */
 (function (global, factory) {
@@ -76,9 +76,14 @@ function* colorGen(repeat = 1) {
   }
 }
 
-function setColors(dataset, background, border) {
-  dataset.backgroundColor = dataset.backgroundColor || background;
-  dataset.borderColor = dataset.borderColor || border;
+function setColors(dataset, background, border, mode) {
+  if (mode === 'data') {
+    dataset.backgroundColor = background;
+    dataset.border = border;
+  } else {
+    dataset.backgroundColor = dataset.backgroundColor || background;
+    dataset.borderColor = dataset.borderColor || border;
+  }
   return dataset.backgroundColor === background && dataset.borderColor === border;
 }
 
@@ -90,7 +95,42 @@ function getNext(color, customize, context) {
   return c;
 }
 
-var index = {
+function defaultMode(chart, gen, customize, mode) {
+  const datasetMode = mode === 'dataset';
+
+  let c = getNext(gen, customize, {chart, datasetIndex: 0, dataIndex: datasetMode ? undefined : 0});
+  for (const dataset of chart.data.datasets) {
+    if (datasetMode) {
+      if (setColors(dataset, c.background, c.border, mode)) {
+        c = getNext(gen, customize, {chart, datasetIndex: dataset.index});
+      }
+    } else {
+      const background = [];
+      const border = [];
+      for (let i = 0; i < dataset.data.length; i++) {
+        background.push(c.background);
+        border.push(c.border);
+        c = getNext(gen, customize, {chart, datasetIndex: dataset.index, dataIndex: i});
+      }
+      setColors(dataset, background, border, mode);
+    }
+  }
+
+}
+
+function labelMode(chart, gen, customize, mode) {
+  const colors = {};
+  for (const dataset of chart.data.datasets) {
+    const label = dataset.label ?? '';
+    if (!colors[label]) {
+      colors[label] = getNext(gen, customize, {chart, datasetIndex: 0, dataIndex: undefined, label});
+    }
+    const c = colors[label];
+    setColors(dataset, c.background, c.border, mode);
+  }
+}
+
+const autocolorPlugin = {
   id: 'autocolors',
   beforeUpdate(chart, args, options) {
     const {mode = 'dataset', enabled = true, customize, repeat} = options;
@@ -109,44 +149,13 @@ var index = {
     }
 
     if (mode === 'label') {
-      return labelMode(chart, gen, customize);
+      return labelMode(chart, gen, customize, mode);
     }
-
-    const datasetMode = mode === 'dataset';
-
-    let c = getNext(gen, customize, {chart, datasetIndex: 0, dataIndex: datasetMode ? undefined : 0});
-    for (const dataset of chart.data.datasets) {
-      if (datasetMode) {
-        if (setColors(dataset, c.background, c.border)) {
-          c = getNext(gen, customize, {chart, datasetIndex: dataset.index});
-        }
-      } else {
-        const background = [];
-        const border = [];
-        for (let i = 0; i < dataset.data.length; i++) {
-          background.push(c.background);
-          border.push(c.border);
-          c = getNext(gen, customize, {chart, datasetIndex: dataset.index, dataIndex: i});
-        }
-        setColors(dataset, background, border);
-      }
-    }
-  }
+    return defaultMode(chart, gen, customize, mode);
+  },
 };
 
-function labelMode(chart, gen, customize) {
-  const colors = {};
-  for (const dataset of chart.data.datasets) {
-    const label = dataset.label ?? '';
-    if (!colors[label]) {
-      colors[label] = getNext(gen, customize, {chart, datasetIndex: 0, dataIndex: undefined, label});
-    }
-    const c = colors[label];
-    setColors(dataset, c.background, c.border);
-  }
-}
-
-return index;
+return autocolorPlugin;
 
 }));
 //# sourceMappingURL=chartjs-plugin-autocolors.cjs.map

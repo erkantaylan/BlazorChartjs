@@ -1,62 +1,79 @@
-# ChartJs component for Blazor
-This library is a wrap around [Chart.js](https://www.chartjs.org/) for using it with [Blazor WebAssembly](https://www.puresourcecode.com/tag/blazor-webassembly/) and [Blazor Server](https://www.puresourcecode.com/tag/blazor-server/). The component was built with [NET6](https://puresourcecode.com/tag/net6/) until the version [6.0.44](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/). The version [7.0](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/7.0.0) is for [NET7](https://puresourcecode.com/tag/net7/).
-The version [8.x](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/8.0.4) is for [NET8](https://puresourcecode.com/tag/net8).
+# Erkan.Blazor.Chartjs
 
-## Fork Changelog (erkantaylan/BlazorChartjs)
+A [Chart.js](https://www.chartjs.org/) wrapper for [Blazor WebAssembly](https://learn.microsoft.com/aspnet/core/blazor/hosting-models) and Blazor Server, targeting **.NET 10** and **Chart.js 4.5.1**.
 
-This fork extends the upstream [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs) with the following changes:
+This is a fork of [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs) (`PSC.Blazor.Components.Chartjs`) by Enrico Rossini, published independently as `Erkan.Blazor.Chartjs`. It is MIT licensed, same as upstream.
 
-### .NET 10 + Chart.js 4.x Upgrade
-- Upgraded `TargetFramework` from `net8.0` to `net10.0` in both `PSC.Blazor.Components.Chartjs` and `ChartjsDemo`
-- Updated all NuGet packages to 10.0.x versions
-- Upgraded Chart.js from **3.9.1** to **4.4.1** (UMD build: `chart.umd.js`)
-- Upgraded chartjs-plugin-zoom from **1.2.1** to **2.2.0**
-- Removed old Chart.js 3.x module chunks and type definitions
+> **Migrating from `PSC.Blazor.Components.Chartjs`:** the package ID, assembly, and root namespace all changed. Replace `PSC.Blazor.Components.Chartjs` with `Erkan.Blazor.Chartjs` in your `_Imports.razor` and in the `_content/...` script paths in `index.html` / `_Host.cshtml`.
 
-### New Features
-- Added `Time` property to `Axis` class — enables time-based x-axis configuration (`unit`, `displayFormats`, `tooltipFormat`, `parser`)
-- Added `Annotation` property to `Plugins` class — enables [chartjs-plugin-annotation](https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/) support for lines, boxes, points, and labels
+## Fork changes
 
-### Compatibility
-- Designed for use as a **git submodule** in .NET 10 projects
-- Builds from source — no NuGet package dependency required
-- Compatible with `chartjs-plugin-annotation` and `chartjs-plugin-zoom`
+### .NET 10 + Chart.js 4.x
+- `TargetFramework` moved from `net8.0` to `net10.0`
+- All Microsoft NuGet packages on 10.0.x
+- Chart.js **3.9.1 → 4.5.1** (UMD build: `chart.umd.js`)
+- chartjs-plugin-zoom **1.2.1 → 2.2.0**, chartjs-plugin-autocolors **0.2.2 → 0.3.1**
+- Bundled chartjs-plugin-annotation **3.1.0** and moment **2.30.1** (needed by the time-axis locale support)
+- Removed the stale Chart.js 3.x module chunks and type definitions
+
+### New features
+- `Axis.Time` — time-axis configuration (`unit`, `displayFormats`, `tooltipFormat`, `round`, `minUnit`)
+- `Plugins.Annotation` — [chartjs-plugin-annotation](https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/) support for lines, boxes, points, and labels. The plugin is registered automatically when a chart declares annotations.
+- `Options.Locale` — BCP 47 tag (e.g. `tr-TR`) that propagates to Chart.js and to the moment date adapter, so time-axis labels format in the given locale
+
+### Fixes
+- Tick values are rounded to 10 decimal places after `afterBuildTicks`, so the zoom plugin no longer produces axis labels like `1.42e-14` or `100.00000000001`
+- The async ticks callback (`Ticks.CallbackAsync`) now actually renders. Chart.js tick callbacks are synchronous, so returning a Promise previously rendered `[object Promise]`; labels are now resolved out-of-band and applied on a follow-up `update('none')`
+- `registerDataLabels` was compared instead of deleted (`==` where `delete` was meant), leaving the internal flag in the serialized options
+- `legend.onClick` is guarded — charts configured with `Plugins = null` no longer throw a `TypeError` during setup
+- The demo host page loaded `Chart.js` (an ES module) as a classic script, throwing `Unexpected token 'export'` on every page load. The module is imported by the interop layer; the stray tag is gone.
+- moment and `chartjs-adapter-moment` are now actually shipped and loaded, so `Options.Locale` and time axes work at runtime
+
+> **Note on `chartjs-adapter-moment`:** the bundled copy is hand-patched to apply a per-instance locale in `format()`, so it is deliberately excluded from `libman.json`. Do not overwrite it with a LibMan restore without re-applying that patch.
 
 ## Links
-* [Demo website](https://chartjs.puresourcecode.com/)
-* Source code on [GitHub](https://github.com/erossini/BlazorChartjs)
-* [Support forum](https://www.puresourcecode.com/forum/chart-js-for-blazor/)
-* [NuGet](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/) package
-
-## Articles
-* [ChartJs component for Blazor](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/)
-* [Labels and OnClickChart for ChartJs](https://www.puresourcecode.com/dotnet/blazor/labels-and-onclickchart-for-chartjs/)
+* Source code on [GitHub](https://github.com/erkantaylan/BlazorChartjs)
+* [NuGet](https://www.nuget.org/packages/Erkan.Blazor.Chartjs/) package
+* Upstream project: [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs) · [demo site](https://chartjs.puresourcecode.com/) · [docs](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/)
 
 ## Installation
-First, you have to add the component from [NuGet](https://www.nuget.org/packages/PSC.Blazor.Components.Chartjs/). Then, open your `index.html` or `_Host` and add at the end of the page the following scripts:
 
 ```
-<script src="_content/PSC.Blazor.Components.Chartjs/lib/Chart.js/chart.js"></script>
-<script src="_content/PSC.Blazor.Components.Chartjs/Chart.js" type="module"></script>
+dotnet add package Erkan.Blazor.Chartjs
 ```
 
-The first script is the Chart.js library version 3.7.1 because I'm using this version to create the components. You can use other sources for it but maybe you can face issues in other versions.
+Then open your `index.html` or `_Host` and add at the end of the page:
+
+```html
+<!-- required -->
+<script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.umd.js"></script>
+
+<!-- optional, add only what you use -->
+<script src="_content/Erkan.Blazor.Chartjs/lib/moment/moment-with-locales.min.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-adapter-moment/chartjs-adapter-moment.min.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/hammer.js/hammer.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-zoom/chartjs-plugin-zoom.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-annotation/chartjs-plugin-annotation.min.js"></script>
+```
+
+`moment` must come before the moment adapter, and `chart.umd.js` before every plugin. The interop module (`_content/Erkan.Blazor.Chartjs/Chart.js`) is imported on demand — do **not** add a `<script>` tag for it.
 
 Then, open your `_Imports.razor` and add the following:
 
 ```
-@using PSC.Blazor.Components.Chartjs
-@using PSC.Blazor.Components.Chartjs.Enums
-@using PSC.Blazor.Components.Chartjs.Models
-@using PSC.Blazor.Components.Chartjs.Models.Common
-@using PSC.Blazor.Components.Chartjs.Models.Bar
-@using PSC.Blazor.Components.Chartjs.Models.Bubble
-@using PSC.Blazor.Components.Chartjs.Models.Doughnut
-@using PSC.Blazor.Components.Chartjs.Models.Line
-@using PSC.Blazor.Components.Chartjs.Models.Pie
-@using PSC.Blazor.Components.Chartjs.Models.Polar
-@using PSC.Blazor.Components.Chartjs.Models.Radar
-@using PSC.Blazor.Components.Chartjs.Models.Scatter
+@using Erkan.Blazor.Chartjs
+@using Erkan.Blazor.Chartjs.Enums
+@using Erkan.Blazor.Chartjs.Models
+@using Erkan.Blazor.Chartjs.Models.Common
+@using Erkan.Blazor.Chartjs.Models.Bar
+@using Erkan.Blazor.Chartjs.Models.Bubble
+@using Erkan.Blazor.Chartjs.Models.Doughnut
+@using Erkan.Blazor.Chartjs.Models.Line
+@using Erkan.Blazor.Chartjs.Models.Pie
+@using Erkan.Blazor.Chartjs.Models.Polar
+@using Erkan.Blazor.Chartjs.Models.Radar
+@using Erkan.Blazor.Chartjs.Models.Scatter
 ```
 
 There is a namespace for each chart plus the common namespaces (Enum, Models and the base).
@@ -301,10 +318,10 @@ I added the `chartjs-plugin-datalabels` plugin in the component. This plugin sho
 First, in the _index.html_, we have to add after the `chart.js` script, another script for this component. It is important to add the script for `chartjs-plugin-datalabels` after `chart.js`. If the order is different, the plugin could not work. For example
 
 ```
-<script src="_content/PSC.Blazor.Components.Chartjs/lib/Chart.js/chart.js"></script>
-<script src="_content/PSC.Blazor.Components.Chartjs/lib/hammer.js/hammer.js"></script>
-<script src="_content/PSC.Blazor.Components.Chartjs/lib/chartjs-plugin-zoom/chartjs-plugin-zoom.js"></script>
-<script src="_content/PSC.Blazor.Components.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/hammer.js/hammer.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-zoom/chartjs-plugin-zoom.js"></script>
+<script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js"></script>
 ```
 
 In the code, you have to change the property `RegisterDataLabels` under `Options` to `true`. That asks to the component to register the library if the library is added to the page and there is data to show. For example, if I define a `LineChartConfig` the code is
@@ -418,75 +435,12 @@ With this code, if the user moves the mouse on the chart, the function writes th
     - Tooltip Callback Label problem fixed.
     - Ticks callback
 
----
-    
-## PureSourceCode.com
 
-[PureSourceCode.com](https://www.puresourcecode.com/) is my personal blog where I publish posts about technologies and in particular source code and projects in [.NET](https://www.puresourcecode.com/category/dotnet/). 
+## Credits
 
-In the last few months, I created a lot of components for [Blazor WebAssembly](https://www.puresourcecode.com/tag/blazor-webassembly/) and [Blazor Server](https://www.puresourcecode.com/tag/blazor-server/).
+Original project by [Enrico Rossini](https://github.com/erossini) — [PureSourceCode.com](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/).
+This fork is maintained by [erkantaylan](https://github.com/erkantaylan) and released under the same MIT license.
 
-My name is Enrico Rossini and you can contact me via:
-- [Personal Twitter](https://twitter.com/erossiniuk)
-- [LinkedIn](https://www.linkedin.com/in/rossiniuk)
-- [Facebook](https://www.facebook.com/puresourcecode)
+## License
 
-## Blazor Components
-
-| Component name | Forum | NuGet | Website | Description |
-| --- | --- | --- | --- | --- |
-| AnchorLink | [Forum](https://puresourcecode.com/forum/anchorlink/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.AnchorLink) |     | An anchor link is a web link that allows users to leapfrog to a specific point on a website page. It saves them the need to scroll and skim read and makes navigation easier. This component is for [Blazor WebAssembly](https://www.puresourcecode.com/tag/blazor-webassembly/) and [Blazor Server](https://www.puresourcecode.com/tag/blazor-server/) |
-| [Autocomplete for Blazor](https://www.puresourcecode.com/dotnet/net-core/autocomplete-component-for-blazor/) | [Forum](https://www.puresourcecode.com/forum/autocomplete-blazor/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Autocomplete) |     | Simple and flexible autocomplete type-ahead functionality for [Blazor WebAssembly](https://www.puresourcecode.com/tag/blazor-webassembly/) and [Blazor Server](https://www.puresourcecode.com/tag/blazor-server/) |
-| [Browser Detect for Blazor](https://www.puresourcecode.com/dotnet/blazor/browser-detect-component-for-blazor/) | [Forum](https://www.puresourcecode.com/forum/browser-detect-for-blazor/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.BrowserDetect) | [Demo](https://browserdetect.puresourcecode.com) | Browser detect for Blazor WebAssembly and Blazor Server |
-| [ChartJs for Blazor](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/) | [Forum](https://www.puresourcecode.com/forum/chart-js-for-blazor/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Chartjs) | [Demo](https://chartjs.puresourcecode.com/) | Add beautiful graphs based on ChartJs in your Blazor application |
-| [Clippy for Blazor](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/) | [Forum](https://www.puresourcecode.com/forum/clippy/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Clippy) | [Demo](https://clippy.puresourcecode.com/) | Do you miss Clippy? Here the implementation for Blazor |
-| [CodeSnipper for Blazor](https://www.puresourcecode.com/dotnet/blazor/code-snippet-component-for-blazor/) | [Forum](https://www.puresourcecode.com/forum/codesnippet-for-blazor/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.CodeSnippet) |     | Add code snippet in your Blazor pages for 196 programming languages with 243 styles |
-| [Copy To Clipboard](https://www.puresourcecode.com/dotnet/blazor/copy-to-clipboard-component-for-blazor/) | [Forum](https://www.puresourcecode.com/forum/copytoclipboard/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.CopyToClipboard) |     | Add a button to copy text in the clipboard |
-| [DataTable for Blazor](https://www.puresourcecode.com/dotnet/net-core/datatable-component-for-blazor/) | [Forum](https://www.puresourcecode.com/forum/forum/datatables/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.DataTable) | [Demo](https://datatable.puresourcecode.com/) | DataTable component for Blazor WebAssembly and Blazor Server |
-| Google Tag Manager | \[Forum\]() | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.GoogleTagManager) | [Demo](https://datatable.puresourcecode.com/) | Adds Google Tag Manager to the application and manages communication with GTM JavaScript (data layer). |
-| [Icons and flags for Blazor](https://www.puresourcecode.com/forum/icons-and-flags-for-blazor/) | [Forum](https://www.puresourcecode.com/forum/icons-and-flags-for-blazor/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Icons) |     | Library with a lot of SVG icons and SVG flags to use in your Razor pages |
-| ImageSelect for Blazor | [Forum](https://puresourcecode.com/forum/imageselect/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.ImageSelect) |     | This is a Blazor component to display a dropdown list with images based on ms-Dropdown by Marghoob Suleman. This component is built with NET7 for [Blazor WebAssembly](https://www.puresourcecode.com/tag/blazor-webassembly/) and [Blazor Server](https://www.puresourcecode.com/tag/blazor-server/) |
-| [Markdown editor for Blazor](https://www.puresourcecode.com/dotnet/blazor/markdown-editor-with-blazor/) | [Forum](https://puresourcecode.com/forum/markdowneditor/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.MarkdownEditor) | [Demo](https://markdown.puresourcecode.com/) | This is a Markdown Editor for use in Blazor. It contains a live preview as well as an embeded help guide for users. |
-| [Modal dialog for Blazor](https://puresourcecode.com/dotnet/blazor/modal-dialog-component-for-blazor/) | [Forum](https://puresourcecode.com/forum/modaldialog/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.ModalDialog) |     | Simple Modal Dialog for Blazor WebAssembly |
-| [Modal windows for Blazor](https://www.puresourcecode.com/dotnet/blazor/modal-dialog-component-for-blazor/) | [Forum](https://puresourcecode.com/forum/modaldialog/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Modals) |     | Modal Windows for Blazor WebAssembly |
-| [Quill for Blazor](https://www.puresourcecode.com/dotnet/blazor/create-a-blazor-component-for-quill/) | [Forum](https://puresourcecode.com/forum/blazor-components/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Quill) |     | Quill Component is a custom reusable control that allows us to easily consume Quill and place multiple instances of it on a single page in our Blazor application |
-| [ScrollTabs](https://www.puresourcecode.com/dotnet/blazor/scrolltabs-component-for-blazor/) |     | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.ScrollTabs) |     | Tabs with nice scroll (no scrollbar) and responsive |
-| [Segment for Blazor](https://www.puresourcecode.com/dotnet/blazor/segment-control-for-blazor/) | [Forum](https://puresourcecode.com/forum/segments/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Segments) |     | This is a Segment component for Blazor Web Assembly and Blazor Server |
-| [Tabs for Blazor](https://www.puresourcecode.com/dotnet/blazor/tabs-control-for-blazor/) | [Forum](https://puresourcecode.com/forum/tabs/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Tabs) |     | This is a Tabs component for Blazor Web Assembly and Blazor Server |
-| [Timeline for Blazor](https://www.puresourcecode.com/dotnet/blazor/timeline-component-for-blazor/) | [Forum](https://puresourcecode.com/forum/timeline/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Timeline) |     | This is a new responsive timeline for Blazor Web Assembly and Blazor Server |
-| [Toast for Blazor](https://www.puresourcecode.com/forum/psc-components-and-source-code/) | [Forum](https://puresourcecode.com/forum/blazor-components/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Toast) |     | Toast notification for Blazor applications |
-| [Tours for Blazor](https://www.puresourcecode.com/forum/psc-components-and-source-code/) | [Forum](https://puresourcecode.com/forum/blazor-components/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.Tours) |     | Guide your users in your Blazor applications |
-| TreeView for Blazor | [Forum](https://puresourcecode.com/forum/treeview/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.TreeView) |     | This component is a native Blazor TreeView component for [Blazor WebAssembly](https://www.puresourcecode.com/tag/blazor-webassembly/) and [Blazor Server](https://www.puresourcecode.com/tag/blazor-server/). The component is built with .NET7. |
-| [WorldMap for Blazor](https://puresourcecode.com/dotnet/blazor/world-map-component-for-blazor) | [Forum](https://puresourcecode.com/forum/worldmap/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Blazor.Components.WorldMap) | [Demo](https://worldmap.puresourcecode.com/) | Show world maps with your data |
-
-## C# libraries for .NET6
-
-| Component name | Forum | NuGet | Description |
-|---|---|---|---|
-| [PSC.Evaluator](https://www.puresourcecode.com/forum/psc-components-and-source-code/) | [Forum](https://www.puresourcecode.com/forum/forum/psc-extensions/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Evaluator) | PSC.Evaluator is a mathematical expressions evaluator library written in C#. Allows to evaluate mathematical, boolean, string and datetime expressions. |
-| [PSC.Extensions](https://www.puresourcecode.com/dotnet/net-core/a-lot-of-functions-for-net5/) | [Forum](https://www.puresourcecode.com/forum/forum/psc-extensions/) | ![NuGet badge](https://img.shields.io/nuget/v/PSC.Extensions) | A lot of functions for .NET5 in a NuGet package that you can download for free. We collected in this package functions for everyday work to help you with claim, strings, enums, date and time, expressions... |
-
-## More examples and documentation
-
-### Blazor
-*   [Write a reusable Blazor component](https://www.puresourcecode.com/dotnet/blazor/write-a-reusable-blazor-component/)
-*   [Getting Started With C# And Blazor](https://www.puresourcecode.com/dotnet/net-core/getting-started-with-c-and-blazor/)
-*   [Setting Up A Blazor WebAssembly Application](https://www.puresourcecode.com/dotnet/blazor/setting-up-a-blazor-webassembly-application/)
-*   [Working With Blazor Component Model](https://www.puresourcecode.com/dotnet/blazor/working-with-blazors-component-model/)
-*   [Secure Blazor WebAssembly With IdentityServer4](https://www.puresourcecode.com/dotnet/blazor/secure-blazor-webassembly-with-identityserver4/)
-*   [Blazor Using HttpClient With Authentication](https://www.puresourcecode.com/dotnet/blazor/blazor-using-httpclient-with-authentication/)
-*   [InputSelect component for enumerations in Blazor](https://www.puresourcecode.com/dotnet/blazor/inputselect-component-for-enumerations-in-blazor/)
-*   [Use LocalStorage with Blazor WebAssembly](https://www.puresourcecode.com/dotnet/blazor/use-localstorage-with-blazor-webassembly/)
-*   [Modal Dialog component for Blazor](https://www.puresourcecode.com/dotnet/blazor/modal-dialog-component-for-blazor/)
-*   [Create Tooltip component for Blazor](https://www.puresourcecode.com/dotnet/blazor/create-tooltip-component-for-blazor/)
-*   [Consume ASP.NET Core Razor components from Razor class libraries | Microsoft Docs](https://docs.microsoft.com/en-us/aspnet/core/blazor/components/class-libraries?view=aspnetcore-5.0&tabs=visual-studio)
-*   [ChartJs component for Blazor](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/)
-*   [Labels and OnClickChart for ChartJs](https://www.puresourcecode.com/dotnet/blazor/labels-and-onclickchart-for-chartjs/)
-
-### Blazor & NET8
-* [Custom User Management with NET8 and Blazor (1st part)](https://puresourcecode.com/dotnet/blazor/custom-user-management-with-net8-and-blazor/)
-* [NET8, Blazor and Custom User Management (2nd part)](https://puresourcecode.com/dotnet/blazor/net8-blazor-and-custom-user-management/)
-
---- 
-
-[<img src="https://api.gitsponsors.com/api/badge/img?id=436196115" height="20">](https://api.gitsponsors.com/api/badge/link?p=hKwXXB5S8D5W56dYwJn+LlT+6h62Dhf5B0CSkGu2KUMSG+AyG3ACGNa3LPaUVzVF)
+MIT. See [LICENSE](LICENSE).

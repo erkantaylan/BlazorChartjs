@@ -1,13 +1,13 @@
-﻿using PSC.Blazor.Components.Chartjs.Models.Bar;
-using PSC.Blazor.Components.Chartjs.Models.Bubble;
-using PSC.Blazor.Components.Chartjs.Models.Doughnut;
-using PSC.Blazor.Components.Chartjs.Models.Line;
-using PSC.Blazor.Components.Chartjs.Models.Pie;
-using PSC.Blazor.Components.Chartjs.Models.Polar;
-using PSC.Blazor.Components.Chartjs.Models.Radar;
-using PSC.Blazor.Components.Chartjs.Models.Scatter;
+﻿using Erkan.Blazor.Chartjs.Models.Bar;
+using Erkan.Blazor.Chartjs.Models.Bubble;
+using Erkan.Blazor.Chartjs.Models.Doughnut;
+using Erkan.Blazor.Chartjs.Models.Line;
+using Erkan.Blazor.Chartjs.Models.Pie;
+using Erkan.Blazor.Chartjs.Models.Polar;
+using Erkan.Blazor.Chartjs.Models.Radar;
+using Erkan.Blazor.Chartjs.Models.Scatter;
 
-namespace PSC.Blazor.Components.Chartjs.Models.Common 
+namespace Erkan.Blazor.Chartjs.Models.Common 
 {
     /// <summary>
     /// Data for Charts

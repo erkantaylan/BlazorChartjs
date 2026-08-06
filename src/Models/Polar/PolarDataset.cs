@@ -1,4 +1,4 @@
-﻿namespace PSC.Blazor.Components.Chartjs.Models.Polar
+﻿namespace Erkan.Blazor.Chartjs.Models.Polar
 {
     public class PolarDataset : Dataset
     {

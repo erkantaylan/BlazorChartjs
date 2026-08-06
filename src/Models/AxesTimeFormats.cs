@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PSC.Blazor.Components.Chartjs.Models
+namespace Erkan.Blazor.Chartjs.Models
 {
     /// <summary>
     /// Class AxesTimeFormats. This class cannot be inherited.

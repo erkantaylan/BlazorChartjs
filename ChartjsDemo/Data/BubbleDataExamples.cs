@@ -1,4 +1,4 @@
-﻿using PSC.Blazor.Components.Chartjs.Models.Bubble;
+﻿using Erkan.Blazor.Chartjs.Models.Bubble;
 
 namespace ChartjsDemo.Data
 {

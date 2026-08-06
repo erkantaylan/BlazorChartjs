@@ -1,4 +1,4 @@
-﻿using PSC.Blazor.Components.Chartjs.Models.Scatter;
+﻿using Erkan.Blazor.Chartjs.Models.Scatter;
 
 namespace ChartjsDemo.Data
 {

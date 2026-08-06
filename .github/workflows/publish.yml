@@ -1,0 +1,62 @@
+name: Publish to NuGet
+
+# Publishes on a version tag (e.g. `git tag v1.0.0 && git push origin v1.0.0`),
+# or manually from the Actions tab.
+#
+# Auth is via nuget.org Trusted Publishing (OIDC) - no long-lived API key.
+# The matching policy on nuget.org must name this file as "publish.yml"; renaming
+# this file breaks publishing until the policy is updated to match.
+on:
+  push:
+    tags: [ 'v*.*.*' ]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # required: lets the job request a GitHub OIDC token
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # SourceLink needs the full history
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # On a tag push, take the package version from the tag (v1.2.3 -> 1.2.3).
+      # On a manual run, fall back to the <Version> in the csproj.
+      - name: Resolve version
+        id: ver
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            echo "args=-p:Version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "args=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - run: dotnet restore
+      - run: dotnet pack src/Erkan.Blazor.Chartjs.csproj -c Release --no-restore -o artifacts ${{ steps.ver.outputs.args }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/*
+
+      # Exchange the GitHub OIDC token for a NuGet API key valid for 1 hour.
+      # Kept immediately before the push so the key cannot expire in between.
+      - name: NuGet login (OIDC -> temporary API key)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}   # nuget.org profile name, not an email
+
+      - name: Push to nuget.org
+        run: |
+          dotnet nuget push "artifacts/*.nupkg" \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

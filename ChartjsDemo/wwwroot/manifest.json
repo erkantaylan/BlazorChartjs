@@ -1,6 +1,6 @@
 {
-  "name": "ChartjsDemo",
-  "short_name": "ChartjsDemo",
+  "name": "Erkan.Blazor.Chartjs demo",
+  "short_name": "Blazor Chartjs",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",

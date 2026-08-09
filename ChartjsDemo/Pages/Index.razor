@@ -1,29 +1,57 @@
-﻿@page "/"
+@page "/"
+@using System.Reflection
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Erkan.Blazor.Chartjs</PageTitle>
 
-<h1>Welcome to the Blazor component for ChartJS</h1>
-
-<p>After a lot of work, I finally complete the first implementation of my <a href="https://www.puresourcecode.com/tag/blazor-component/">Blazor component</a> for <a href="https://www.chartjs.org/" target="_blank" rel="noreferrer noopener">ChartJS</a> for <a href="https://www.puresourcecode.com/tag/blazor-webassembly/">Blazor WebAssembly</a> and <a href="https://www.puresourcecode.com/tag/blazor-server/">Blazor Server</a>. This component helps you to create beautiful graphs with the famous JavaScript library for chart called ChartJS.</p>
-
-<p>So, I restarted from scratch using <a href="https://www.puresourcecode.com/tag/net7/">NET7</a> and the latest version of ChartJS at the present the version 3.7.1.</p>
-
-<p>With the current implementation, you can create the following charts:</p>
-
-<ul><li>Area</li><li>Bar</li><li>Bubble</li><li>Doughnut</li><li>Pie</li><li>Line</li><li>Polar Area</li><li>Radar</li><li>Scatter</li></ul>
+<h1>Erkan.Blazor.Chartjs</h1>
 
 <p>
-To use the Blazor component for ChartJS in your Blazor WebAssembly or Blazor Server project, the first thing is to add the ChartJS library and the JavaScript for the component in your Index.html. Before closing the tag body, add the following lines
+    A <a href="https://www.chartjs.org/" target="_blank" rel="noreferrer noopener">Chart.js</a> component for
+    Blazor WebAssembly and Blazor Server: describe the chart with C# objects and the component renders it and
+    keeps it up to date. Every entry in the menu on the left is a live example.
 </p>
 
-<CodeSnippet Language="Language.javascript" Style="Style.VisualStudio">
-&lt;script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.js">&lt;/script>
-&lt;script src="_content/Erkan.Blazor.Chartjs/Chart.js">&lt;/script>
+<ul>
+    <li>Package version <code>@PackageVersion</code></li>
+    <li>Targets .NET 10</li>
+    <li>Bundles Chart.js 4.5.1</li>
+</ul>
+
+<h3>Install</h3>
+
+<CodeSnippet Language="Language.bash" Style="Style.VisualStudio">
+dotnet add package Erkan.Blazor.Chartjs
 </CodeSnippet>
 
-<p>I added the ChartJS library in the component, so, if you use the version from the component, you know the generation of the charts is correct and working. Maybe with the next versions of the library, I have to change the model.</p>
+<h3>Add the scripts</h3>
 
-<p>Then, you have to add in your <code>_Imports.razor</code> the following namespaces</p>
+<p>
+    In <code>index.html</code> (Blazor WebAssembly) or <code>_Host.cshtml</code> (Blazor Server), add at the end
+    of the page:
+</p>
+
+<CodeSnippet Language="Language.xml" Style="Style.VisualStudio">
+&lt;!-- required -->
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.umd.js">&lt;/script>
+
+&lt;!-- optional, add only what you use -->
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/moment/moment-with-locales.min.js">&lt;/script>
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-adapter-moment/chartjs-adapter-moment.min.js">&lt;/script>
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/hammer.js/hammer.js">&lt;/script>
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-zoom/chartjs-plugin-zoom.js">&lt;/script>
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js">&lt;/script>
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-annotation/chartjs-plugin-annotation.min.js">&lt;/script>
+</CodeSnippet>
+
+<p>
+    <code>moment</code> must come before the moment adapter, and <code>chart.umd.js</code> before every plugin.
+    The interop module (<code>_content/Erkan.Blazor.Chartjs/Chart.js</code>) is imported on demand &mdash; do
+    <strong>not</strong> add a <code>&lt;script&gt;</code> tag for it.
+</p>
+
+<h3>Add the namespaces</h3>
+
+<p>Then, open your <code>_Imports.razor</code> and add the following:</p>
 
 <CodeSnippet Language="Language.csharp" Style="Style.VisualStudio">
 &#64;using Erkan.Blazor.Chartjs
@@ -40,31 +68,32 @@ To use the Blazor component for ChartJS in your Blazor WebAssembly or Blazor Ser
 &#64;using Erkan.Blazor.Chartjs.Models.Scatter
 </CodeSnippet>
 
-<h3>
-    Add data labels to the graph
-</h3>
+<h3>Links</h3>
 
-<p>
-    I added the <code>chartjs-plugin-datalabels</code> plugin in the component. This plugin shows the labels for each point in each graph.
-    First, in the <em>index.html</em>, we have to add after the <code>chart.js</code> script, another script for this component. 
-    It is important to add the script for <code>chartjs-plugin-datalabels</code> after <code>chart.js</code>. If the order is different, the plugin could not work.
-</p>
+<ul>
+    <li><a href="https://github.com/erkantaylan/BlazorChartjs" target="_blank" rel="noreferrer noopener">Source code on GitHub</a></li>
+    <li><a href="https://www.nuget.org/packages/Erkan.Blazor.Chartjs/" target="_blank" rel="noreferrer noopener">Erkan.Blazor.Chartjs on NuGet</a></li>
+</ul>
 
-<CodeSnippet Language="Language.javascript" Style="Style.VisualStudio">
-&lt;script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js">&lt;/script>
-</CodeSnippet>
+@code {
+    private static readonly string PackageVersion = ReadPackageVersion();
 
-<p>
-    In the code, you have to change the property <code>RegisterDataLabels</code> under <code>Options</code> to <code>true</code>.
-    That asks to the component to register the library if the library is added to the page and there is data to show.
-</p>
+    // Read off the component's own assembly rather than hard-coding a string here,
+    // so this page cannot advertise a stale version after the next release.
+    private static string ReadPackageVersion()
+    {
+        Assembly assembly = typeof(Chart).Assembly;
 
-<h3>Wrap up</h3>
+        string? version = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
-<p>
-    So, how you can see, there is a namespace for each type of charts plus the generics (Enums, Models and the base). This allows you to use the component across your application.
-</p>
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            return assembly.GetName().Version?.ToString(3) ?? "unknown";
+        }
 
-More documentation about this component is on <a href="" target="_blank">PureSourceCode</a>. If you need support, use my <a href="https://www.puresourcecode.com/forum/chart-js-for-blazor/" target="_blank">forum</a>. The source code of the component and the demo is on <a href="https://github.com/erossini/BlazorChartjs" target="_blank">GitHub</a>.
-
-<div style="width: 100%; height: 50px;"></div>
+        // A CI build appends "+<commit sha>" to the informational version.
+        int plus = version.IndexOf('+');
+        return plus < 0 ? version : version[..plus];
+    }
+}

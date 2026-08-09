@@ -26,7 +26,7 @@
             set
             {
                 _align = value;
-                AlignString = _align.Value;
+                AlignString = value?.Value;
             }
         }
         private DatalabelsAlign? _align;
@@ -50,7 +50,7 @@
             set
             {
                 _anchor = value;
-                AnchorString = _anchor.Value;
+                AnchorString = value?.Value;
             }
         }
         private DatalabelsAnchor? _anchor;
@@ -175,7 +175,7 @@
             set
             {
                 _textAlign = value;
-                TextAlignString = _textAlign.Value;
+                TextAlignString = value?.Value;
             }
         }
         private DatalabelsTextAlign? _textAlign;

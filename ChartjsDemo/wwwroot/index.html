@@ -60,7 +60,10 @@
     <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js"></script>
     <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-annotation/chartjs-plugin-annotation.min.js"></script>
 
-    <script src="/_content/PSC.Blazor.Components.CodeSnippet/codesnippet.js"></script>
+    <!-- Root-relative ("/_content/...") would resolve to the domain root and 404 when the
+         app is served from a subpath such as /BlazorChartjs/. Kept relative so it resolves
+         against <base href>, like every other asset on this page. -->
+    <script src="_content/PSC.Blazor.Components.CodeSnippet/codesnippet.js"></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-51944269-3"></script>

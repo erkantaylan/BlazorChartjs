@@ -26,14 +26,15 @@
         public AxesTimeFormats? DisplayFormats { get; set; }
 
         /// <summary>
-        /// If true, first day is Monday, else it's Sunday.
+        /// The day the week starts on when the axis is rounded to weeks.
         /// </summary>
         /// <value>
-        /// The maximum.
+        /// A day index: 0 = Sunday, 1 = Monday ... 6 = Saturday. Leave it null to keep
+        /// the Chart.js default (no week rounding).
         /// </value>
         [JsonPropertyName("isoWeekday")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public bool? IsoWeekday { get; set; }
+        public int? IsoWeekday { get; set; }
 
         /// <summary>
         /// Get or set the round.

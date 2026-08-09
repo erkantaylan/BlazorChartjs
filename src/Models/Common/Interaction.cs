@@ -32,7 +32,7 @@
             get => _mode;
             set {
                 _mode = value;
-                ModeString = _mode.Value;
+                ModeString = value?.Value;
             }
         }
         /// <summary>
@@ -59,7 +59,7 @@
             get => _axis;
             set {
                 _axis = value;
-                AxisString = _axis.Value;
+                AxisString = value?.Value;
             }
         }
         /// <summary>

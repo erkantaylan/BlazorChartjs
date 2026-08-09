@@ -60,10 +60,12 @@
         /// Gets or sets the stack.
         /// </summary>
         /// <value>
-        /// The stack.
+        /// The identifier of the group this dataset belongs to. Datasets sharing the same
+        /// value are stacked together; Chart.js compares stack identifiers by value, so
+        /// this has to be a plain string rather than a collection.
         /// </value>
         [JsonPropertyName("stack")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<string>? Stack { get; set; }
+        public string? Stack { get; set; }
     }
 }

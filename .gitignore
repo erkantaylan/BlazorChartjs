@@ -370,3 +370,4 @@ FodyWeavers.xsd
 .claude/
 .logs/
 .beads/
+.gstack/

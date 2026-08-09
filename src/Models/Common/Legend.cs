@@ -22,7 +22,7 @@ namespace Erkan.Blazor.Chartjs.Models.Common
             get => _align;
             set {
                 _align = value;
-                AlignString = _align.Value;
+                AlignString = value?.Value;
             }
         }
 

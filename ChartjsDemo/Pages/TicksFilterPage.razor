@@ -1,0 +1,323 @@
+@page "/ticksfilter"
+
+<h3>Tick callbacks and legend filter</h3>
+
+<p>
+    This page exercises the three callbacks that are answered in .NET while Chart.js is drawing:
+    <code>Ticks.Callback</code> on the x axis, <code>Ticks.CallbackAsync</code> on the y axis and
+    <code>LegendLabels.Filter</code>. Chart.js asks for a label synchronously, so the chart paints a
+    default first, asks .NET in the background and redraws once with the answer.
+</p>
+
+<p>
+    Every label on the chart - axis ticks, tooltip and legend - is produced by one of those callbacks,
+    so after the data is replaced they all have to show the new period. If a tick still reads
+    <em>Q1</em> after loading the halves, the results are being served from a stale cache.
+</p>
+
+<button class="btn btn-primary" @onclick="NextPeriod">Load next period</button>
+<button class="btn btn-secondary" @onclick="AddSeries">Add a series</button>
+<button class="btn btn-secondary" @onclick="ToggleFilter">
+    @(_hideForecast ? "Show the forecast" : "Hide the forecast")
+</button>
+
+<p>
+    <small>
+        Period: <strong>@_period</strong> &mdash; x tick callback ran <strong>@_ticksCallbackCount</strong> time(s),
+        y async tick callback <strong>@_ticksAsyncCallbackCount</strong> time(s),
+        legend filter <strong>@_filterCount</strong> time(s). The counters stop as soon as the chart
+        has settled: each label is asked for once per result, never once per frame.
+    </small>
+</p>
+
+<Chart Config="_config1" @ref="_chart1" Height="400px"></Chart>
+
+<hr />
+
+<h3>Code</h3>
+
+<p>
+    This is the component to add in your page.
+</p>
+
+<CodeSnippet Language="Language.xml" Style="Style.VisualStudio">
+&ltChart Config="_config1" &#64;ref="_chart1">&lt;Chart>
+</CodeSnippet>
+
+<p>
+    The x axis formats its own labels in .NET. On a category axis the tick value is the index, so the
+    text comes from the same list the page uses as its source of truth. Returning a
+    <code>string[]</code> draws one line per entry:
+</p>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+Scales.XAxisId, new Axis()
+{
+    Ticks = new Ticks()
+    {
+        Callback = (ctx) => new[] { LabelAt(ctx.Index), _period }
+    }
+}
+</CodeSnippet>
+
+<p>
+    The y axis uses the asynchronous version. Anything awaitable can be used here - a formatting
+    service, a lookup, an HTTP call - and the axis is redrawn when the task completes:
+</p>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+Scales.YAxisId, new Axis()
+{
+    BeginAtZero = true,
+    Ticks = new Ticks()
+    {
+        CallbackAsync = async (ctx) =>
+        {
+            await Task.Yield();
+            return new[] { ctx.Value >= 1000 ? $"{ctx.Value / 1000:N0}k EUR" : $"{ctx.Value:N0} EUR" };
+        }
+    }
+}
+</CodeSnippet>
+
+<p>
+    The legend filter decides which entries are drawn. Returning <code>false</code> hides an entry,
+    <code>true</code> keeps it, and <code>null</code> means "no opinion":
+</p>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+Legend = new Legend()
+{
+    Labels = new LegendLabels()
+    {
+        Filter = (ctx) => !(_hideForecast &amp;&amp; ctx.Item.Text == "Forecast")
+    }
+}
+</CodeSnippet>
+
+<p>
+    Callback results are cached per chart until the data changes, so the page keeps its own copy of
+    the series and pushes them with <code>ClearData</code> + <code>AddData</code>. That is also what
+    a real page does when it reloads a period:
+</p>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+private async Task PushSeriesAsync()
+{
+    await _chart1.ClearData();
+
+    for (var dataset = 0; dataset &lt; _series.Count; dataset++)
+    {
+        // The labels only have to be sent once, with the first dataset.
+        await _chart1.AddData(dataset == 0 ? Labels() : null, dataset, _series[dataset].Values);
+    }
+}
+</CodeSnippet>
+
+@code {
+    private BarChartConfig? _config1;
+    private Chart? _chart1;
+
+    private record Series(string Label, List<decimal?> Values);
+
+    private List<string> _labels = new() { "Q1", "Q2", "Q3", "Q4" };
+    private List<Series> _series = new();
+    private string _period = "quarters";
+    private bool _hideForecast;
+    private int _periodIndex;
+    private int _extraSeries;
+
+    private int _ticksCallbackCount;
+    private int _ticksAsyncCallbackCount;
+    private int _filterCount;
+
+    private readonly Random _random = new();
+
+    protected override void OnInitialized()
+    {
+        _series.Add(new Series("Revenue", new List<decimal?>() { 50000, 60000, 70000, 91000 }));
+        _series.Add(new Series("Forecast", new List<decimal?>() { 55000, 58000, 74000, 96000 }));
+
+        _config1 = new BarChartConfig()
+            {
+                Options = new Options()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = false,
+                    Plugins = new Plugins()
+                    {
+                        Legend = new Legend()
+                        {
+                            Align = Align.Center,
+                            Display = true,
+                            Position = LegendPosition.Bottom,
+                            Labels = new LegendLabels()
+                            {
+                                Filter = LegendFilter
+                            }
+                        },
+                        Tooltip = new Tooltip()
+                        {
+                            Callbacks = new Callbacks()
+                            {
+                                Title = (ctx) => new[] { $"{_period}: {LabelAt(ctx.DataIndex)}" },
+                                Label = (ctx) => new[] { $"{ctx.Value:N0} EUR" }
+                            }
+                        }
+                    },
+                    Scales = new Dictionary<string, Axis>()
+                    {
+                        {
+                            Scales.XAxisId, new Axis()
+                            {
+                                Ticks = new Ticks()
+                                {
+                                    MaxRotation = 0,
+                                    MinRotation = 0,
+                                    Callback = XAxisTick
+                                }
+                            }
+                        },
+                        {
+                            Scales.YAxisId, new Axis()
+                            {
+                                BeginAtZero = true,
+                                Ticks = new Ticks()
+                                {
+                                    CallbackAsync = YAxisTickAsync
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+        _config1.Data.Labels = _labels.ToList();
+        for (var i = 0; i < _series.Count; i++)
+        {
+            _config1.Data.Datasets.Add(new BarDataset()
+                {
+                    Label = _series[i].Label,
+                    Data = _series[i].Values.ToList(),
+                    BackgroundColor = SampleColors.Palette1.Skip(i * 3).ToList(),
+                    BorderColor = SampleColors.PaletteBorder1.Skip(i * 3).ToList(),
+                    BorderWidth = 1
+                });
+        }
+    }
+
+    /// <summary>
+    /// Synchronous tick callback. On a category axis the tick value is the index, so the text has
+    /// to come from the page's own data - which is exactly what goes stale if a cached result
+    /// survives a data change.
+    /// </summary>
+    private string[] XAxisTick(TicksCallbackContext ctx)
+    {
+        _ticksCallbackCount++;
+        StateHasChanged();
+
+        return new[] { LabelAt(ctx.Index), _period };
+    }
+
+    /// <summary>
+    /// Asynchronous tick callback: the axis paints a placeholder, then redraws with this result
+    /// once the task completes.
+    /// </summary>
+    private async Task<string[]> YAxisTickAsync(TicksCallbackContext ctx)
+    {
+        _ticksAsyncCallbackCount++;
+
+        // Stands in for anything awaitable: a formatting service, a lookup, an API call.
+        await Task.Yield();
+
+        StateHasChanged();
+        return new[] { ctx.Value >= 1000 ? $"{ctx.Value / 1000:N0}k EUR" : $"{ctx.Value:N0} EUR" };
+    }
+
+    private bool? LegendFilter(LegendFilterContext ctx)
+    {
+        _filterCount++;
+        StateHasChanged();
+
+        if (_hideForecast && ctx.Item.Text == "Forecast")
+            return false;
+
+        return true;
+    }
+
+    private string LabelAt(int index)
+        => index >= 0 && index < _labels.Count ? _labels[index] : string.Empty;
+
+    private List<string?> Labels() => _labels.Select(l => (string?)l).ToList();
+
+    /// <summary>
+    /// Sends the page's series to the chart in one pass. Every callback is asked again for the new
+    /// data, so the ticks, the tooltip and the legend all follow.
+    /// </summary>
+    private async Task PushSeriesAsync()
+    {
+        if (_chart1 == null)
+            return;
+
+        await _chart1.ClearData();
+
+        for (var dataset = 0; dataset < _series.Count; dataset++)
+        {
+            // The labels only have to be sent once, with the first dataset.
+            await _chart1.AddData(dataset == 0 ? Labels() : null, dataset, _series[dataset].Values);
+        }
+    }
+
+    /// <summary>
+    /// Replaces every label and value: four quarters, then two halves, and back.
+    /// </summary>
+    private async Task NextPeriod()
+    {
+        _periodIndex++;
+        var halves = _periodIndex % 2 == 1;
+
+        _labels = halves
+            ? new List<string>() { "H1", "H2" }
+            : new List<string>() { "Q1", "Q2", "Q3", "Q4" };
+        _period = halves ? $"halves #{_periodIndex}" : $"quarters #{_periodIndex}";
+
+        _series = _series
+            .Select(s => new Series(s.Label, _labels.Select(_ => (decimal?)_random.Next(20000, 120000)).ToList()))
+            .ToList();
+
+        await PushSeriesAsync();
+    }
+
+    /// <summary>
+    /// Adds a dataset, so the legend gains an entry the filter has never been asked about.
+    /// </summary>
+    private async Task AddSeries()
+    {
+        if (_chart1 == null || _config1 == null)
+            return;
+
+        _extraSeries++;
+        var series = new Series($"Scenario {_extraSeries}",
+            _labels.Select(_ => (decimal?)_random.Next(20000, 120000)).ToList());
+        _series.Add(series);
+
+        await _chart1.AddDataset(new BarDataset()
+            {
+                Label = series.Label,
+                Data = series.Values,
+                BackgroundColor = SampleColors.Palette1.Skip(_extraSeries % 5).ToList(),
+                BorderColor = SampleColors.PaletteBorder1.Skip(_extraSeries % 5).ToList(),
+                BorderWidth = 1
+            });
+    }
+
+    /// <summary>
+    /// Changes what the filter answers without changing the data. Callback results are cached until
+    /// the data changes, so the series are pushed again to have the legend ask once more.
+    /// </summary>
+    private async Task ToggleFilter()
+    {
+        _hideForecast = !_hideForecast;
+        await PushSeriesAsync();
+    }
+}

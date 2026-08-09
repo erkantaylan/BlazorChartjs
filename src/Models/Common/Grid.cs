@@ -26,16 +26,6 @@
         public bool? Display { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [draw border].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [draw border]; otherwise, <c>false</c>.
-        /// </value>
-        [JsonPropertyName("drawBorder")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public bool? DrawBorder { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether [draw on chart area].
         /// </summary>
         /// <value>

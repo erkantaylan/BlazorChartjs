@@ -18,7 +18,7 @@
             set
             {
                 _align = value;
-                AlignString = _align.Value;
+                AlignString = value?.Value;
             }
         }
         private Align? _align;

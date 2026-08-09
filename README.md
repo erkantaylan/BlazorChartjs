@@ -1,10 +1,60 @@
 # Erkan.Blazor.Chartjs
 
+[![NuGet](https://img.shields.io/nuget/v/Erkan.Blazor.Chartjs.svg)](https://www.nuget.org/packages/Erkan.Blazor.Chartjs/)
+[![NuGet downloads](https://img.shields.io/nuget/dt/Erkan.Blazor.Chartjs.svg)](https://www.nuget.org/packages/Erkan.Blazor.Chartjs/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A [Chart.js](https://www.chartjs.org/) wrapper for [Blazor WebAssembly](https://learn.microsoft.com/aspnet/core/blazor/hosting-models) and Blazor Server, targeting **.NET 10** and **Chart.js 4.5.1**.
+
+### ▶ [Live demo](https://erkantaylan.github.io/BlazorChartjs/)
+
+Every chart type, plus zoom, annotations, time axes and callbacks, running in the browser. Source in [`ChartjsDemo/`](ChartjsDemo).
 
 This is a fork of [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs) (`PSC.Blazor.Components.Chartjs`) by Enrico Rossini, published independently as `Erkan.Blazor.Chartjs`. It is MIT licensed, same as upstream.
 
-> **Migrating from `PSC.Blazor.Components.Chartjs`:** the package ID, assembly, and root namespace all changed. Replace `PSC.Blazor.Components.Chartjs` with `Erkan.Blazor.Chartjs` in your `_Imports.razor` and in the `_content/...` script paths in `index.html` / `_Host.cshtml`.
+## Migrating from `PSC.Blazor.Components.Chartjs`
+
+### Package, assembly and namespace
+
+The package ID, assembly, and root namespace all changed. Replace `PSC.Blazor.Components.Chartjs` with `Erkan.Blazor.Chartjs` in your `_Imports.razor` and in the `_content/...` script paths in `index.html` / `_Host.cshtml`.
+
+### Script tags
+
+Chart.js moved from 3.9.1 to 4.5.1. Load the **UMD** build:
+
+```diff
+- <script src="_content/PSC.Blazor.Components.Chartjs/lib/Chart.js/chart.js"></script>
++ <script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.umd.js"></script>
+```
+
+`chart.js` in the Chart.js 4.x distribution is an **ES module** and throws `Unexpected token 'export'` under a classic `<script>` tag. `chart.umd.js` is the build to use from a `<script>` tag. See [Installation](#installation) for the full list.
+
+### Breaking API changes
+
+| Upstream | Now | Migration |
+| --- | --- | --- |
+| `Chart.AddData`, `Chart.AddDataset<T>`, `Chart.ClearData` return `void` (`async void`) | return `Task` | `await _chart1.AddData(...)`. The old `async void` swallowed exceptions and could not be sequenced; awaiting is now the supported way to know the chart has updated. `AddData`'s `labels` is explicitly nullable — pass `null` to append values without adding labels. |
+| `Chart : IDisposable` | `Chart : IAsyncDisposable` | `Dispose()` is gone, `DisposeAsync()` replaces it. Blazor calls it for you; only code that disposed a chart by hand needs changing. This fixes a leak where every chart re-creation leaked a `DotNetObjectReference`, a JS module handle, and a live Chart.js instance. |
+| `BarDataset.Stack` is `List<string>` | `string?` | `Stack = new List<string> { "One" }` becomes `Stack = "One"`. Chart.js compares stack identifiers by value, so a list never matched and grouped-stacked bars rendered misaligned (upstream [#48](https://github.com/erossini/BlazorChartjs/issues/48)). |
+| `Axis.Text` | removed | It serialized as `"Text"`, which is not a Chart.js option and was silently ignored. Use `Axis.Title` (`AxesTitle`), whose `Text` property is the real axis title. |
+| `Grid.DrawBorder` | removed | Chart.js 4 moved the axis border out of `grid` into a `border` object. Use the new `Axis.Border` (`Display`, `Width`, `Color`, `Dash`, `DashOffset`, `Z`). |
+| `AxesTime.IsoWeekday` is `bool?` | `int?` | A day index: `0` = Sunday, `1` = Monday … `6` = Saturday. `IsoWeekday = true` becomes `IsoWeekday = 1`. |
+| `Zoom.Enabled` | removed | chartjs-plugin-zoom 2.x has no master switch, so there was nothing left for the property to switch. `Enabled = true` is now a compile error: delete it and turn on the gestures you want instead — `ZoomOptions.Wheel`, `ZoomOptions.Pinch` and `ZoomOptions.Drag` for zooming, `Zoom.Pan` for panning. |
+| `Zoom.Mode`, `Zoom.OverScaleMode` serialized to `plugins.zoom.mode` | serialized to `plugins.zoom.zoom.mode` | No source change needed — but these previously landed where the plugin never looked, so `Mode = "x"` did nothing. If you worked around that, remove the workaround. `ZoomOptions` also gained `Mode`, `OverScaleMode` and `ScaleMode` if you prefer to set them directly; a value set on `ZoomOptions` wins over the one on `Zoom`. |
+| `Limits` / `ScaleLimits` | implemented | `Limits` was an empty class, so zoom limits could not be expressed at all. It now has `X` and `Y` (`ScaleLimits`). Numeric limits serialize as JSON numbers rather than strings, and an unset limit is omitted instead of defaulting to `"original"`. |
+
+### Behaviour fixes (no source change needed)
+
+- **Tooltip, title and legend-filter callbacks now work on Blazor Server and SSR.** They used synchronous JS→.NET interop, which throws on any render mode other than WebAssembly — including the default .NET 10 Blazor Web App template. They are async now and work on all render modes: the chart renders Chart.js's own default label first, then swaps in your value once .NET replies.
+- **Legend clicks no longer break the built-in toggle.** Registering a legend handler used to replace Chart.js's own `onClick`, killing the show/hide-dataset behaviour (upstream [#89](https://github.com/erossini/BlazorChartjs/issues/89)). The default handler now runs first, and the override is only installed when a handler is actually registered.
+- **`RegisterDataLabels` is scoped per chart.** It called the process-wide `Chart.register`/`Chart.unregister`, so on a page with several charts the last one to render decided for all of them (upstream [#83](https://github.com/erossini/BlazorChartjs/issues/83)).
+- **Tooltip callback values keep their precision.** `CallbackGenericContext.Value` was cast to `int`, so `12.5` arrived as `12`.
+- **`Ticks.CallbackAsync` no longer spins at 100% CPU.** Each resolved label triggered a redraw, which re-ran the callback, which requested the label again.
+- **Tick float-noise cleanup no longer zeroes small values, or blurs large ones.** The cleanup rounded to 10 decimal places, which flattened any legitimate value below `1e-10` to zero. The tolerance is relative to the axis range now, and exact integers are left alone entirely.
+- **`OnChartClick`, `OnChartOver` and `OnLegendClick` fire.** These `Chart` parameters were declared but never wired to anything.
+- **`AddData` does one redraw per call**, not one full chart re-render per point.
+- **Canvas `Height` and `Width` both apply.** A missing CSS semicolon meant setting both silently dropped both.
+- **Callbacks no longer throw `NotSupportedException`** when the property they read is null. `LegendLabelsFilter`, `TicksCallback`, `TitleCallbacks` and `TooltipCallbacksLabel` now return an empty result instead. A `LegendLabels.Filter` that returns `null` means "no opinion" and keeps the entry; only an explicit `false` hides it.
 
 ## Fork changes
 
@@ -18,23 +68,31 @@ This is a fork of [erossini/BlazorChartjs](https://github.com/erossini/BlazorCha
 
 ### New features
 - `Axis.Time` — time-axis configuration (`unit`, `displayFormats`, `tooltipFormat`, `round`, `minUnit`)
+- `Axis.Border` — the Chart.js 4 axis border (`display`, `width`, `color`, `dash`, `dashOffset`, `z`), replacing the removed `Grid.DrawBorder`
 - `Plugins.Annotation` — [chartjs-plugin-annotation](https://www.chartjs.org/chartjs-plugin-annotation/latest/guide/) support for lines, boxes, points, and labels. The plugin is registered automatically when a chart declares annotations.
 - `Options.Locale` — BCP 47 tag (e.g. `tr-TR`) that propagates to Chart.js and to the moment date adapter, so time-axis labels format in the given locale
+- Zoom `Limits` — `Limits.X` / `Limits.Y` are implemented, so pan and zoom can be bounded per axis
+- `ZoomOptions.Mode`, `ZoomOptions.OverScaleMode`, `ZoomOptions.ScaleMode`
 
 ### Fixes
-- Tick values are rounded to 10 decimal places after `afterBuildTicks`, so the zoom plugin no longer produces axis labels like `1.42e-14` or `100.00000000001`
-- The async ticks callback (`Ticks.CallbackAsync`) now actually renders. Chart.js tick callbacks are synchronous, so returning a Promise previously rendered `[object Promise]`; labels are now resolved out-of-band and applied on a follow-up `update('none')`
+- Chart teardown: `Chart` is `IAsyncDisposable` and destroys the Chart.js instance, its DOM listeners and any queued animation frame. Previously each chart re-creation leaked a `DotNetObjectReference`, a JS module handle and a live chart.
+- Tooltip, title, legend-filter and tick callbacks use async interop, so they work on Blazor Server and SSR instead of throwing
+- Tick float noise is cleaned with a tolerance relative to the axis range, not a fixed digit count: at least 12 significant digits are kept, and more when the axis is zoomed in far enough to need them. Exact integers are never rounded at all, and any rounding that would be visible at the axis's own resolution is refused — so epoch milliseconds, byte counts and ids survive intact however wide the axis is. On top of that, a value below one ten-billionth of the visible span snaps to zero. The earlier fixed rounding to 10 decimal places flattened legitimate values below `1e-10` to zero.
+- The async ticks callback (`Ticks.CallbackAsync`) renders, and no longer loops at 100% CPU. Chart.js tick callbacks are synchronous, so returning a Promise previously rendered `[object Promise]`; labels are now resolved out-of-band, cached per tick, and applied on a single coalesced `update('none')`.
 - `registerDataLabels` was compared instead of deleted (`==` where `delete` was meant), leaving the internal flag in the serialized options
-- `legend.onClick` is guarded — charts configured with `Plugins = null` no longer throw a `TypeError` during setup
+- The DataLabels plugin is attached per chart rather than registered globally, so one chart can no longer turn labels off for every other chart on the page
+- `legend.onClick` is guarded and chains Chart.js's own handler, so the built-in show/hide toggle survives — and charts configured with `Plugins = null` no longer throw a `TypeError` during setup
+- Crosshair redraws and `AddData` are batched into one update instead of one per mouse pixel / per point
 - The demo host page loaded `Chart.js` (an ES module) as a classic script, throwing `Unexpected token 'export'` on every page load. The module is imported by the interop layer; the stray tag is gone.
 - moment and `chartjs-adapter-moment` are now actually shipped and loaded, so `Options.Locale` and time axes work at runtime
 
 > **Note on `chartjs-adapter-moment`:** the bundled copy is hand-patched to apply a per-instance locale in `format()`, so it is deliberately excluded from `libman.json`. Do not overwrite it with a LibMan restore without re-applying that patch.
 
 ## Links
+* [Live demo](https://erkantaylan.github.io/BlazorChartjs/) for this fork
 * Source code on [GitHub](https://github.com/erkantaylan/BlazorChartjs)
 * [NuGet](https://www.nuget.org/packages/Erkan.Blazor.Chartjs/) package
-* Upstream project: [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs) · [demo site](https://chartjs.puresourcecode.com/) · [docs](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/)
+* Upstream project by Enrico Rossini: [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs) · [upstream demo site](https://chartjs.puresourcecode.com/) · [upstream docs](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/)
 
 ## Installation
 
@@ -103,7 +161,7 @@ _config1 = new BarChartConfig()
         {
             Legend = new Legend()
             {
-                Align = LegendAlign.Center,
+                Align = Align.Center,
                 Display = false,
                 Position = LegendPosition.Right
             }
@@ -135,16 +193,28 @@ _config1 = new BarChartConfig()
 Then, you have to define the `Labels` and the `Datasets` like that
 
 ```csharp
-_config1.Data.Labels = BarDataExamples.SimpleBarText;
-_config1.Data.Datasets.Add(new Dataset()
+_config1.Data.Labels = new List<string>
+    { "January", "February", "March", "April", "May", "June" };
+
+_config1.Data.Datasets.Add(new BarDataset()
 {
     Label = "Value",
-    Data = BarDataExamples.SimpleBar.Select(l => l.Value).ToList(),
-    BackgroundColor = Colors.Palette1,
-    BorderColor = Colors.PaletteBorder1,
+    Data = new List<decimal?> { 65, 59, 80, 81, 56, 55 },
+    BackgroundColor = new List<string>
+    {
+        "rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)",
+        "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(153, 102, 255, 0.2)"
+    },
+    BorderColor = new List<string>
+    {
+        "rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)",
+        "rgb(75, 192, 192)", "rgb(54, 162, 235)", "rgb(153, 102, 255)"
+    },
     BorderWidth = 1
 });
 ```
+
+The dataset type has to match the config: `BarChartConfig.Data.Datasets` is a `List<BarDataset>`, `LineChartConfig`'s is a `List<LineDataset>`, and so on. The base `Dataset` type carries only `Label`, `Data`, `DataLabels`, `Order` and `Type` — colours and widths live on the per-chart subclasses.
 
 The result of the code above is this chart
 
@@ -192,14 +262,16 @@ In an existing graph, it is possible to add a single new value to a specific dat
 Now, the function `AddData` allows to add a new value in a specific existing dataset. The definition of `AddData` is the following
 
 ```csharp
-AddData(List<string> labels, int datasetIndex, List<decimal?> data)
+Task AddData(List<string?>? labels, int datasetIndex, List<decimal?>? data)
 ```
 
 For example, using __chart1_, the following code adds a new label `Test1` to the list of labels, and for the dataset _0_ adds a random number.
 
 ```csharp
-_chart1.AddData(new List<string?>() { "Test1" }, 0, new List<decimal?>() { rd.Next(0, 200) });
+await _chart1.AddData(new List<string?>() { "Test1" }, 0, new List<decimal?>() { rd.Next(0, 200) });
 ```
+
+`AddData` returns a `Task` — await it. The whole batch is appended in one round trip and the chart is redrawn once, so passing several labels and values at a time is cheaper than calling it in a loop. Pass `null` for `labels` to append values without touching the labels. The call is a no-op if the chart has not rendered yet.
 
 The result is visible in the following screenshot.
 
@@ -212,7 +284,7 @@ It is also possible to add a completely new dataset to the graph. For that, ther
 For example, this code adds a new dataset using `LineDataset` using some of the properties this dataset has.
 
 ```csharp
-private void AddNewDataset()
+private async Task AddNewDataset()
 {
     Random rd = new Random();
     List<decimal?> addDS = new List<decimal?>();
@@ -223,7 +295,7 @@ private void AddNewDataset()
 
     var color = String.Format("#{0:X6}", rd.Next(0x1000000));
 
-    _chart1.AddDataset<LineDataset>(new LineDataset()
+    await _chart1.AddDataset<LineDataset>(new LineDataset()
         {
             Label = $"Dataset {DateTime.Now}",
             Data = addDS,
@@ -237,6 +309,16 @@ The result of this code is the following screenshot.
 
 ![chart-addnewdataset](https://user-images.githubusercontent.com/9497415/229904537-22805b25-747f-4020-9eed-51533183324c.gif)
 
+### Remove every value
+
+`ClearData` empties the labels and the data of every dataset, keeping the datasets and the chart configuration in place.
+
+```csharp
+await _chart1.ClearData();
+```
+
+> `AddData`, `AddDataset<T>` and `ClearData` all return `Task`. In upstream they were `async void`, which meant an exception inside them could not be caught and the caller had no way to know when the chart had finished updating.
+
 ## Callbacks
 
 The component has a few callbacks (more in development) to customize your chart. The callbacks are ready to use are:
@@ -244,6 +326,10 @@ The component has a few callbacks (more in development) to customize your chart.
 - Tooltip
   * Labels
   * Titles
+- Axis ticks — `Ticks.Callback` and `Ticks.CallbackAsync`
+- Legend entries — `LegendLabels.Filter`
+
+The demo page at `/ticksfilter` ([`ChartjsDemo/Pages/TicksFilterPage.razor`](ChartjsDemo/Pages/TicksFilterPage.razor)) exercises all of them on one chart, together with live data updates, and shows how often each one is actually asked.
 
 ### How to use it
 
@@ -305,26 +391,33 @@ protected override async Task OnInitializedAsync()
                 }
             }
         };
+}
 ```
 
-For more info, please see my posts on [PureSourceCode.com](https://www.puresourcecode.com/dotnet/blazor/custom-javascript-function-in-blazor/).
+`Label` and `Title` are `Func<CallbackGenericContext, string[]>`. `CallbackGenericContext` carries `DatasetIndex` and `DataIndex` as `int` and `Value` as `decimal` — `Value` keeps its fractional part now; upstream cast it to `int`, so `12.5` arrived as `12`.
+
+The upstream author, Enrico Rossini, writes about the background to these callbacks on [PureSourceCode.com](https://www.puresourcecode.com/dotnet/blazor/custom-javascript-function-in-blazor/).
+
+> **Blazor Server and SSR:** these callbacks used to be invoked through synchronous JS→.NET interop, which is only supported on WebAssembly and threw everywhere else. They are async now. As a consequence the tooltip paints Chart.js's own default text on the very first frame and swaps in your value once .NET replies — a frame later, and cached from then on.
 
 ## Add labels to the chart
 
-I added the `chartjs-plugin-datalabels` plugin in the component. This plugin shows the labels for each point in each graph. For more details about this plugin, visit its [website](https://chartjs-plugin-datalabels.netlify.app/).
+The component bundles the `chartjs-plugin-datalabels` plugin. This plugin shows the labels for each point in each graph. For more details about this plugin, visit its [website](https://chartjs-plugin-datalabels.netlify.app/).
 
 ![image](https://user-images.githubusercontent.com/9497415/224721251-da6959de-2b20-4d42-926b-b036de6695ee.png)
 
-First, in the _index.html_, we have to add after the `chart.js` script, another script for this component. It is important to add the script for `chartjs-plugin-datalabels` after `chart.js`. If the order is different, the plugin could not work. For example
+First, in the _index.html_, we have to add after the Chart.js script, another script for this component. It is important to add the script for `chartjs-plugin-datalabels` after Chart.js. If the order is different, the plugin could not work. For example
 
-```
-<script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.js"></script>
+```html
+<script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.umd.js"></script>
 <script src="_content/Erkan.Blazor.Chartjs/lib/hammer.js/hammer.js"></script>
 <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-zoom/chartjs-plugin-zoom.js"></script>
 <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js"></script>
 ```
 
-In the code, you have to change the property `RegisterDataLabels` under `Options` to `true`. That asks to the component to register the library if the library is added to the page and there is data to show. For example, if I define a `LineChartConfig` the code is
+> Use `chart.umd.js`, not `chart.js`. Both files ship in the package, but `chart.js` is the **ES module** build and throws `Unexpected token 'export'` when loaded from a classic `<script>` tag.
+
+In the code, you have to change the property `RegisterDataLabels` under `Options` to `true`. That asks the component to register the library if the library is added to the page and there is data to show. For example, for a `LineChartConfig` the code is
 
 ```csharp
 _config1 = new LineChartConfig()
@@ -344,7 +437,9 @@ _config1 = new LineChartConfig()
 };
 ```
 
-With this code, the component will register the library in `chart.js`. It is possible to define a `DataLabels` for the entire chart. Also, each dataset can have its own `DataLabels` that rewrites the common settings.
+With this code, the component will register the library in Chart.js. It is possible to define a `DataLabels` for the entire chart. Also, each dataset can have its own `DataLabels` that rewrites the common settings.
+
+The plugin is attached to this chart alone. Upstream called the process-wide `Chart.register` / `Chart.unregister`, so on a page with several charts the last one to render decided whether labels were shown on all of them (upstream [#83](https://github.com/erossini/BlazorChartjs/issues/83)). If `RegisterDataLabels` is `true` but the plugin script is missing from the page, the component logs a warning to the browser console instead of failing silently.
 
 ## OnClickAsync
 
@@ -408,7 +503,7 @@ _config1 = new LineChartConfig()
     }
 ```
 
-The function `hoverAsync` receives as parameter a `HoverContext` that contains the 2 values: `DataX` and `DataY` as decimal.
+The function `hoverAsync` receives as parameter a `HoverContext` that contains the 2 values: `DataX` and `DataY` as decimal. They are read from the scales named `x` and `y`; a chart that has no such scale — pie, doughnut, polar area and radar, or a cartesian chart whose axes are named something else — reports `0` for the missing one instead of throwing on every mouse move.
 
 In the following example, the function changes the string `HoverString` using `values`.
 
@@ -426,7 +521,88 @@ With this code, if the user moves the mouse on the chart, the function writes th
 
 ![chart-hover](https://user-images.githubusercontent.com/9497415/229874627-e720d5dc-bae2-4cfa-8dcc-55ddc58ef4f9.gif)
 
+## Component event callbacks
+
+`OnClickAsync` and `OnHoverAsync` above are set on the chart *configuration*. The same three events are also available as normal Blazor parameters on the component itself, which is usually more convenient because the handler can be a method on the page and Blazor re-renders for you:
+
+```razor
+<Chart Config="_config1" @ref="_chart1"
+       OnChartClick="OnClick"
+       OnChartOver="OnOver"
+       OnLegendClick="OnLegend" />
+
+@code {
+    private void OnClick(CallbackGenericContext ctx) { /* DatasetIndex, DataIndex, Value */ }
+    private void OnOver(HoverContext ctx)            { /* DataX, DataY */ }
+    private void OnLegend(LegendClickContext ctx)    { /* LegendIndex, LegendText */ }
+}
+```
+
+Both styles can be used at once: the component callback runs first, then the one on `Options`.
+
+`LegendClickContext.LegendIndex` is the index the clicked entry stands for: the **dataset** index on charts whose legend has one entry per dataset (bar, line, scatter, bubble …), and the **data** index on pie, doughnut and polar-area charts, whose legend has one entry per slice. `OnChartOver` carries the same `HoverContext` as `OnHoverAsync`, so the same caveat applies — on a chart with no `x`/`y` scale (pie, doughnut, polar area, radar) it reports `0` for both axis values rather than throwing.
+
+> These three parameters existed upstream but were never wired to anything, so nothing ever invoked them. They fire now.
+>
+> `OnLegendClick` no longer suppresses Chart.js's own legend behaviour either — clicking a legend entry still toggles its dataset (upstream [#89](https://github.com/erossini/BlazorChartjs/issues/89)). The override is only installed when a handler is actually registered.
+
+## Axis border
+
+Chart.js 4 moved the axis border out of `grid` into a scale option of its own, so `Grid.DrawBorder` is gone. Use `Axis.Border`:
+
+```csharp
+Scales = new Dictionary<string, Axis>()
+{
+    {
+        Scales.YAxisId, new Axis()
+        {
+            Border = new Border()
+            {
+                Display = true,
+                Color = "#888",
+                Width = 2,
+                Dash = new List<int> { 4, 4 },
+                DashOffset = 0,
+                Z = 1
+            }
+        }
+    }
+}
+```
+
+## Zoom and pan
+
+Zoom is provided by [chartjs-plugin-zoom](https://www.chartjs.org/chartjs-plugin-zoom/latest/) 2.x, which needs `hammer.js` loaded before it for pinch and pan gestures.
+
+```csharp
+Plugins = new Plugins()
+{
+    Zoom = new Zoom()
+    {
+        Mode = "x",
+        ZoomOptions = new ZoomOptions()
+        {
+            Wheel = new Wheel() { Enabled = true },
+            Pinch = new Pinch() { Enabled = true }
+        },
+        Pan = new Pan() { Enabled = true, Mode = "x" },
+        Limits = new Limits()
+        {
+            X = new ScaleLimits() { Min = "0", Max = "100", MinRange = 10 }
+        }
+    }
+}
+```
+
+Notes for anyone coming from upstream:
+
+- `Zoom.Enabled` no longer exists — `Enabled = true` will not compile. Plugin 2.x has no master switch, so there is nothing for the property to turn on. Enable each gesture instead: `ZoomOptions.Wheel`, `ZoomOptions.Pinch` and `ZoomOptions.Drag` for zooming, and `Zoom.Pan` for panning (as in the example above).
+- `Zoom.Mode` and `Zoom.OverScaleMode` used to serialize next to the plugin options instead of inside them, so the plugin never read them and `Mode = "x"` silently did nothing. They are written to the right place now. You can also set `Mode`, `OverScaleMode` and `ScaleMode` on `ZoomOptions` directly; a value set there wins, whichever order the two are assigned in — and the `Zoom.Mode` / `Zoom.OverScaleMode` getters report the value that will actually be serialized, not the one you handed them.
+- `Limits` was an empty class upstream and could not express anything. It now has `X` and `Y`. `ScaleLimits.Min`/`Max` take a numeric string or the literal `"original"`; numbers serialize as JSON numbers, because the plugin does arithmetic on them. Leaving one unset omits it rather than defaulting it to `"original"`.
+
 ## Contribution
+
+Contributors to the upstream project, whose work this fork inherits:
 
 - [macias](https://github.com/macias) for adding the crosshair line to the components
 - [Heitor Eleutério de Rezende](https://github.com/heitoreleuterio) for the migration to NET7 and adding:
@@ -438,8 +614,9 @@ With this code, if the user moves the mouse on the chart, the function writes th
 
 ## Credits
 
-Original project by [Enrico Rossini](https://github.com/erossini) — [PureSourceCode.com](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/).
-This fork is maintained by [erkantaylan](https://github.com/erkantaylan) and released under the same MIT license.
+Original project by [Enrico Rossini](https://github.com/erossini) — [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs), documented on [PureSourceCode.com](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/). Nearly all of the component's design and the bulk of its code are his.
+
+This fork is maintained by [erkantaylan](https://github.com/erkantaylan) and released under the same MIT license. It is not affiliated with or endorsed by PureSourceCode; please raise issues with this fork at [erkantaylan/BlazorChartjs](https://github.com/erkantaylan/BlazorChartjs/issues) rather than upstream.
 
 ## License
 

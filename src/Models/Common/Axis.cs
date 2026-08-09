@@ -15,6 +15,17 @@
         public bool? BeginAtZero { get; set; }
 
         /// <summary>
+        /// Gets or sets the axis border.
+        /// </summary>
+        /// <value>
+        /// The border drawn along the axis. Replaces the Chart.js 3 <c>grid.drawBorder</c>
+        /// option, which Chart.js 4 no longer reads.
+        /// </value>
+        [JsonPropertyName("border")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Border? Border { get; set; }
+
+        /// <summary>
         /// Gets or sets the color.
         /// </summary>
         /// <value>
@@ -115,16 +126,6 @@
         [JsonPropertyName("suggestedMin")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public decimal? SuggestedMin { get; set; }
-
-        /// <summary>
-        /// Gets or sets the text.
-        /// </summary>
-        /// <value>
-        /// The text.
-        /// </value>
-        [JsonPropertyName("Text")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Text { get; set; }
 
         /// <summary>
         /// Gets or sets the ticks.

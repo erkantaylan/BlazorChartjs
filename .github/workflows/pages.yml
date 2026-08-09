@@ -1,0 +1,164 @@
+name: Deploy demo to GitHub Pages
+
+# Publishes ChartjsDemo (Blazor WebAssembly) and serves the static `wwwroot`
+# output from GitHub Pages at https://erkantaylan.github.io/BlazorChartjs/.
+#
+# Deployment uses the official Pages actions (configure-pages / upload-pages-artifact /
+# deploy-pages) rather than pushing to a `gh-pages` branch: no build output is ever
+# committed, the artifact is deployed straight from the workflow run, and auth is the
+# short-lived OIDC token requested via `id-token: write` instead of a PAT.
+#
+# NOTE: Pages must be enabled on the repo with "Source: GitHub Actions" before the
+# first run, otherwise `actions/configure-pages` fails. See the repo README/setup notes:
+#   gh api -X POST repos/erkantaylan/BlazorChartjs/pages -f 'build_type=workflow'
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two Pages deployments at once; queue instead of cancelling so a
+# deployment that is already uploading is allowed to finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  PUBLISH_DIR: ChartjsDemo/bin/Release/net10.0/publish/wwwroot
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Job-level permissions replace the workflow-level block outright, so `contents`
+    # has to be repeated here. `pages: read` is what actions/configure-pages needs for
+    # its GET /repos/{owner}/{repo}/pages call; without it the step fails before the
+    # build even starts.
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Exposes `base_path` (e.g. "/BlazorChartjs") derived from the repo's actual
+      # Pages URL, so the base href below stays correct if the repo is renamed or a
+      # custom domain is added later.
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      # Builds src/Erkan.Blazor.Chartjs via the ProjectReference as a side effect.
+      - name: Publish Blazor WebAssembly demo
+        run: dotnet publish ChartjsDemo/ChartjsDemo.csproj -c Release
+
+      - name: Prepare wwwroot for a project page
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -d "$PUBLISH_DIR" ]; then
+            echo "::error::publish output not found at $PUBLISH_DIR"
+            ls -R ChartjsDemo/bin 2>/dev/null || true
+            exit 1
+          fi
+          cd "$PUBLISH_DIR"
+
+          # --- 1. base href -------------------------------------------------------
+          # The app is served from /BlazorChartjs/, not the domain root, so every
+          # relative asset and route in the app has to resolve against that prefix.
+          #
+          # This is done here, on the *published* index.html, rather than by editing
+          # the checked-in ChartjsDemo/wwwroot/index.html, so that `dotnet run` and
+          # `dotnet watch` keep working at http://localhost:5194/ (root) and so that
+          # anyone publishing this demo to a different host is not silently stuck
+          # with a /BlazorChartjs/ prefix they did not ask for. The subpath is a
+          # property of *this* deployment target, not of the source.
+          #
+          # Fail loudly rather than shipping a root base href, which would 404 every
+          # asset on a project page.
+          if [ -z "${BASE_PATH:-}" ]; then
+            echo "::error::actions/configure-pages reported no base_path - is Pages enabled with 'Source: GitHub Actions'?"
+            exit 1
+          fi
+          BASE_HREF="${BASE_PATH%/}/"          # "/BlazorChartjs" -> "/BlazorChartjs/"; "/" -> "/"
+          case "$BASE_HREF" in
+            /*) ;;
+            *) echo "::error::unexpected Pages base path '$BASE_PATH'"; exit 1 ;;
+          esac
+
+          if ! grep -q '<base href="/" />' index.html; then
+            echo "::error::'<base href=\"/\" />' not found in the published index.html - the rewrite below is out of date"
+            exit 1
+          fi
+          sed -i "s|<base href=\"/\" />|<base href=\"${BASE_HREF}\" />|" index.html
+          grep -q "<base href=\"${BASE_HREF}\" />" index.html
+          echo "base href set to ${BASE_HREF}"
+
+          # --- 2. service worker --------------------------------------------------
+          # ChartjsDemo.csproj sets <ServiceWorkerAssetsManifest> and ships
+          # wwwroot/service-worker.published.js, which caches every asset offline and
+          # answers navigations from cache first. On a demo site that is a liability:
+          # returning visitors would keep seeing an old build after every deploy.
+          #
+          # Least invasive fix: strip it from the published output here. The csproj,
+          # the two service-worker*.js sources and `dotnet publish` on its own are all
+          # left exactly as they are, so local development and any non-Pages publish
+          # keep their offline support. Only the Pages artifact loses it.
+          #
+          # The replacement script unregisters a worker left over from an earlier
+          # deploy, but only one scoped under this app's base URI - github.io is a
+          # single origin shared with every other repo of this owner, so a blanket
+          # unregister would tear down unrelated sites' workers.
+          if ! grep -q 'serviceWorker\.register' index.html; then
+            echo "::error::service worker registration not found in index.html - the rewrite below is out of date"
+            exit 1
+          fi
+          sed -i "s|<script>[^<]*serviceWorker\.register([^<]*</script>|<script>/* GitHub Pages build: service worker disabled on purpose, see .github/workflows/pages.yml */ if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { if (r.scope.indexOf(document.baseURI) === 0) { r.unregister(); } }); }); }</script>|" index.html
+          if grep -q 'serviceWorker\.register(' index.html; then
+            echo "::error::service worker registration survived the rewrite"
+            exit 1
+          fi
+          rm -f service-worker.js service-worker.js.br service-worker.js.gz \
+                service-worker-assets.js service-worker-assets.js.br service-worker-assets.js.gz
+          echo "service worker disabled for this build"
+
+          # --- 3. SPA fallback ----------------------------------------------------
+          # The demo routes client-side (/barSimple, /zoom, ...). Those paths do not
+          # exist as files, so a deep link or an F5 on a sub-route makes Pages serve
+          # its 404. Shipping the (already base-href-rewritten) index.html as 404.html
+          # means Pages returns the app instead and the Blazor router resolves the URL.
+          cp index.html 404.html
+
+          # --- 4. .nojekyll -------------------------------------------------------
+          # Pages runs content through Jekyll unless this file is present, and Jekyll
+          # drops every path beginning with an underscore - which would silently
+          # delete _framework/ (the entire Blazor runtime: blazor.boot.json, the
+          # .wasm runtime, every assembly) and _content/ (the library's JS + Chart.js).
+          touch .nojekyll
+
+          ls -a | head -40
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.PUBLISH_DIR }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write      # required: publish the uploaded artifact to the Pages site
+      id-token: write   # required: lets the job request a GitHub OIDC token
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

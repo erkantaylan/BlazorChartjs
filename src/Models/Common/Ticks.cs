@@ -65,10 +65,10 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public CrossAlign? CrossAlign 
         {
             get => _crossAlign;
-            set 
+            set
             {
                 _crossAlign = value;
-                CrossAlignString = _crossAlign.Value;
+                CrossAlignString = value?.Value;
             }
         }
         private CrossAlign? _crossAlign;

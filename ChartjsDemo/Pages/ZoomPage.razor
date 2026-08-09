@@ -67,7 +67,6 @@ _config1 = new LineChartConfig()
             {
                 Zoom = new Zoom()
                 {
-                    Enabled = true,
                     Mode = "xy",
                     ZoomOptions = new ZoomOptions()
                     {
@@ -86,7 +85,8 @@ _config1 = new LineChartConfig()
     };
 </CodeSnippet>
 
-The zoom option must be <code>enabled</code>.
+There is no master switch: each gesture is turned on individually through <code>ZoomOptions.Wheel</code>, <code>ZoomOptions.Pinch</code>,
+<code>ZoomOptions.Drag</code> and <code>Zoom.Pan</code>.
 
 <h4>Examples</h4>
 <p>
@@ -118,7 +118,6 @@ protected override async Task OnInitializedAsync()
                 {
                     Zoom = new Zoom()
                     {
-                        Enabled = true,
                         Mode = "xy",
                         ZoomOptions = new ZoomOptions()
                         {
@@ -164,15 +163,9 @@ protected override async Task OnInitializedAsync()
 <CodeSnippet>
 Zoom = new Zoom()
 {
-    Enabled = true,
     Mode = "xy",
     ZoomOptions = new ZoomOptions()
     {
-        Pan = new Pan()
-        {
-            Enabled = true,
-            Mode = "x"
-        },
         Drag = new Drag()
         {
             Enabled = true,
@@ -180,6 +173,11 @@ Zoom = new Zoom()
             BorderColor = "rgb(255, 99, 132)",
             BorderWidth = 1
         }
+    },
+    Pan = new Pan()
+    {
+        Enabled = true,
+        Mode = "x"
     }
 }
 </CodeSnippet>
@@ -193,7 +191,6 @@ Zoom = new Zoom()
 <CodeSnippet>
 Zoom = new Zoom()
 {
-    Enabled = true,
     Mode = "xy",
     ZoomOptions = new ZoomOptions()
     {
@@ -204,11 +201,11 @@ Zoom = new Zoom()
         Pinch = new Pinch()
         {
             Enabled = true
-        },
-        Pan = new Pan()
-        {
-            Enabled = true
         }
+    },
+    Pan = new Pan()
+    {
+        Enabled = true
     }
 }
 </CodeSnippet>
@@ -235,7 +232,6 @@ Zoom = new Zoom()
                     {
                         Zoom = new Zoom()
                         {
-                            Enabled = true,
                             Mode = "xy",
                             ZoomOptions = new ZoomOptions()
                             {
@@ -280,7 +276,6 @@ Zoom = new Zoom()
                     {
                         Zoom = new Zoom()
                         {
-                            Enabled = true,
                             Mode = "xy",
                             ZoomOptions = new ZoomOptions()
                             {
@@ -331,7 +326,6 @@ Zoom = new Zoom()
                     {
                         Zoom = new Zoom()
                         {
-                            Enabled = true,
                             Mode = "xy",
                             ZoomOptions = new ZoomOptions()
                             {

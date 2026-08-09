@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Erkan.Blazor.Chartjs">
+  <!-- Ground: .NET purple rounded square, corner radius 18% of the side. -->
+  <rect width="512" height="512" rx="92" fill="#512BD4"/>
+
+  <!-- Sparkline: one irregular series, rounded caps and joins so it holds up at 64px. -->
+  <polyline points="80,320 136,368 192,286 248,304 304,210 360,262 416,162"
+            fill="none" stroke="#FFFFFF" stroke-width="42"
+            stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Terminal data point in Chart.js coral, centred on the last vertex. -->
+  <circle cx="416" cy="162" r="45" fill="#FF6384"/>
+</svg>

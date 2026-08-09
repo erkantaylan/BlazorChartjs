@@ -21,8 +21,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <!-- TODO: drop your own icon in src/ and point PackageIcon at it. The upstream
-         psc_logo.png is PureSourceCode branding and is deliberately not shipped. -->
+    <PackageIcon>icon.png</PackageIcon>
 
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackAsTool>False</PackAsTool>
@@ -47,6 +46,8 @@
     <Content Remove="psc_ico.ico" />
     <None Include="psc_ico.ico" Pack="false" />
     <None Include="psc_logo.png" Pack="false" />
+    <!-- Master artwork for icon.png. Editable source, not a shipped asset. -->
+    <None Include="icon.svg" Pack="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,6 +56,10 @@
       <PackagePath>\</PackagePath>
     </None>
     <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

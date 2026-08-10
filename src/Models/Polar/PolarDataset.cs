@@ -10,7 +10,7 @@
         /// </value>
         [JsonPropertyName("backgroundColor")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<string> BackgroundColor { get; set; } = new List<string>();
+        public List<string>? BackgroundColor { get; set; }
 
         /// <summary>
         /// Gets or sets the width of the border.

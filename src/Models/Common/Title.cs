@@ -81,16 +81,16 @@
         /// The position.
         /// </value>
         [JsonIgnore]
-        public Position Position
+        public Position? Position
         {
             get => _position;
             set
             {
                 _position = value;
-                PositionString = value.Value;
+                PositionString = value?.Value;
             }
         }
-        private Position _position;
+        private Position? _position;
 
         /// <summary>
         /// Gets or sets the position.

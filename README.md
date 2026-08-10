@@ -14,7 +14,7 @@ This is a fork of [erossini/BlazorChartjs](https://github.com/erossini/BlazorCha
 
 ## Feature coverage
 
-What Chart.js **4.5.1** can do, against what the C# models in **1.0.0** actually let you set. Assessed by reading the vendored `chart.js` 4.5.1 bundle and the bundled plugins alongside `src/Models/**`, and by checking that each property serializes to the key Chart.js reads — a property that exists but lands where Chart.js never looks is listed as missing, not as supported.
+What Chart.js **4.5.1** can do, against what the C# models in **2.0.0** actually let you set. Assessed by reading the vendored `chart.js` 4.5.1 bundle and the bundled plugins alongside `src/Models/**`, and by checking that each property serializes to the key Chart.js reads — a property that exists but lands where Chart.js never looks is listed as missing, not as supported.
 
 | Status | Meaning |
 | --- | --- |
@@ -29,13 +29,13 @@ Coverage is thin in places, and the table says so. A **None** row means there is
 | Type | Status | Notes |
 | --- | --- | --- |
 | Bar (vertical and horizontal) | **Partial** | `BarDataset` has `BackgroundColor`, `BorderColor`, `BorderWidth`, `Fill`, `HoverBackgroundColor`, `Stack`. Horizontal bars via `Options.IndexAxis = Axes.Y`. No `barThickness`, `barPercentage`, `categoryPercentage`, `borderRadius`, `borderSkipped`, `minBarLength`, and no `xAxisID`/`yAxisID`, so a bar dataset cannot be pinned to a named axis. |
-| Line | **Partial** | `Tension`, `Stepped`, `CubicInterpolationMode`, `PointRadius`, `PointStyle`, `YAxisId`. No `spanGaps`, `borderDash`, `segment`, `hidden`, `pointHoverRadius`, `pointBackgroundColor`/`pointBorderColor`. `FillColor`, `StrokeColor` and `Y2AxisId` serialize to `fillColor`, `strokeColor` and `y2AxisID`, none of which Chart.js 4 reads — for a second axis use `YAxisId = "y2"`. |
-| Area (filled line) | **Partial** | `LineDataset.Fill` and `RadarDataset.Fill` are plain `bool`. The `'origin'`, `'start'`, `'end'`, `'+1'`, `'-1'` and `{ target, above, below }` fill targets cannot be expressed. |
+| Line | **Partial** | `BackgroundColor`, `BorderColor`, `BorderWidth`, `Tension`, `Stepped`, `CubicInterpolationMode`, `PointRadius`, `PointStyle`, `Fill`, `YAxisId` — pin a series to a second axis with `YAxisId = "y2"`. `Fill` is `bool?` and `Tension` is `decimal?`, so `Fill = false` and `Tension = 0` are serialized rather than dropped — both agree with Chart.js's own line defaults, so they only override something if the chart options come from a custom options class ([Escape hatches](#escape-hatches)); `Options.Elements.Line` here is `BorderColor` and `BorderWidth` only. No `spanGaps`, `borderDash`, `segment`, `hidden`, `pointHoverRadius`, `pointBackgroundColor`/`pointBorderColor`. |
+| Area (filled line) | **Partial** | `LineDataset.Fill` and `RadarDataset.Fill` are `bool?`: `true` fills to the origin, `false` turns the fill off, unset leaves the Chart.js default for the type (off for line, on for radar). The `'origin'`, `'start'`, `'end'`, `'+1'`, `'-1'` and `{ target, above, below }` fill targets cannot be expressed, so filling to another dataset or to a value is out of reach. |
 | Pie | **Partial** | `PieOptions` adds `Rotation` and `Circumference`. Dataset: `BackgroundColor`, `BorderWidth`, `HoverOffset`. No `borderColor`, `offset`, `spacing`, `weight`. |
 | Doughnut | **Partial** | Same dataset surface as pie, but `DoughnutChartConfig.Options` is the plain `Options`, so `cutout`, `rotation` and `circumference` have no property at all — the ring is always Chart.js's default 50% cutout. |
 | Polar area | **Partial** | Dataset: `BackgroundColor` and `BorderWidth` only. The `r` scale is reachable as `Options.Scales["r"]`, which has no `angleLines`, `pointLabels` or `startAngle`. |
-| Radar | **Partial** | The thinnest type. `RadarChartConfig.Options` is `RadarOptions`, which does **not** derive from `Options`: only `Responsive`, `MaintainAspectRatio`, `Elements.Line.BorderWidth` and `Scales.R` (`BeginAtZero`, `Min`, `Max`). No `Plugins` block, so no legend, title, tooltip, datalabels, zoom or annotation options, and no `Options.OnClickAsync`/`OnHoverAsync` or tooltip/tick callbacks. The `OnChartClick`, `OnChartOver` and `OnLegendClick` component parameters still fire. `RadarDataset.Fill = false` is dropped by the serializer, so the radar fill cannot be turned off. |
-| Scatter | **Partial** | `ScatterDataset` derives from `CustomDataset<ScatterXYValue>`, not `Dataset`, so it has no `Order`, `Type` or per-dataset `DataLabels`. Covers `PointRadius`, `PointStyle`, `PointHitRadius`, `ShowLine`, `Tension`, `YAxisId`. |
+| Radar | **Partial** | The thinnest type. `RadarChartConfig.Options` is `RadarOptions`, which does **not** derive from `Options`: only `Responsive`, `MaintainAspectRatio`, `Elements.Line.BorderWidth` and `Scales.R` (`BeginAtZero`, `Min`, `Max`). No `Plugins` block, so no legend, title, tooltip, datalabels, zoom or annotation options, and no `Options.OnClickAsync`/`OnHoverAsync` or tooltip/tick callbacks. The `OnChartClick`, `OnChartOver` and `OnLegendClick` component parameters still fire. Both of the properties it does have are nullable now, and both defaults are non-zero, so both are worth setting: `RadarDataset.Fill` is `bool?`, so `Fill = false` turns off the fill Chart.js puts there by default, and `Elements.Line.BorderWidth` is `int?`, so `BorderWidth = 0` hides the outline instead of falling back to Chart.js's `3`. |
+| Scatter | **Partial** | `ScatterDataset` derives from `CustomDataset<ScatterXYValue>`, not `Dataset`, so it has no `Order`, `Type` or per-dataset `DataLabels`. Covers `BackgroundColor`, `BorderColor`, `BorderWidth`, `PointRadius`, `PointStyle`, `PointHitRadius`, `ShowLine`, `Tension` and `YAxisId` — a second axis is bound with `YAxisId = "y2"`. `ShowLine` is `bool?` and `Tension` is `decimal?`, so `ShowLine = false` and `Tension = 0` are serialized rather than dropped; like line, both agree with Chart.js's own scatter defaults. |
 | Bubble | **Partial** | `BubbleDataset` has `Label`, `Data` and `BackgroundColor` and nothing else. `BubbleCoords.X`, `.Y` and `.R` are `int`, so fractional coordinates and radii cannot be expressed. No `borderColor`, `borderWidth`, `hoverRadius`. |
 | Mixed / combo | **Partial** | Set `Dataset.Type` per dataset, e.g. `Type = "line"` on a dataset inside a `BarChartConfig`. Every dataset must still be the config's own dataset type, so that "line" is a `BarDataset` and cannot use `Tension`, `PointStyle`, `PointRadius`, `Stepped` or `YAxisId`. `ScatterDataset` and `BubbleDataset` have no `Type`, so they cannot join a mixed chart. |
 
@@ -46,7 +46,7 @@ Coverage is thin in places, and the table says so. A **None** row means there is
 | `linear` | **Partial** | `Axis` covers `Min`, `Max`, `SuggestedMin`, `SuggestedMax`, `BeginAtZero`, `Display`, `Position`, `Type`, `Grid`, `Border`, `Ticks`, `Title`. No `grace`, `offset`, `reverse`, `alignToPixels`, `bounds`, `weight`, `clip`, `stack`/`stackWeight`. |
 | `logarithmic` | **Partial** | Selected with `Axis.Type = "logarithmic"`; same `Axis` surface as linear. Tick number formatting is not exposed, so log labels keep Chart.js defaults. |
 | `category` | **Partial** | `Axis.Type = "category"`. The scale's own `labels` array is not exposed, and `Axis.Min`/`Max` are `double?`, so bounding a category axis by label string is not possible. |
-| `time` | **Partial** | `Axis.Time` gives `Unit`, `MinUnit`, `Round`, `IsoWeekday`, `TooltipFormat` and `DisplayFormats`. `time.parser` is missing. `AxesTime.Source` writes `time.source`, which Chart.js does **not** read — the real option is `ticks.source`, and `Ticks` has no `Source`. Needs the moment and moment-adapter script tags. |
+| `time` | **Partial** | `Axis.Time` gives `Unit`, `MinUnit`, `Round`, `IsoWeekday`, `TooltipFormat` and `DisplayFormats`, and tick generation is `Axis.Ticks.Source` (`"auto"`, `"data"`, `"labels"`), the key Chart.js actually reads. `time.parser` is missing, so a custom input format cannot be declared — timestamps have to arrive in a form the moment adapter parses unaided (ISO 8601 strings, epoch numbers). Needs the moment and moment-adapter script tags. |
 | `timeseries` | **Partial** | `Axis.Type = "timeseries"`; identical surface and identical caveats to `time`. |
 | `radialLinear` | **Partial** | Polar area reaches it through `Options.Scales["r"]` (a full `Axis`); radar only through `RadarOptions.Scales.R` (`BeginAtZero`, `Min`, `Max`). `angleLines`, `pointLabels`, `startAngle` and `ticks.backdropColor` are missing on both. |
 | Stacking | **Partial** | `Axis.Stacked` (bool) plus `BarDataset.Stack` for stack groups. `stacked: 'single'` is not expressible, and only bar datasets have a `Stack`. |
@@ -54,18 +54,18 @@ Coverage is thin in places, and the table says so. A **None** row means there is
 | Axis position | **Partial** | `Axis.Position` offers top, left, bottom, right; `Axis.PositionString` takes any string, so `"center"` also works. The object form (`position: { y: 0 }`, an axis pinned to a value on another scale) cannot be expressed. |
 | Grid lines | **Partial** | `Grid` has `Color`, `Display`, `DrawOnChartArea`, `DrawTicks`. No `lineWidth`, `offset`, `tickColor`, `tickLength`, `tickWidth`, `tickBorderDash`, `z`, `circular`. |
 | Axis border | **Full** | `Axis.Border` covers the whole Chart.js 4 `scales[].border` object: `Display`, `Width`, `Color`, `Dash`, `DashOffset`, `Z`. |
-| Ticks | **Partial** | `Color`, `Font`, `AutoSkip`, `MaxTicksLimit`, `StepSize`, `MinRotation`, `MaxRotation`, `CrossAlign`, `Callback`/`CallbackAsync`. No `display`, `align`, `padding`, `precision`, `count`, `includeBounds`, `labelOffset`, `mirror`, `sampleSize`, `autoSkipPadding`, `backdropColor`, `textStrokeColor`/`textStrokeWidth`, `z`, `source`, or the `Intl.NumberFormat` `format` object. |
+| Ticks | **Partial** | `Color`, `Font`, `AutoSkip`, `MaxTicksLimit`, `StepSize`, `MinRotation`, `MaxRotation`, `CrossAlign`, `Source` (time scales only), `Callback`/`CallbackAsync`. No `display`, `align`, `padding`, `precision`, `count`, `includeBounds`, `labelOffset`, `mirror`, `sampleSize`, `autoSkipPadding`, `backdropColor`, `textStrokeColor`/`textStrokeWidth`, `z`, or the `Intl.NumberFormat` `format` object. |
 | Axis title | **Partial** | `AxesTitle` has `Text`, `Display`, `Align`, `Color`, `Font`. `padding` is missing. |
 
 ### Built-in plugins
 
 | Plugin | Status | Notes |
 | --- | --- | --- |
-| `legend` | **Partial** | `Display`, `Position`, `Align`, `Reverse`, `RTL`, `TextDirection`, `FullSize`, `Labels.Filter` and a click handler. All label styling is missing — `labels.font`, `color`, `boxWidth`/`boxHeight`, `padding`, `usePointStyle`, `pointStyle`, `generateLabels`, `sort` — as are `maxWidth`/`maxHeight`, `title`, `onHover` and `onLeave`. |
+| `legend` | **Partial** | `Display`, `Position`, `Align`, `Reverse`, `RTL`, `TextDirection`, `FullSize` and a click handler. `Labels` covers `Color`, `Font`, `BoxWidth`, `BoxHeight`, `Padding`, `UsePointStyle`, `PointStyle`/`PointStyleWidth`, `TextAlign`, `UseBorderRadius`, `BorderRadius` and `Filter` — the whole `legend.labels` object bar `generateLabels` and `sort`. See [Legend label styling](#legend-label-styling). On the legend itself, `maxWidth`/`maxHeight`, `title`, `onHover` and `onLeave` are still missing. |
 | `title` | **Partial** | `Display`, `Text`, `Position`, `Align`, `Color`, `Font`, `Padding`, `FullSize`. `Text` is a single `string`, so a multi-line title (Chart.js accepts `string[]`) is not possible. |
 | `subtitle` | **None** | No property for `plugins.subtitle`. A second `Title` cannot stand in for it — there is only one `title` slot. |
-| `tooltip` | **Partial** | Only `Callbacks.Label` and `Callbacks.Title`. Everything else about tooltips has no property: `enabled`, `mode`, `intersect`, `position`, all colours, fonts and padding, `displayColors`, `usePointStyle`, `external`, `filter`, `itemSort`, and the other dozen callbacks. |
-| `filler` | **Partial** | Reachable only as the `bool` `Fill` on a line or radar dataset. `plugins.filler` itself (`propagate`, `drawTime`) has no property. |
+| `tooltip` | **Partial** | Colours and fonts: `BackgroundColor`, `TitleColor`/`TitleFont`, `BodyColor`/`BodyFont`, `FooterColor`/`FooterFont`, `BorderColor`, `BorderWidth`, `MultiKeyBackground`, plus `Callbacks.Label` and `Callbacks.Title`. Layout and behaviour are still unreachable: `enabled`, `mode`, `intersect`, `position`, `padding`/`caretPadding`/`caretSize`/`boxPadding`, `cornerRadius`, `displayColors`, `boxWidth`/`boxHeight`, `usePointStyle`, the `*Align` and `*Spacing` options, `external`, `filter`, `itemSort`, `rtl`/`textDirection`, and the other dozen callbacks. |
+| `filler` | **Partial** | Reachable only as the `bool?` `Fill` on a line or radar dataset — on, explicitly off, or left to the type's default. `plugins.filler` itself (`propagate`, `drawTime`) has no property. |
 | `decimation` | **None** | No property for `plugins.decimation`, so LTTB and min/max decimation of large series are unavailable. |
 | `colors` | **None** | No property for `plugins.colors`. The plugin ships enabled in Chart.js 4 and will colour any dataset that defines none, and it can neither be configured nor switched off from C#. Set `BackgroundColor`/`BorderColor` on every dataset to keep it out of the way. |
 
@@ -73,14 +73,14 @@ Coverage is thin in places, and the table says so. A **None** row means there is
 
 | Plugin | Status | Notes |
 | --- | --- | --- |
-| zoom — wheel | **Full** | `Wheel.Enabled`, `Speed`, `ModifierKey` is the plugin's whole `zoom.wheel` surface. |
+| zoom — wheel | **Full** | `Wheel.Enabled`, `Speed`, `ModifierKey` is the plugin's whole `zoom.wheel` surface. `Speed` is `decimal?` and still defaults to the plugin's `0.1`; `Speed = 0` is expressible now and makes a wheel event zoom by a factor of exactly 1, i.e. not at all. |
 | zoom — pinch | **Full** | `Pinch.Enabled` is the whole `zoom.pinch` surface. Needs `hammer.js` on the page. |
-| zoom — drag | **Partial** | `Enabled`, `BackgroundColor`, `BorderColor`, `BorderWidth`, `ModifierKey`, `Threshold`. Missing `drawTime` and `maintainAspectRatio`. |
+| zoom — drag | **Partial** | `Enabled`, `BackgroundColor`, `BorderColor`, `BorderWidth`, `ModifierKey`, `Threshold` (`int?`, unset means the plugin's own `0`, so every drag zooms however short). Missing `drawTime` and `maintainAspectRatio`. |
 | zoom — direction | **Full** | `ZoomOptions.Mode`, `ScaleMode` and `OverScaleMode`, plus `Zoom.Mode`/`Zoom.OverScaleMode` which are pushed into the nested object the plugin reads. |
-| zoom — pan | **Partial** | `Enabled`, `Mode`, `ModifierKey`, `OverScaleMode`, `Threshold`. Missing `scaleMode` and the `onPan`, `onPanStart`, `onPanComplete`, `onPanRejected` callbacks. |
+| zoom — pan | **Partial** | `Enabled`, `Mode`, `ModifierKey`, `OverScaleMode`, `Threshold` — `Threshold` is `int?` and still defaults to the plugin's `10`, and `Threshold = 0` (start panning on the first pointer move) is reachable now. Missing `scaleMode` and the `onPan`, `onPanStart`, `onPanComplete`, `onPanRejected` callbacks. |
 | zoom — limits | **Partial** | `Limits.X` and `Limits.Y` with `Min`, `Max` and `MinRange`, numbers serialized as numbers and `"original"` as the literal. Limits keyed by a custom scale id (anything other than `x`/`y`) cannot be expressed. |
 | zoom — events and API | **None** | No `onZoom`, `onZoomStart`, `onZoomComplete`, `onZoomRejected`, no `zoom.animation`, and the component exposes no `ResetZoom()`, `Zoom()`, `Pan()` or `GetZoomLevel()`. Resetting the view means recreating the chart. |
-| datalabels | **Partial** | `Plugins.DataLabels` chart-wide and `Dataset.DataLabels` per dataset: alignment, anchor, colours, border, font, padding, rotation, text align, text stroke and shadow. Missing `formatter` (so the label is always the raw value), `display`, `labels` (several labels per point) and `listeners`. `Offset` and `Opacity` are non-nullable and skipped when `0`, so `Offset = 0` and `Opacity = 0` are silently dropped. Requires `Options.RegisterDataLabels = true` and the script tag. |
+| datalabels | **Partial** | `Plugins.DataLabels` chart-wide and `Dataset.DataLabels` per dataset: alignment, anchor, colours, border, font, padding, rotation, text align, text stroke and shadow. Missing `formatter` (so the label is always the raw value), `display`, `labels` (several labels per point) and `listeners` — everything else in the plugin's option set has a property. Every numeric and boolean one of them is nullable (`BorderRadius`, `BorderWidth`, `Clamp`, `Clip`, `Offset`, `Opacity`, `Rotation`, `TextStrokeWidth`, `textShadowBlur`), so a zero or a `false` reaches the plugin instead of being dropped: `Offset = 0` sits the label on its anchor rather than 4px off it, `Opacity = 0` hides a label, and `Clamp = false` / `Clip = false` override a chart-wide `Plugins.DataLabels` that set them. Requires `Options.RegisterDataLabels = true` and the script tag. |
 | annotation | **Partial (raw JSON)** | `Plugins.Annotation.Annotations` is a `Dictionary<string, object>`, so every annotation type the plugin supports — line, box, ellipse, label, point, polygon — works, but there are no typed models: you build each annotation as an anonymous object using the plugin's own key names, with no compile-time checking. Registered automatically when the property is set. |
 | autocolors | **None** | The plugin is vendored, but `Plugins` has no `autocolors` property, nothing registers it, and its script is not in the install list. The `Autocolors` class under `Models/Common` is not referenced by anything. |
 | crosshair | n/a | `Plugins.Crosshair` (`Cursor`, `Vertical`, `Horizontal`) is this package's own canvas drawing, not chartjs-plugin-crosshair. It is not a Chart.js feature and has no upstream equivalent. |
@@ -90,7 +90,7 @@ Coverage is thin in places, and the table says so. A **None** row means there is
 
 | Family | Status | Notes |
 | --- | --- | --- |
-| `animation` | **Partial** | `Options.Animation` is a `bool?`: animation can be switched off, and that is all. `duration`, `easing`, `delay`, `loop`, `onProgress` and `onComplete` have no property. `*ChartConfig.OnAnimationComplete` writes `onAnimationComplete` at the config root, which Chart.js does not read. |
+| `animation` | **Partial** | `Options.Animation` is a `bool?`: animation can be switched off, and that is all. `duration`, `easing`, `delay`, `loop`, `onProgress` and `onComplete` have no property, so there is no way to be told an animation finished. |
 | `animations` (per property) | **Partial** | `Animations` exposes `Colors` and `X` as `bool` and `Tension` as an object (`From`, `To`, `Duration`, `Delay`, `Easing`, `Loop`). Chart.js ignores a non-object here, so on `Colors`/`X` only `false` does anything. `numbers`, `radius`, `y` and custom `properties`/`type`/`fn` configs are not exposed. |
 | `transitions` | **None** | No property for `options.transitions`, so the `active`, `resize`, `show` and `hide` transition modes keep their defaults. |
 | `interaction` | **Full** | `Options.Interaction` covers `Mode`, `Intersect`, `Axis` and `IncludeInvisible` — the entire `options.interaction` object. |
@@ -98,7 +98,7 @@ Coverage is thin in places, and the table says so. A **None** row means there is
 | `events` | **None** | No property for `options.events`, so which DOM events the chart listens to cannot be narrowed. |
 | `layout` | **None** | No property for `options.layout.padding` or `autoPadding`. The `Height`, `Width` and `Style` parameters on `<Chart>` size the container but cannot pad the chart area. |
 | Responsive and aspect ratio | **Partial** | `Responsive` and `MaintainAspectRatio` only — note this package defaults `MaintainAspectRatio` to `false`, where Chart.js defaults it to `true`. `aspectRatio`, `resizeDelay`, `devicePixelRatio` and `onResize` have no property. |
-| `elements` | **Partial** | `Options.Elements` has `Line.BorderColor` and `Line.BorderWidth` and nothing else. `elements.point`, `elements.bar`, `elements.arc` and the rest of `elements.line` are not exposed. `RadarOptions.Elements.Line` has only `BorderWidth`. |
+| `elements` | **Partial** | `Options.Elements` has `Line.BorderColor` and `Line.BorderWidth` and nothing else. `elements.point`, `elements.bar`, `elements.arc` and the rest of `elements.line` — `tension`, `fill`, `borderDash`, `stepped`, `spanGaps`, `capBezierPoints`, `cubicInterpolationMode`, the border cap and join styles — are not exposed. `RadarOptions.Elements.Line` has only `BorderWidth` (`int?`, default `3`; `0` hides the radar outline). |
 | Per-dataset defaults | **None** | No property for `options.datasets.<type>`, so defaults shared by every dataset of a type must be repeated on each dataset. |
 | `parsing` | **None** | Neither `options.parsing` nor `dataset.parsing` has a property, so data has to arrive in the shape the controller expects. (`Models/Common/Parsing.cs` exists but nothing references it.) |
 | `locale` | **Full** | `Options.Locale` sets `options.locale` and is propagated to the moment adapter for time scales. |
@@ -129,11 +129,96 @@ There is no general one. The models have no `[JsonExtensionData]` bag anywhere, 
 
 What is *not* an escape hatch: **subclassing a typed dataset**. `Data<T>.Datasets` is a `List<T>` of the concrete type, and `System.Text.Json` serializes those elements by their declared type, so properties added on a derived class are silently dropped. `CustomDataset<T>` is likewise not a general-purpose container — it is the base for `ScatterDataset` and `BubbleDataset` and carries only `label` and `data`.
 
+## Upgrading from 1.0.0
+
+Already on `Erkan.Blazor.Chartjs` 1.0.0? This is the only section you need — [the next one](#migrating-from-pscblazorcomponentschartjs) is for people coming off upstream `PSC.Blazor.Components.Chartjs`.
+
+### Five properties are gone
+
+2.0.0 deletes five properties. Each of them existed, serialized, and wrote a key Chart.js 4.5.1 never reads, so no chart was ever affected by the value you gave it. The compile error is the whole of the breakage, and every one has a replacement that does work.
+
+| Removed in 2.0.0 | It wrote | Use instead |
+| --- | --- | --- |
+| `AxesTime.Source` | `scales[].time.source` | `Ticks.Source`. Chart.js reads tick generation from `ticks.source`, so the value moves from `Axis.Time` to `Axis.Ticks`: `Time = new AxesTime { Source = "data" }` becomes `Ticks = new Ticks { Source = "data" }`. Same `auto` / `data` / `labels` values. |
+| `LineDataset.Y2AxisId`, `ScatterDataset.Y2AxisId` | `y2AxisID` | `YAxisId = "y2"`. There is no `y2AxisID` option in Chart.js — a dataset names its scale with `yAxisID`, whatever that scale is keyed as in `Options.Scales`. |
+| `LineDataset.FillColor` | `fillColor` | `BackgroundColor`. `fillColor` is a Chart.js **1.x** name and has not been read since 2.0. |
+| `LineDataset.StrokeColor` | `strokeColor` | `BorderColor`. Also a Chart.js 1.x name. |
+| `OnAnimationComplete` on `BarChartConfig`, `BubbleChartConfig`, `DoughnutChartConfig`, `PieChartConfig`, `PolarChartConfig`, `RadarChartConfig` and `ScatterChartConfig` | `onAnimationComplete` at the root of the config object | Nothing yet — delete the assignment. Chart.js 4 has `options.animation.onComplete`, which this package does not expose ([`animation` row](#options-families)). |
+
+### Eighteen properties are nullable now
+
+These were declared as non-nullable value types and skipped by the serializer whenever they held the type's own default, so assigning `0` or `false` wrote no key at all and Chart.js applied its own default instead. There was no value you could give any of them to mean "zero" or "off". All eighteen are nullable now, and the value you assign is the value Chart.js receives:
+
+| Owner | Properties | Type now |
+| --- | --- | --- |
+| `DataLabels` | `BorderRadius`, `BorderWidth`, `Offset`, `Rotation`, `TextStrokeWidth`, `textShadowBlur` | `int?` |
+| `DataLabels` | `Clamp`, `Clip` | `bool?` |
+| `DataLabels` | `Opacity` | `decimal?` |
+| `LineDataset` | `Fill` | `bool?` |
+| `LineDataset`, `ScatterDataset` | `Tension` | `decimal?` |
+| `RadarDataset` | `Fill` | `bool?` |
+| `RadarOptionsElementsLine` | `BorderWidth` | `int?` |
+| `ScatterDataset` | `ShowLine` | `bool?` |
+| `Drag`, `Pan` (zoom) | `Threshold` | `int?` |
+| `Wheel` (zoom) | `Speed` | `decimal?` |
+
+The one most likely to matter: `RadarOptionsElementsLine.BorderWidth = 0` hides the radar outline, which was previously impossible — `0` was dropped and the outline came back at Chart.js's default width of `3`. Alongside it, `RadarDataset.Fill = false` turns off the fill radar puts there by default; `DataLabels.Offset = 0` sits a label on its anchor rather than the plugin's default `4` away from it, `DataLabels.Opacity = 0` hides one, and `Clamp = false` / `Clip = false` on a dataset override a chart-wide `Plugins.DataLabels` that set them; `Pan.Threshold = 0` starts a pan on the first pointer move rather than after 10 pixels, and `Wheel.Speed = 0` freezes wheel zoom. `Fill`, `Tension` and `ShowLine` on a line or scatter dataset agree with Chart.js's own defaults either way, so those only override something when the chart's options come from a custom options class ([Escape hatches](#escape-hatches)).
+
+**Assigning them is unchanged.** `Tension = 0`, `Fill = false` and `Offset = 0` compile exactly as they did in 1.0.0 — the difference is that they now reach Chart.js. Only code that **reads** one breaks, because the value is nullable:
+
+```diff
+- decimal tension = dataset.Tension;
++ decimal tension = dataset.Tension ?? 0;
+
+- if (dataset.Fill) { … }
++ if (dataset.Fill == true) { … }
+```
+
+**Nothing renders differently.** A chart that never set one of the eighteen serializes byte-for-byte the same JSON as it did under 1.0.0 — this was checked by diffing the serialized configuration before and after. Where a property carried a non-default initializer it was kept deliberately, so `Pan.Threshold` still emits `10`, `Wheel.Speed` still `0.1` and `RadarOptionsElementsLine.BorderWidth` still `3`; where the initializer merely repeated the type default it was dropped, so no new key appears either. Upgrading cannot change a chart you did not touch.
+
+One more property changed shape: `Legend.Labels` is `LegendLabels?`. It has always been null unless you assigned it; the annotation says so now, so `#nullable enable` code that dereferenced it gets a warning it should have had.
+
+### Five string-enum properties tell the truth about null
+
+They were declared non-nullable over a backing field that stays null until you assign one, so the getter already returned null and the declaration was lying. The annotation is honest now: `Legend.Position` is `LegendPosition?`, `Legend.TextDirection` is `TextDirection?`, `Title.Position` and `Axis.Position` are `Position?`, and `AxesTitle.Align` is `Align?` — with its `AxesTitle.AlignString` now `string?`.
+
+These are reference types, so unlike [the eighteen above](#eighteen-properties-are-nullable-now) nothing changes shape at runtime and no read is a hard compile error. Under `#nullable enable` a read into a non-nullable local raises `CS8600`, the warning it should always have raised; a fallback settles it:
+
+```diff
+- LegendPosition position = legend.Position;
++ LegendPosition position = legend.Position ?? LegendPosition.Bottom;
+```
+
+And the reason it matters: **assigning `null` used to throw.** Each of these facades mirrors its value into a `*String` twin that is what actually serializes, and the setter read `value.Value` without checking — so `Position = null`, the obvious way to clear one back to the Chart.js default, raised a `NullReferenceException`. Nine properties had it, the five above plus `LineDataset.CubicInterpolationMode`, `LineDataset.PointStyle`, `LineDataset.Stepped` and `ScatterDataset.PointStyle` (those four were already nullable and needed only the setter fix). All nine accept `null` now and clear the serialized key with it.
+
+### Dataset colour lists start out null
+
+`BarDataset.BackgroundColor`, `BarDataset.BorderColor`, `PieDataset.BackgroundColor`, `DoughnutDataset.BackgroundColor` and `PolarDataset.BackgroundColor` are `List<string>?` with no initializer. They used to be handed an empty list, which every untouched chart then shipped to Chart.js as `"backgroundColor": []` — and on bar, `"borderColor": []` as well.
+
+Assigning a whole list is unchanged, which is how the examples in this README and the demo do it. What breaks is calling `.Add()` on the property without assigning one first:
+
+```diff
+- dataset.BackgroundColor.Add("#f00");
++ dataset.BackgroundColor = new List<string> { "#f00" };
+```
+
+### Keys that no longer reach Chart.js
+
+None of these need a source change.
+
+- **The wrapper's internal markers.** `hasFilter`, `hasLabel`, `hasCustomTitle`, `hasCallback` and `hasAsyncCallback` were each deleted only on the branch that handled a registered callback, so a `LegendLabels` without a `Filter`, a `Tooltip` without callbacks, and any scale without a tick callback shipped their marker through as a live `false` — `plugins.legend.labels.hasFilter`, `plugins.tooltip.callbacks.hasLabel` and `hasCustomTitle`, and `scales[].ticks.hasCallback` and `hasAsyncCallback`. All five are stripped unconditionally now.
+- **`crosshair`, `groupXAxis` and `groupYAxis`.** `crosshair` was blanked with `undefined` rather than deleted, which leaves the key in place on a live object, and the two group markers were only cleared inside the branch that acts on them — so `GroupXAxis = false` was handed to Chart.js as an option of its own. All three are deleted before the chart is constructed.
+- **Bare `null` values.** `RadarOptions.Scales`, `RadarOptionsScales.R`, `RadarOptionsScalesRadius.Min` and `.Max`, and `LineDataType.X` and `.Y` were serialized as `null` rather than omitted, so an unconfigured radar shipped `"scales": null` and every `LineDataType` point carried `"x": null, "y": null`. All six are omitted when unset.
+
+### The legend filter no longer breaks on an empty data object
+
+`LegendLabels.Filter` injected a `$type` discriminator by splicing into the serialized JSON text, which turns an empty data object `{}` into the invalid `{"$type":"base",}`. The exception left the filter permanently pinned to its fallback, so no legend entry could be hidden for the life of the chart. The discriminator is set on the object directly now, and the chart configuration reaches the JS layer as an object instead of being rebuilt with `eval`.
+
 ## Migrating from `PSC.Blazor.Components.Chartjs`
 
 ### Package, assembly and namespace
 
-The package ID, assembly, and root namespace all changed. Replace `PSC.Blazor.Components.Chartjs` with `Erkan.Blazor.Chartjs` in your `_Imports.razor` and in the `_content/...` script paths in `index.html` / `_Host.cshtml`.
+The package ID, assembly, and root namespace all changed. Replace `PSC.Blazor.Components.Chartjs` with `Erkan.Blazor.Chartjs` in your `_Imports.razor` and in the `_content/...` script paths in `index.html` / `_Host.cshtml`. Renaming is not enough for the Chart.js `<script>` tag itself — its **filename** changes too, from `chart.js` to `chart.umd.js`, as shown in [Script tags](#script-tags) right below. A plain find-and-replace leaves you pointing at `_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.js`, which is the ES module build and fails to load from a classic `<script>` tag.
 
 ### Script tags
 
@@ -190,8 +275,14 @@ Chart.js moved from 3.9.1 to 4.5.1. Load the **UMD** build:
 - `Options.Locale` — BCP 47 tag (e.g. `tr-TR`) that propagates to Chart.js and to the moment date adapter, so time-axis labels format in the given locale
 - Zoom `Limits` — `Limits.X` / `Limits.Y` are implemented, so pan and zoom can be bounded per axis
 - `ZoomOptions.Mode`, `ZoomOptions.OverScaleMode`, `ZoomOptions.ScaleMode`
+- `Legend.Labels` — the Chart.js `legend.labels` object beyond `Filter`: colour, font, box size, padding, point style, text align and border radius, so a canvas-drawn legend can follow an app's theme ([Legend label styling](#legend-label-styling))
+- `Tooltip` colours and fonts — `BackgroundColor`, `TitleColor`/`TitleFont`, `BodyColor`/`BodyFont`, `FooterColor`/`FooterFont`, `BorderColor`, `BorderWidth`, `MultiKeyBackground`
+- `Ticks.Source` — `auto` / `data` / `labels` tick generation on time scales, which is where Chart.js reads it from
 
 ### Fixes
+- `0` and `false` reach Chart.js. Eighteen properties were non-nullable value types the serializer skipped whenever they held the type default, so `Fill = false`, `Tension = 0`, `Offset = 0`, `Threshold = 0` and the rest wrote no key at all and Chart.js used its own default instead. All eighteen are nullable now — see [Eighteen properties are nullable now](#eighteen-properties-are-nullable-now) for the list and for what does *not* change.
+- `null` is handled throughout. Nine string-enum properties threw a `NullReferenceException` when set to `null`, five of them while declared non-nullable over a backing field that was null anyway; six properties wrote a bare `null` into the config instead of omitting the key; and five dataset colour lists shipped an empty `[]` on every untouched chart. See [Five string-enum properties tell the truth about null](#five-string-enum-properties-tell-the-truth-about-null) and the two sections after it.
+- The wrapper's internal bookkeeping stays out of the chart config. The `hasFilter`, `hasLabel`, `hasCustomTitle`, `hasCallback` and `hasAsyncCallback` markers, and the `crosshair`, `groupXAxis` and `groupYAxis` keys, all reached Chart.js as live options whenever the feature they gate was off — `GroupXAxis = false` included. The legend filter also threw on a chart with an empty data object, which pinned it to its fallback for the life of the chart.
 - Chart teardown: `Chart` is `IAsyncDisposable` and destroys the Chart.js instance, its DOM listeners and any queued animation frame. Previously each chart re-creation leaked a `DotNetObjectReference`, a JS module handle and a live chart.
 - Tooltip, title, legend-filter and tick callbacks use async interop, so they work on Blazor Server and SSR instead of throwing
 - Tick float noise is cleaned with a tolerance relative to the axis range, not a fixed digit count: at least 12 significant digits are kept, and more when the axis is zoomed in far enough to need them. Exact integers are never rounded at all, and any rounding that would be visible at the axis's own resolution is refused — so epoch milliseconds, byte counts and ids survive intact however wide the axis is. On top of that, a value below one ten-billionth of the visible span snaps to zero. The earlier fixed rounding to 10 decimal places flattened legitimate values below `1e-10` to zero.
@@ -665,6 +756,56 @@ Both styles can be used at once: the component callback runs first, then the one
 > These three parameters existed upstream but were never wired to anything, so nothing ever invoked them. They fire now.
 >
 > `OnLegendClick` no longer suppresses Chart.js's own legend behaviour either — clicking a legend entry still toggles its dataset (upstream [#89](https://github.com/erossini/BlazorChartjs/issues/89)). The override is only installed when a handler is actually registered.
+
+## Legend label styling
+
+Legend text is painted on the canvas, so no stylesheet can reach it — an app whose colours come from design tokens has to hand those colours to Chart.js. `Legend.Labels` covers the whole `legend.labels` object for that ([#1](https://github.com/erkantaylan/BlazorChartjs/issues/1), upstream [#90](https://github.com/erossini/BlazorChartjs/issues/90) and [#55](https://github.com/erossini/BlazorChartjs/issues/55)):
+
+```csharp
+Plugins = new Plugins()
+{
+    Legend = new Legend()
+    {
+        Position = LegendPosition.Bottom,
+        Labels = new LegendLabels()
+        {
+            Color = theme.TextColor,   // "#111827" in light, "#e5e7eb" in dark
+            Font = new Font()
+            {
+                Family = "Inter, system-ui, sans-serif",
+                Size = 13,
+                Weight = "500"
+            },
+            UsePointStyle = true,
+            PointStyle = PointStyle.Circle,
+            BoxHeight = 8,
+            Padding = 16
+        }
+    }
+}
+```
+
+Every one of these is optional: leave a property `null` and it is not serialized at all, so Chart.js keeps its own default. For `Color` and `Font` that default is the library-wide `#666` at 12px — `options.color` and `options.font` have no property in this package either, so a themed legend has to be set here. `PointStyle` mirrors into `PointStyleString` for a raw value the enumeration does not carry, the same pattern as `Legend.Align` / `AlignString`.
+
+`Tooltip` takes the same treatment for the same reason: `BackgroundColor`, `TitleColor`/`TitleFont`, `BodyColor`/`BodyFont`, `FooterColor`/`FooterFont`, `BorderColor` and `BorderWidth`.
+
+Chart.js reads these when the chart is built, and the `<Chart>` component compares `Config` **by reference** — so mutating `Labels.Color` on the config it is already holding changes nothing on screen. Switching theme at runtime means handing it a new config object:
+
+```razor
+<Chart Config="_config" />
+
+@code {
+    private IChartConfig _config = default!;
+
+    protected override void OnInitialized() => _config = BuildConfig(Theme.Current);
+
+    // Call this when the app switches light/dark. BuildConfig returns a *new*
+    // config object carrying the legend block above, built from the new tokens.
+    private void ThemeChanged() => _config = BuildConfig(Theme.Current);
+}
+```
+
+The component destroys the previous Chart.js instance and creates the new one for you.
 
 ## Axis border
 

@@ -12,7 +12,8 @@
         /// x value
         /// </value>
         [JsonPropertyName("x")]
-        public string X { get; set; } = null;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? X { get; set; }
 
         /// <summary>
         /// Gets or sets the x value.
@@ -21,6 +22,7 @@
         /// x value
         /// </value>
         [JsonPropertyName("y")]
-        public string Y { get; set; } = null;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Y { get; set; }
     }
 }

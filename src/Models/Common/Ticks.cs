@@ -132,7 +132,29 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public bool? AutoSkip { get; set; }
 
         /// <summary>
-        /// Gets or sets the size of the step. 
+        /// Gets or sets how ticks are generated. Only used by the <c>time</c> scale.
+        /// </summary>
+        /// <value>
+        ///   <para>The tick source. It accepts those values:</para>
+        ///   <list type="bullet">
+        ///     <item>
+        ///       <c>auto</c> — generates "optimal" ticks based on scale size and time options. This is the Chart.js default.
+        ///     </item>
+        ///     <item>
+        ///       <c>data</c> — generates ticks from data (including labels from data objects).
+        ///     </item>
+        ///     <item>
+        ///       <c>labels</c> — generates ticks from user-given <c>data.labels</c> values only.
+        ///     </item>
+        ///   </list>
+        ///   <para>Maps to <c>scales[].ticks.source</c>.</para>
+        /// </value>
+        [JsonPropertyName("source")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Source { get; set; }
+
+        /// <summary>
+        /// Gets or sets the size of the step.
         /// If set, the scale ticks will be enumerated by multiple of stepSize, having one tick per increment. 
         /// If not set, the ticks are labelled automatically using the nice numbers algorithm.
         /// </summary>

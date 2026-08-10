@@ -10,21 +10,26 @@
         /// Gets or sets the color of the background.
         /// </summary>
         /// <value>
-        /// The color of the background.
+        /// One colour per bar, cycled when there are more bars than colours.
+        /// <c>null</c> - the default - writes no <c>backgroundColor</c> at all and leaves
+        /// the Chart.js default in place.
         /// </value>
         [JsonPropertyName("backgroundColor")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<string> BackgroundColor { get; set; } = new List<string>();
+        public List<string>? BackgroundColor { get; set; }
 
         /// <summary>
         /// Gets or sets the color of the border.
         /// </summary>
         /// <value>
-        /// The color of the background.
+        /// One colour per bar, cycled when there are more bars than colours.
+        /// <c>null</c> - the default - writes no <c>borderColor</c> at all and leaves
+        /// the Chart.js default in place. An empty list used to be sent instead, which
+        /// put <c>"borderColor": []</c> on every untouched bar chart.
         /// </value>
         [JsonPropertyName("borderColor")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<string> BorderColor { get; set; } = new List<string>();
+        public List<string>? BorderColor { get; set; }
 
         /// <summary>
         /// Gets or sets the width of the border.

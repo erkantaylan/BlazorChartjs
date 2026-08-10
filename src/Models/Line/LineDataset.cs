@@ -49,7 +49,7 @@ namespace Erkan.Blazor.Chartjs.Models.Line
             set
             {
                 _interpolation = value;
-                CubicInterpolationModeString = _interpolation.Value;
+                CubicInterpolationModeString = value?.Value;
             }
         }
         private CubicInterpolationMode? _interpolation;
@@ -61,28 +61,19 @@ namespace Erkan.Blazor.Chartjs.Models.Line
         /// The point style string.
         /// </value>
         [JsonPropertyName("cubicInterpolationMode")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? CubicInterpolationModeString { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="LineDataset"/> is fill.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if fill; otherwise, <c>false</c>.
+        ///   <c>true</c> if fill; <c>false</c> to explicitly turn the fill off;
+        ///   <c>null</c> to leave the Chart.js default (<c>false</c>) in place.
         /// </value>
         [JsonPropertyName("fill")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Fill { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets the color of the fill.
-        /// </summary>
-        /// <value>
-        /// The color of the fill.
-        /// </value>
-        [JsonPropertyName("fillColor")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string FillColor { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Fill { get; set; }
 
         /// <summary>
         /// Gets or sets the point radius.
@@ -91,7 +82,7 @@ namespace Erkan.Blazor.Chartjs.Models.Line
         /// The point radius.
         /// </value>
         [JsonPropertyName("pointRadius")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? PointRadius { get; set; }
 
         /// <summary>
@@ -107,7 +98,7 @@ namespace Erkan.Blazor.Chartjs.Models.Line
             set
             {
                 _pointStyle = value;
-                PointStyleString = _pointStyle.Value;
+                PointStyleString = value?.Value;
             }
         }
         private PointStyle? _pointStyle;
@@ -119,7 +110,7 @@ namespace Erkan.Blazor.Chartjs.Models.Line
         /// The point style string.
         /// </value>
         [JsonPropertyName("pointStyle")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? PointStyleString { get; set; }
 
         /// <summary>
@@ -135,7 +126,7 @@ namespace Erkan.Blazor.Chartjs.Models.Line
             set
             {
                 _stepMode = value;
-                SteppedString = _stepMode.Value;
+                SteppedString = value?.Value;
             }
         }
         private StepMode? _stepMode;
@@ -149,34 +140,15 @@ namespace Erkan.Blazor.Chartjs.Models.Line
         public string? SteppedString { get; set; }
 
         /// <summary>
-        /// Gets or sets the color of the stroke.
-        /// </summary>
-        /// <value>
-        /// The color of the stroke.
-        /// </value>
-        [JsonPropertyName("strokeColor")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string StrokeColor { get; set; }
-
-        /// <summary>
         /// Gets or sets the tension.
         /// </summary>
         /// <value>
-        /// The tension.
+        /// The tension. <c>0</c> draws straight segments, overriding a chart-level
+        /// <c>elements.line.tension</c>; <c>null</c> leaves the inherited value in place.
         /// </value>
         [JsonPropertyName("tension")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public decimal Tension { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the y axis identifier.
-        /// </summary>
-        /// <value>
-        /// The y axis identifier.
-        /// </value>
-        [JsonPropertyName("y2AxisID")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Y2AxisId { get; set; }
+        public decimal? Tension { get; set; }
 
         /// <summary>
         /// Gets or sets the y axis identifier.

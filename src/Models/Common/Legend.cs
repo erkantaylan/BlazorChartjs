@@ -7,8 +7,8 @@ namespace Erkan.Blazor.Chartjs.Models.Common
     /// </summary>
     public class Legend {
         private Align? _align;
-        private LegendPosition _legendPosition;
-        private TextDirection _textDirection;
+        private LegendPosition? _legendPosition;
+        private TextDirection? _textDirection;
 
         /// <summary>]
         /// Gets or sets the align. <seealso cref="Common.Align"/>
@@ -62,7 +62,7 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         ///<value>The Legend label configuration</value>
         [JsonPropertyName("labels")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public LegendLabels Labels { get; set; }
+        public LegendLabels? Labels { get; set; }
 
         /// <summary>
         /// Gets or sets the position.
@@ -71,12 +71,12 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// The position.
         /// </value>
         [JsonIgnore]
-        public LegendPosition Position 
+        public LegendPosition? Position 
         {
             get => _legendPosition;
             set {
                 _legendPosition = value;
-                PositionString = value.Value;
+                PositionString = value?.Value;
             }
         }
 
@@ -112,12 +112,12 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// </summary>
         /// <value>The text direction.</value>
         [JsonIgnore]
-        public TextDirection TextDirection 
+        public TextDirection? TextDirection 
         {
             get => _textDirection;
             set {
                 _textDirection = value;
-                TextDirectionString = value.Value;
+                TextDirectionString = value?.Value;
             }
         }
 

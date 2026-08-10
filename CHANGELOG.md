@@ -10,10 +10,161 @@ Entries from `0.94` down are the upstream history of [erossini/BlazorChartjs](ht
 auto-changelog
 ```
 
-The `1.0.0` entry is written by hand. **Do not regenerate this file with `auto-changelog`** without
-re-applying it — the tool rewrites the whole file from commit messages and would drop it.
+The `1.0.0` and `2.0.0` entries are written by hand. **Do not regenerate this file with
+`auto-changelog`** without re-applying them — the tool rewrites the whole file from commit messages
+and would drop them.
 
-#### [1.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/0.96...1.0.0)
+#### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
+
+> 10 August 2026
+
+Legend and tooltip styling; eighteen properties that silently swallowed `0` and `false` fixed; a
+sweep of null handling, from setters that threw on `= null` to keys written as a bare `null`; and
+the removal of five properties that serialized to keys Chart.js never read.
+
+##### Added
+
+- `LegendLabels` gained the rest of the Chart.js `legend.labels` object: `Color`, `Font`,
+  `BoxWidth`, `BoxHeight`, `Padding`, `UsePointStyle`, `PointStyleWidth`, `PointStyle` (with
+  `PointStyleString` for a raw value the enumeration does not carry), `TextAlign`, `UseBorderRadius`
+  and `BorderRadius`. Legend text is painted on the canvas, so an app themed from design tokens had
+  no way to colour it ([#1](https://github.com/erkantaylan/BlazorChartjs/issues/1), upstream
+  [#90](https://github.com/erossini/BlazorChartjs/issues/90) and
+  [#55](https://github.com/erossini/BlazorChartjs/issues/55)). `generateLabels` and `sort` are still
+  the only members of `legend.labels` without a property.
+- `Tooltip` colours and fonts — `BackgroundColor`, `TitleColor`, `TitleFont`, `BodyColor`,
+  `BodyFont`, `FooterColor`, `FooterFont`, `BorderColor`, `BorderWidth` and `MultiKeyBackground`.
+  Colours and fonts only: `enabled`, `mode`, `position`, `external`, `filter`, the padding options
+  and the remaining callbacks still have no property.
+- `Ticks.Source` — `auto`, `data` or `labels` tick generation for time scales, serialized to
+  `scales[].ticks.source`, which is the key Chart.js reads.
+
+##### Breaking changes
+
+Five properties are removed. Every one of them serialized, and every one wrote a key Chart.js 4.5.1
+never reads, so removing them changes no chart — the compile error is the whole of it. More change
+type without changing what you can assign to them; those are the last three bullets.
+
+- `AxesTime.Source` removed — it wrote `time.source`. Use `Ticks.Source`, which is where Chart.js
+  looks for it; the value moves from `Axis.Time` to `Axis.Ticks` and keeps the same
+  `auto` / `data` / `labels` values.
+- `LineDataset.Y2AxisId` and `ScatterDataset.Y2AxisId` removed — they wrote `y2AxisID`, which is not
+  a Chart.js option. A dataset names its scale with `yAxisID`: use `YAxisId = "y2"`.
+- `LineDataset.FillColor` and `LineDataset.StrokeColor` removed — `fillColor` and `strokeColor` are
+  Chart.js **1.x** names, unread since 2.0. Use `BackgroundColor` and `BorderColor`.
+- `OnAnimationComplete` removed from `BarChartConfig`, `BubbleChartConfig`, `DoughnutChartConfig`,
+  `PieChartConfig`, `PolarChartConfig`, `RadarChartConfig` and `ScatterChartConfig` — it wrote
+  `onAnimationComplete` at the root of the config object, where Chart.js does not read it. Delete
+  the assignment; Chart.js 4's `options.animation.onComplete` has no property yet.
+- Eighteen properties became nullable so that `0` and `false` can be sent at all (the full list is
+  under *Fixed*), and `Legend.Labels` is `LegendLabels?`. **Assigning any of them is unchanged** —
+  `Tension = 0` and `Fill = false` still compile exactly as before. Only code that **reads** one
+  into a non-nullable local or condition needs adjusting: `decimal t = ds.Tension;` becomes
+  `decimal t = ds.Tension ?? 0;`, and `if (ds.Fill)` becomes `if (ds.Fill == true)`.
+- Five string-enum properties are nullable: `Legend.Position` (`LegendPosition?`),
+  `Legend.TextDirection` (`TextDirection?`), `Title.Position` and `Axis.Position` (`Position?`), and
+  `AxesTitle.Align` (`Align?`, with `AxesTitle.AlignString` now `string?`). Each was declared
+  non-nullable over a backing field that stays null until you assign one, so the getter already
+  handed back null and the declaration was lying. All five are reference types, so this is an
+  annotation change rather than a type change: assigning is unchanged, nothing behaves differently
+  at runtime, and `#nullable enable` code that read one into a non-nullable local gets the `CS8600`
+  it should always have had. A null check or a fallback settles it —
+  `legend.Position ?? LegendPosition.Bottom`. Same shape as `Legend.Labels`; unlike the eighteen
+  value types above, no read of these is a hard compile error. See *Fixed* for the
+  `NullReferenceException` these five shared with four more.
+- The dataset colour lists no longer start out as an empty list. `BarDataset.BackgroundColor`,
+  `BarDataset.BorderColor`, `PieDataset.BackgroundColor`, `DoughnutDataset.BackgroundColor` and
+  `PolarDataset.BackgroundColor` are `List<string>?` with no initializer. Assigning a whole list is
+  unchanged; code that called `.Add()` on the property without assigning one first —
+  `dataset.BackgroundColor.Add("#f00")` — now needs an instance:
+  `dataset.BackgroundColor = new List<string> { "#f00" }`, or a null check.
+
+##### Fixed
+
+**`0` and `false` are no longer dropped on the way to Chart.js.** Eighteen properties were declared
+as non-nullable value types and serialized with `JsonIgnoreCondition.WhenWritingDefault`, so
+assigning the type's own default — `0`, or `false` — wrote no key at all and Chart.js silently
+applied its own default instead. There was no value you could give any of them to mean "zero" or
+"off". All eighteen are nullable now and serialized with `WhenWritingNull`, so the value you assign
+is the value Chart.js receives.
+
+| Owner | Properties | Type now |
+| --- | --- | --- |
+| `DataLabels` | `BorderRadius`, `BorderWidth`, `Offset`, `Rotation`, `TextStrokeWidth`, `textShadowBlur` | `int?` |
+| `DataLabels` | `Clamp`, `Clip` | `bool?` |
+| `DataLabels` | `Opacity` | `decimal?` |
+| `LineDataset` | `Fill` | `bool?` |
+| `LineDataset`, `ScatterDataset` | `Tension` | `decimal?` |
+| `RadarDataset` | `Fill` | `bool?` |
+| `RadarOptionsElementsLine` | `BorderWidth` | `int?` |
+| `ScatterDataset` | `ShowLine` | `bool?` |
+| `Drag`, `Pan` (zoom) | `Threshold` | `int?` |
+| `Wheel` (zoom) | `Speed` | `decimal?` |
+
+What that buys, in the order a user is most likely to notice it:
+
+- `RadarOptionsElementsLine.BorderWidth = 0` hides the radar outline, which no value could do
+  before — `0` was dropped and the outline returned at Chart.js's default width of `3`.
+- `RadarDataset.Fill = false` turns off the fill radar puts there by default.
+- `DataLabels.Offset = 0` sits a label on its anchor rather than the plugin's default `4` away from
+  it, `DataLabels.Opacity = 0` hides one, and `Clamp = false` / `Clip = false` on a dataset now
+  override a chart-wide `Plugins.DataLabels` that set them.
+- `Pan.Threshold = 0` starts a pan on the first pointer move instead of after 10 pixels, and
+  `Wheel.Speed = 0` freezes wheel zoom.
+- `Fill`, `Tension` and `ShowLine` on a line or scatter dataset agree with Chart.js's own defaults
+  either way, so those only override something when the chart's options come from a custom options
+  class.
+
+**Charts that set none of the eighteen render exactly as they did in 1.0.0.** Verified by diffing
+the serialized configuration before and after the change: every unset property emits byte-for-byte
+the same JSON. Where a property carried a non-default initializer it was kept deliberately, so
+`Pan.Threshold` still emits `10`, `Wheel.Speed` still `0.1` and
+`RadarOptionsElementsLine.BorderWidth` still `3`; where the initializer merely repeated the type
+default it was dropped, so no key appears in the configuration that was not there before.
+
+The rest:
+
+- The four remaining `WhenWritingDefault` conditions in the model tree —
+  `LineDataset.CubicInterpolationModeString`, `LineDataset.PointRadius`,
+  `LineDataset.PointStyleString` and `ScatterDataset.PointStyleString` — were already nullable or
+  reference types, where `WhenWritingDefault` and `WhenWritingNull` mean the same thing. They were
+  normalized to `WhenWritingNull` anyway, so `WhenWritingDefault` appears nowhere under `src/` and
+  grepping for it is a reliable check that this class of bug has not come back.
+- `Legend.Labels` is `LegendLabels?`, which is what it always was at runtime — it is null unless you
+  assign it.
+- Setting a string-enum property to `null` threw a `NullReferenceException`. Nine of them dereferenced
+  the incoming value in the setter to mirror it into the backing `*String` property, so
+  `legend.Position = null` — the obvious way to clear one back to the Chart.js default — crashed
+  instead: `Legend.Position`, `Legend.TextDirection`, `Title.Position`, `Axis.Position`,
+  `AxesTitle.Align`, `LineDataset.CubicInterpolationMode`, `LineDataset.PointStyle`,
+  `LineDataset.Stepped` and `ScatterDataset.PointStyle`. All nine accept `null` now and clear the
+  serialized key with it. The first five were also the ones declared non-nullable; the other four
+  were already nullable and only ever needed the setter fix.
+- Six properties wrote a bare `null` into the configuration instead of omitting the key:
+  `RadarOptions.Scales`, `RadarOptionsScales.R`, `RadarOptionsScalesRadius.Min` and `.Max`, and
+  `LineDataType.X` and `.Y`. An unconfigured radar shipped `"scales": null`, and every `LineDataType`
+  point carried `"x": null, "y": null`. All six are omitted when unset now.
+- Five dataset colour properties defaulted to an empty list, so an untouched bar, pie, doughnut or
+  polar chart shipped `"backgroundColor": []` — and, on bar, `"borderColor": []` — into Chart.js.
+  They default to `null` now and the keys are absent (see *Breaking changes* for the `.Add()` case).
+- The wrapper-internal markers no longer leak into the config Chart.js receives. `hasFilter`,
+  `hasLabel`, `hasCustomTitle`, `hasCallback` and `hasAsyncCallback` were each deleted only on the
+  branch that handled a registered callback, so a `LegendLabels` without a `Filter`, a `Tooltip`
+  without callbacks and any scale without a tick callback shipped their marker through as a live
+  `false` — `plugins.legend.labels.hasFilter`, `plugins.tooltip.callbacks.hasLabel` and
+  `hasCustomTitle`, and `scales[].ticks.hasCallback` and `hasAsyncCallback`. All five are stripped
+  unconditionally now.
+- `crosshair`, `groupXAxis` and `groupYAxis` survived into the configuration too. The first was
+  blanked with `undefined` rather than deleted, which leaves the key on a live object, and the group
+  markers were only cleared inside the branch that acts on them — so `GroupXAxis = false` was handed
+  to Chart.js as an option of its own. All three are deleted before the chart is constructed.
+- The legend filter threw on a chart whose data object is empty. It injected the `$type`
+  discriminator by splicing into the JSON text, which turns `{}` into the invalid `{"$type":"base",}`;
+  the exception left the filter permanently pinned to its fallback, so no legend entry could be
+  hidden. The discriminator is placed on the object directly now, and the chart configuration
+  reaches the JS layer as an object rather than being rebuilt with `eval`.
+
+#### [1.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/0.96...v1.0.0)
 
 > 10 August 2026
 

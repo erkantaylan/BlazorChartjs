@@ -17,6 +17,8 @@ namespace Erkan.Blazor.Chartjs.Models.Radar
         /// <value>
         /// The radius options
         /// </value>
+        [JsonPropertyName("r")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public RadarOptionsScalesRadius? R { get; set; }
     }
 }

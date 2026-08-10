@@ -36,11 +36,12 @@
         /// Gets or sets a value indicating whether this <see cref="RadarDataset"/> is fill.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if fill; otherwise, <c>false</c>.
+        ///   <c>true</c> if fill; <c>false</c> to explicitly turn the fill off;
+        ///   <c>null</c> to leave the Chart.js default in place.
         /// </value>
         [JsonPropertyName("fill")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Fill { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Fill { get; set; }
 
         /// <summary>
         /// Gets or sets the color of the point background.

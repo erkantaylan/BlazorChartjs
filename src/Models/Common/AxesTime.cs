@@ -6,20 +6,10 @@
     public sealed class AxesTime
     {
         /// <summary>
-        /// Get or set the source.
+        /// Get or set the display formats.
         /// </summary>
         /// <value>
-        /// The source.
-        /// </value>
-        [JsonPropertyName("source")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Source{ get; set; }
-
-        /// <summary>
-        /// Get or set the source.
-        /// </summary>
-        /// <value>
-        /// The source.
+        /// The display formats.
         /// </value>
         [JsonPropertyName("displayFormats")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

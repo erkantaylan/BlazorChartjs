@@ -27,6 +27,7 @@ namespace Erkan.Blazor.Chartjs.Models.Radar
         /// The value of the max value
         /// </value>
         [JsonPropertyName("max")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public decimal? Max { get; set; }
 
         /// <summary>
@@ -36,6 +37,7 @@ namespace Erkan.Blazor.Chartjs.Models.Radar
         /// The value of the min value
         /// </value>
         [JsonPropertyName("min")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public decimal? Min { get; set; }
     }
 }

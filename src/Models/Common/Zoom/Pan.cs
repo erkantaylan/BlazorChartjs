@@ -47,10 +47,12 @@
         /// Gets or sets the threshold.
         /// </summary>
         /// <value>
-        /// The threshold. Default: 10
+        /// The minimum pointer travel, in pixels, before panning starts. Default: 10.
+        /// <c>0</c> starts the pan on the first pointer move; <c>null</c> omits the key and
+        /// leaves the plugin default (10) in place.
         /// </value>
         [JsonPropertyName("threshold")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int Threshold { get; set; } = 10;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? Threshold { get; set; } = 10;
     }
 }

@@ -211,7 +211,9 @@ function crosshairLine(chart, evt, plugin) {
     }
 }
 
-export function chartSetup(id, dotnetConfig, jsonConfig, hooks) {
+// `config` arrives from Blazor's JS interop already deserialized into a plain
+// JavaScript object - it is never a JSON string.
+export function chartSetup(id, dotnetConfig, config, hooks) {
     let chartElement = document.getElementById("chartcontainer" + id);
     if (!chartElement) return;
 
@@ -230,33 +232,47 @@ export function chartSetup(id, dotnetConfig, jsonConfig, hooks) {
     chartElement.style.display = '';
 
     var context2d = document.getElementById(id).getContext('2d');
-    let config = eval(jsonConfig);
 
-    if (config?.options?.plugins?.legend?.labels?.hasFilter) {
-        delete config.options.plugins.legend.labels.hasFilter;
+    // `hasFilter` is a wrapper-internal marker, never a Chart.js option, so it is
+    // stripped whether or not a filter is registered. Leaving it on a false value
+    // would ship `plugins.legend.labels.hasFilter` into the chart config.
+    let legendLabels = config?.options?.plugins?.legend?.labels;
+    let hasLegendFilter = legendLabels?.hasFilter;
+    if (legendLabels)
+        delete legendLabels.hasFilter;
+
+    if (hasLegendFilter) {
         let filterCache = newCallbackCache(state);
-        config.options.plugins.legend.labels.filter = function (item, data) {
+        legendLabels.filter = function (item, data) {
             let key = item.datasetIndex + '|' + item.index + '|' + item.text;
             return resolveAsync(state, filterCache, key, () => {
-                let json = JSON.stringify(data);
-                let jsonArray = [...json];
-
-                let dataType = DATA_TYPES[config.type] || "base";
-                jsonArray.splice(1, 0, `"$type":"${dataType}",`);
-                json = jsonArray.join("");
+                // System.Text.Json resolves the derived Data type from a `$type`
+                // discriminator, and requires it to be the first property. Building the
+                // payload here keeps that guarantee without round-tripping the whole
+                // chart data through JSON.stringify/JSON.parse on every legend entry.
+                let payload = Object.assign({ $type: DATA_TYPES[config.type] || "base" }, data);
 
                 return DotNet.invokeMethodAsync('Erkan.Blazor.Chartjs', 'LegendLabelsFilter',
-                    dotnetConfig, item, JSON.parse(json))
+                    dotnetConfig, item, payload)
                     // Only an explicit false hides the entry; a null means "no opinion".
                     .then(keep => keep !== false);
             }, true);
         };
     }
 
-    if (config?.options?.plugins?.tooltip?.callbacks?.hasLabel) {
-        delete config.options.plugins.tooltip.callbacks.hasLabel;
+    // `hasLabel` and `hasCustomTitle` are wrapper-internal markers too: stripped
+    // whether or not a callback is registered, so a false never reaches Chart.js.
+    let tooltipCallbacks = config?.options?.plugins?.tooltip?.callbacks;
+    let hasTooltipLabel = tooltipCallbacks?.hasLabel;
+    let hasTooltipTitle = tooltipCallbacks?.hasCustomTitle;
+    if (tooltipCallbacks) {
+        delete tooltipCallbacks.hasLabel;
+        delete tooltipCallbacks.hasCustomTitle;
+    }
+
+    if (hasTooltipLabel) {
         let labelCache = newCallbackCache(state);
-        config.options.plugins.tooltip.callbacks.label = function (ctx) {
+        tooltipCallbacks.label = function (ctx) {
             var dsIndex = -1;
             var dIndex = -1;
             var vl = 0;
@@ -278,10 +294,9 @@ export function chartSetup(id, dotnetConfig, jsonConfig, hooks) {
         };
     }
 
-    if (config?.options?.plugins?.tooltip?.callbacks?.hasCustomTitle) {
-        delete config.options.plugins.tooltip.callbacks.hasCustomTitle;
+    if (hasTooltipTitle) {
         let titleCache = newCallbackCache(state);
-        config.options.plugins.tooltip.callbacks.title = function (ctx) {
+        tooltipCallbacks.title = function (ctx) {
             var first = ctx && ctx.length ? ctx[0] : null;
             var dsIndex = -1;
             var dIndex = -1;
@@ -301,10 +316,11 @@ export function chartSetup(id, dotnetConfig, jsonConfig, hooks) {
         };
     }
 
+    // `crosshair` is drawn by this wrapper, not by Chart.js, so the key is removed
+    // rather than blanked out - an `undefined` value leaves the key in place.
     let crosshair_plugin = config?.options?.plugins?.crosshair;
-    if (config?.options?.plugins?.crosshair) {
-        config.options.plugins.crosshair = undefined;
-    }
+    if (config?.options?.plugins)
+        delete config.options.plugins.crosshair;
 
     let hasHover = !!config?.options?.hasOnHoverAsync || !!hooks.hasHover;
     if (config?.options?.hasOnHoverAsync !== undefined)
@@ -337,9 +353,14 @@ export function chartSetup(id, dotnetConfig, jsonConfig, hooks) {
         };
     }
 
-    if (config?.options?.groupXAxis) {
-        config.options.groupXAxis = undefined;
+    let groupXAxis = config?.options?.groupXAxis;
+    let groupYAxis = config?.options?.groupYAxis;
+    if (config?.options) {
+        delete config.options.groupXAxis;
+        delete config.options.groupYAxis;
+    }
 
+    if (groupXAxis) {
         config.options.scales.x.ticks.callback = function (label) {
             let realLabel = this.getLabelForValue(label)
             var lbl = realLabel.split(";")[0];
@@ -361,9 +382,7 @@ export function chartSetup(id, dotnetConfig, jsonConfig, hooks) {
         }
     }
 
-    if (config?.options?.groupYAxis) {
-        config.options.groupYAxis = undefined;
-
+    if (groupYAxis) {
         config.options.scales.y.ticks.callback = function (label) {
             let realLabel = this.getLabelForValue(label)
             var lbl = realLabel.split(";")[0];
@@ -400,14 +419,21 @@ export function chartSetup(id, dotnetConfig, jsonConfig, hooks) {
     if (config?.options?.scales != null) {
         var scales = Object.keys(config.options.scales);
         for (let scale of scales) {
-            if (config.options.scales[scale]?.ticks?.hasCallback) {
-                delete config.options.scales[scale].ticks.hasCallback;
+            // Wrapper-internal markers again: stripped unconditionally, so a scale
+            // without callbacks does not ship `ticks.hasCallback: false` to Chart.js.
+            let ticks = config.options.scales[scale]?.ticks;
+            if (!ticks)
+                continue;
+
+            let hasCallback = ticks.hasCallback;
+            let hasAsyncCallback = ticks.hasAsyncCallback;
+            delete ticks.hasCallback;
+            delete ticks.hasAsyncCallback;
+
+            if (hasCallback)
                 installTicksCallback(state, config, scale, dotnetConfig, 'TicksCallback');
-            }
-            if (config.options.scales[scale]?.ticks?.hasAsyncCallback) {
-                delete config.options.scales[scale].ticks.hasAsyncCallback;
+            if (hasAsyncCallback)
                 installTicksCallback(state, config, scale, dotnetConfig, 'TicksCallbackAsync');
-            }
         }
     }
 

@@ -9,10 +9,12 @@
         /// Gets or sets the width of the border.
         /// </summary>
         /// <value>
-        /// The width of the border.
+        /// The width of the border, in pixels. Default: 3.
+        /// <c>0</c> hides the radar outline; <c>null</c> omits the key and leaves the
+        /// Chart.js default (3) in place.
         /// </value>
         [JsonPropertyName("borderWidth")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int BorderWidth { get; set; } = 3;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? BorderWidth { get; set; } = 3;
     }
 }

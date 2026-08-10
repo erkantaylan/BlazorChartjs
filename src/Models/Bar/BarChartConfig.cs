@@ -24,17 +24,6 @@
         public Data<BarDataset> Data { get; set; } = new Data<BarDataset>();
 
         /// <summary>
-        /// Gets or sets the on animation complete.
-        /// </summary>
-        /// <value>
-        /// The on animation complete.
-        /// </value>
-        /// <exception cref="System.NotImplementedException"></exception>
-        [JsonPropertyName("onAnimationComplete")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string OnAnimationComplete { get; set; }
-
-        /// <summary>
         /// Gets or sets the options.
         /// </summary>
         /// <value>

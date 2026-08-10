@@ -26,10 +26,12 @@
         /// Gets or sets the factor of zoom speed via mouse wheel
         /// </summary>
         /// <value>
-        /// The factor of zoom speed via mouse wheel. Default: 0.1M
+        /// The factor of zoom speed via mouse wheel. Default: 0.1M.
+        /// <c>0</c> makes a wheel event zoom by a factor of exactly 1, i.e. not at all;
+        /// <c>null</c> omits the key and leaves the plugin default (0.1) in place.
         /// </value>
         [JsonPropertyName("speed")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public decimal Speed { get; set; } = 0.1M;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public decimal? Speed { get; set; } = 0.1M;
     }
 }

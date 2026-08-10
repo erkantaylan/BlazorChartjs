@@ -82,35 +82,40 @@
         /// <summary>
         /// Gets or sets the border radius.
         /// </summary>
-        /// <value>The border radius.</value>
+        /// <value>The border radius. <c>0</c> squares off the corners; <c>null</c> leaves the
+        /// value inherited from the chart-level datalabels options in place.</value>
         [JsonPropertyName("borderRadius")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int BorderRadius { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? BorderRadius { get; set; }
 
         /// <summary>
         /// Gets or sets the width of the border.
         /// </summary>
-        /// <value>The width of the border.</value>
+        /// <value>The width of the border. <c>0</c> removes the border; <c>null</c> leaves the
+        /// value inherited from the chart-level datalabels options in place.</value>
         [JsonPropertyName("borderWidth")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int BorderWidth { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? BorderWidth { get; set; }
 
         /// <summary>Gets or sets a value indicating whether this <see cref="T:Erkan.Blazor.Chartjs.Models.Common.DataLabels" /> is clamp.</summary>
         /// <value>
         ///   <para>The clamp option, when <strong>true</strong>, enforces the anchor position to be calculated based on the visible geometry of the associated element.</para>
         ///   <para>For more details, see <a href="https://chartjs-plugin-datalabels.netlify.app/guide/positioning.html#clamping">this link</a>.</para>
+        ///   <para><c>false</c> explicitly turns clamping off, overriding a chart-level
+        ///   <c>clamp</c>; <c>null</c> leaves the inherited value in place.</para>
         /// </value>
         [JsonPropertyName("clamp")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Clamp { get; set; } = false;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Clamp { get; set; }
 
         /// <summary>
         /// When the clip option is true, the part of the label which is outside the chart area will be masked (see <a href="https://chartjs-plugin-datalabels.netlify.app/guide/positioning.html#clipping">CanvasRenderingContext2D.clip()</a>)
         /// </summary>
-        /// <value><c>true</c> if clip; otherwise, <c>false</c>.</value>
+        /// <value><c>true</c> if clip; <c>false</c> to explicitly turn clipping off, overriding a
+        /// chart-level <c>clip</c>; <c>null</c> leaves the inherited value in place.</value>
         [JsonPropertyName("clip")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool Clip { get; set; } = false;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Clip { get; set; }
 
         /// <summary>
         /// Gets or sets the color.
@@ -137,16 +142,16 @@
         ///   the label is moved in the opposite direction. The default value is 4.</para>
         /// </value>
         [JsonPropertyName("offset")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int Offset { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? Offset { get; set; }
 
         /// <summary>
         /// Gets or sets the opacity.
         /// </summary>
         /// <value>The opacity.</value>
         [JsonPropertyName("opacity")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public decimal Opacity { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public decimal? Opacity { get; set; }
 
         /// <summary>
         /// Gets or sets the padding.
@@ -159,10 +164,11 @@
         /// <summary>
         /// Gets or sets the rotation.
         /// </summary>
-        /// <value>The rotation.</value>
+        /// <value>The rotation, in degrees. <c>0</c> draws the label unrotated, overriding a
+        /// chart-level <c>rotation</c>; <c>null</c> leaves the inherited value in place.</value>
         [JsonPropertyName("rotation")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int Rotation { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? Rotation { get; set; }
 
         /// <summary>
         /// Gets or sets the text align.
@@ -199,18 +205,20 @@
         /// <summary>
         /// Gets or sets the width of the text stroke.
         /// </summary>
-        /// <value>The width of the text stroke.</value>
+        /// <value>The width of the text stroke. <c>0</c> removes the stroke, overriding a
+        /// chart-level <c>textStrokeWidth</c>; <c>null</c> leaves the inherited value in place.</value>
         [JsonPropertyName("textStrokeWidth")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int TextStrokeWidth { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? TextStrokeWidth { get; set; }
 
         /// <summary>
         /// Gets or sets the text shadow blur.
         /// </summary>
-        /// <value>The text shadow blur.</value>
+        /// <value>The text shadow blur. <c>0</c> removes the shadow blur, overriding a
+        /// chart-level <c>textShadowBlur</c>; <c>null</c> leaves the inherited value in place.</value>
         [JsonPropertyName("textShadowBlur")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int textShadowBlur { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? textShadowBlur { get; set; }
 
         /// <summary>
         /// Gets or sets the color of the text shadow.

@@ -13,7 +13,7 @@
         /// </value>
         [JsonPropertyName("elements")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public RadarOptionsElements Elements { get; set; }
+        public RadarOptionsElements? Elements { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether [maintain aspect ratio].
@@ -40,6 +40,7 @@
         /// The scales options
         /// </value>
         [JsonPropertyName("scales")]
-        public RadarOptionsScales Scales { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public RadarOptionsScales? Scales { get; set; }
     }
 }

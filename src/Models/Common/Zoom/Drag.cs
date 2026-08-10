@@ -56,10 +56,11 @@
         /// Gets or sets the threshold.
         /// </summary>
         /// <value>
-        /// The threshold. Default: 0
+        /// The minimum drag distance, in pixels, that still counts as a zoom.
+        /// <c>0</c> makes every drag zoom; <c>null</c> leaves the plugin default (0) in place.
         /// </value>
         [JsonPropertyName("threshold")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public int Threshold { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? Threshold { get; set; }
     }
 }

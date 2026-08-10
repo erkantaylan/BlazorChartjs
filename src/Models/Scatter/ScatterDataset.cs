@@ -55,7 +55,7 @@
             set
             {
                 _pointStyle = value;
-                PointStyleString = _pointStyle.Value;
+                PointStyleString = value?.Value;
             }
         }
         private PointStyle? _pointStyle;
@@ -67,7 +67,7 @@
         /// The point style string.
         /// </value>
         [JsonPropertyName("pointStyle")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? PointStyleString { get; set; }
 
         /// <summary>
@@ -84,31 +84,24 @@
         /// Gets or sets a value indicating whether show line.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [show line]; otherwise, <c>false</c>.
+        ///   <c>true</c> to join the points with a line; <c>false</c> to explicitly suppress it,
+        ///   overriding a chart-level <c>showLine</c>; <c>null</c> leaves the inherited value
+        ///   (Chart.js default <c>false</c> for scatter) in place.
         /// </value>
         [JsonPropertyName("showLine")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public bool ShowLine { get; set; } = false;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? ShowLine { get; set; }
 
         /// <summary>
         /// Gets or sets the tension.
         /// </summary>
         /// <value>
-        /// The tension.
+        /// The tension. <c>0</c> draws straight segments, overriding a chart-level
+        /// <c>elements.line.tension</c>; <c>null</c> leaves the inherited value in place.
         /// </value>
         [JsonPropertyName("tension")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public decimal Tension { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the y axis identifier.
-        /// </summary>
-        /// <value>
-        /// The y axis identifier.
-        /// </value>
-        [JsonPropertyName("y2AxisID")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Y2AxisId { get; set; }
+        public decimal? Tension { get; set; }
 
         /// <summary>
         /// Gets or sets the y axis identifier.

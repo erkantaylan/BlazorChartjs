@@ -2,7 +2,7 @@
 {
     public sealed class Axis
     {
-        private Position _position;
+        private Position? _position;
 
         /// <summary>
         /// Gets or sets the begin at zero.
@@ -82,13 +82,13 @@
         /// The position.
         /// </value>
         [JsonIgnore]
-        public Position Position
+        public Position? Position
         {
             get => _position;
             set
             {
                 _position = value;
-                PositionString = _position.Value;
+                PositionString = value?.Value;
             }
         }
         /// <summary>

@@ -10,16 +10,16 @@
         /// </summary>
         /// <value>The align.</value>
         [JsonIgnore]
-        public Align Align
+        public Align? Align
         {
             get => _align;
             set
             {
                 _align = value;
-                AlignString = _align.Value;
+                AlignString = value?.Value;
             }
         }
-        private Align _align;
+        private Align? _align;
 
         /// <summary>
         /// Gets or sets the align string.
@@ -27,7 +27,7 @@
         /// <value>The align string.</value>
         [JsonPropertyName("align")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string AlignString { get; set; }
+        public string? AlignString { get; set; }
 
         /// <summary>
         /// Gets or sets the color.

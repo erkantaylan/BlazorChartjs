@@ -130,11 +130,12 @@
         /// Gets or sets the padding.
         /// </summary>
         /// <value>
-        /// The padding to apply around the title. 
+        /// The padding above and below the title. Chart.js reads only the vertical pair here,
+        /// so this is <see cref="TitlePadding"/> rather than the four-sided <see cref="Padding"/>.
         /// </value>
         [JsonPropertyName("padding")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public Padding? Padding { get; set; }
+        public TitlePadding? Padding { get; set; }
 
         /// <summary>
         /// Gets or sets the font.

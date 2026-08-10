@@ -62,7 +62,7 @@ Coverage is thin in places, and the table says so. A **None** row means there is
 | Plugin | Status | Notes |
 | --- | --- | --- |
 | `legend` | **Partial** | `Display`, `Position`, `Align`, `Reverse`, `RTL`, `TextDirection`, `FullSize` and a click handler. `Labels` covers `Color`, `Font`, `BoxWidth`, `BoxHeight`, `Padding`, `UsePointStyle`, `PointStyle`/`PointStyleWidth`, `TextAlign`, `UseBorderRadius`, `BorderRadius` and `Filter` — the whole `legend.labels` object bar `generateLabels` and `sort`. See [Legend label styling](#legend-label-styling). On the legend itself, `maxWidth`/`maxHeight`, `title`, `onHover` and `onLeave` are still missing. |
-| `title` | **Partial** | `Display`, `Text`, `Position`, `Align`, `Color`, `Font`, `Padding`, `FullSize`. `Text` is a single `string`, so a multi-line title (Chart.js accepts `string[]`) is not possible. |
+| `title` | **Partial** | `Display`, `Text`, `Position`, `Align`, `Color`, `Font`, `Padding`, `FullSize`. `Padding` is a `TitlePadding` carrying `Top` and `Bottom`, which is the whole of what Chart.js reads here — the type omits `Left`/`Right` because the title box discards them. `Text` is a single `string`, so a multi-line title (Chart.js accepts `string[]`) is not possible. |
 | `subtitle` | **None** | No property for `plugins.subtitle`. A second `Title` cannot stand in for it — there is only one `title` slot. |
 | `tooltip` | **Partial** | Colours and fonts: `BackgroundColor`, `TitleColor`/`TitleFont`, `BodyColor`/`BodyFont`, `FooterColor`/`FooterFont`, `BorderColor`, `BorderWidth`, `MultiKeyBackground`, plus `Callbacks.Label` and `Callbacks.Title`. Layout and behaviour are still unreachable: `enabled`, `mode`, `intersect`, `position`, `padding`/`caretPadding`/`caretSize`/`boxPadding`, `cornerRadius`, `displayColors`, `boxWidth`/`boxHeight`, `usePointStyle`, the `*Align` and `*Spacing` options, `external`, `filter`, `itemSort`, `rtl`/`textDirection`, and the other dozen callbacks. |
 | `filler` | **Partial** | Reachable only as the `bool?` `Fill` on a line or radar dataset — on, explicitly off, or left to the type's default. `plugins.filler` itself (`propagate`, `drawTime`) has no property. |
@@ -133,17 +133,41 @@ What is *not* an escape hatch: **subclassing a typed dataset**. `Data<T>.Dataset
 
 Already on `Erkan.Blazor.Chartjs` 1.0.0? This is the only section you need — [the next one](#migrating-from-pscblazorcomponentschartjs) is for people coming off upstream `PSC.Blazor.Components.Chartjs`.
 
-### Five properties are gone
+### Six properties are gone
 
-2.0.0 deletes five properties. Each of them existed, serialized, and wrote a key Chart.js 4.5.1 never reads, so no chart was ever affected by the value you gave it. The compile error is the whole of the breakage, and every one has a replacement that does work.
+2.0.0 deletes six properties. Each of them existed, serialized, and wrote a key Chart.js 4.5.1 never reads, so no chart was ever affected by the value you gave it. The compile error is the whole of the breakage, and every one has a replacement that does work.
 
 | Removed in 2.0.0 | It wrote | Use instead |
 | --- | --- | --- |
 | `AxesTime.Source` | `scales[].time.source` | `Ticks.Source`. Chart.js reads tick generation from `ticks.source`, so the value moves from `Axis.Time` to `Axis.Ticks`: `Time = new AxesTime { Source = "data" }` becomes `Ticks = new Ticks { Source = "data" }`. Same `auto` / `data` / `labels` values. |
+| `Axis.Color` | `scales[].color` | One of four, depending on what you meant to colour — there is no single equivalent. `Ticks.Color` for the tick labels, `Grid.Color` for the grid lines, `Border.Color` for the axis line itself, `AxesTitle.Color` for the axis title. Chart.js 4 has no scale-level `color`: a scale declares none, nothing lets it inherit one, and every colour a scale draws with comes from those four objects. |
 | `LineDataset.Y2AxisId`, `ScatterDataset.Y2AxisId` | `y2AxisID` | `YAxisId = "y2"`. There is no `y2AxisID` option in Chart.js — a dataset names its scale with `yAxisID`, whatever that scale is keyed as in `Options.Scales`. |
 | `LineDataset.FillColor` | `fillColor` | `BackgroundColor`. `fillColor` is a Chart.js **1.x** name and has not been read since 2.0. |
 | `LineDataset.StrokeColor` | `strokeColor` | `BorderColor`. Also a Chart.js 1.x name. |
 | `OnAnimationComplete` on `BarChartConfig`, `BubbleChartConfig`, `DoughnutChartConfig`, `PieChartConfig`, `PolarChartConfig`, `RadarChartConfig` and `ScatterChartConfig` | `onAnimationComplete` at the root of the config object | Nothing yet — delete the assignment. Chart.js 4 has `options.animation.onComplete`, which this package does not expose ([`animation` row](#options-families)). |
+
+`Axis.Color` is the one with a choice to make. Because it never coloured anything, the value you had set cannot tell you which of the four you meant:
+
+```diff
+- new Axis { Color = "#52606d" }
++ new Axis { Ticks = new Ticks { Color = "#52606d" } }   // tick labels
++ // also: Grid.Color, Border.Color, AxesTitle.Color
+```
+
+### Title padding is `TitlePadding`
+
+`Title.Padding` is a `TitlePadding?` rather than the four-sided `Padding`, and carries `Top` and `Bottom` only:
+
+```diff
+- Padding = new Padding { Top = 8, Right = 8, Bottom = 16, Left = 8 }
++ Padding = new TitlePadding { Top = 8, Bottom = 16 }
+```
+
+Chart.js types `plugins.title.padding` as `number | { top, bottom }`, and the title box reads only `padding.height` (top plus bottom) and `padding.top`. A horizontal title is laid out across the full chart width and a vertical one across the full height, so there is no horizontal extent for a left or right padding to occupy — the two values were accepted, serialized, and discarded. Dropping them from the type is the whole change; `new TitlePadding(6)` gives equal padding above and below, which is what a bare `number` means to Chart.js too.
+
+This affects the seven chart types whose options class exposes `Plugins`. Radar is unaffected because `RadarOptions` has no `Plugins` block at all. The shared four-sided `Padding` class is untouched and stays correct where Chart.js does read all four sides, which is `DataLabels.Padding`.
+
+Like `Axis.Color`, migrating causes no visual change. Both properties compiled and serialized perfectly well in 1.0.0 and changed nothing in the browser, so the code you are about to edit was already a no-op — the compile error is the entire cost of the upgrade.
 
 ### Eighteen properties are nullable now
 
@@ -295,6 +319,22 @@ Chart.js moved from 3.9.1 to 4.5.1. Load the **UMD** build:
 - moment and `chartjs-adapter-moment` are now actually shipped and loaded, so `Options.Locale` and time axes work at runtime
 
 > **Note on `chartjs-adapter-moment`:** the bundled copy is hand-patched to apply a per-instance locale in `format()`, so it is deliberately excluded from `libman.json`. Do not overwrite it with a LibMan restore without re-applying that patch.
+
+### Tests
+
+There is a test suite — 284 tests, upstream had none — and CI runs it on every push and pull request. The publish workflow runs it again and will not pack a release that fails.
+
+```bash
+dotnet test tests/Erkan.Blazor.Chartjs.Tests/Erkan.Blazor.Chartjs.Tests.csproj
+```
+
+It exists because this package's characteristic bug is invisible: a property that serializes to a key Chart.js never reads, or a value that vanishes on the way out, throws nothing and logs nothing — the chart just quietly ignores you. Three things guard against that.
+
+- **Golden-JSON snapshots** of the serialized configuration for all eight chart types, in an empty, a minimal and a fully populated variant. Any change to what goes on the wire shows up as a diff rather than as a rendering surprise. Re-record with `UPDATE_SNAPSHOTS=1 dotnet test`.
+- **Key validation.** Every `[JsonPropertyName]` in the model tree is checked against the option paths generated from Chart.js's own TypeScript definitions and those of the bundled plugins, so a property that writes a key nothing reads fails the build. The generated allowlist is checked in, and the suite fails if it is stale relative to the vendored bundle versions — regenerate with `cd tests/tools/chartjs-keys && npm install && npm run generate`.
+- **A regression test per defect** fixed in 1.0.0 and 2.0.0, including one per removed property and one per nullability change.
+
+This is how the last two defects in 2.0.0 — `Axis.Color` and the title padding — were caught before release rather than after.
 
 ## Links
 * [Live demo](https://erkantaylan.github.io/BlazorChartjs/) for this fork

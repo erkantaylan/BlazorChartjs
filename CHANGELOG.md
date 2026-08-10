@@ -19,8 +19,9 @@ and would drop them.
 > 10 August 2026
 
 Legend and tooltip styling; eighteen properties that silently swallowed `0` and `false` fixed; a
-sweep of null handling, from setters that threw on `= null` to keys written as a bare `null`; and
-the removal of five properties that serialized to keys Chart.js never read.
+sweep of null handling, from setters that threw on `= null` to keys written as a bare `null`; the
+removal of six properties that serialized to keys Chart.js never read; and a test suite that exists
+to keep that last category from recurring.
 
 ##### Added
 
@@ -41,13 +42,18 @@ the removal of five properties that serialized to keys Chart.js never read.
 
 ##### Breaking changes
 
-Five properties are removed. Every one of them serialized, and every one wrote a key Chart.js 4.5.1
+Six properties are removed. Every one of them serialized, and every one wrote a key Chart.js 4.5.1
 never reads, so removing them changes no chart — the compile error is the whole of it. More change
-type without changing what you can assign to them; those are the last three bullets.
+type without changing what you can assign to them; those are the last four bullets.
 
 - `AxesTime.Source` removed — it wrote `time.source`. Use `Ticks.Source`, which is where Chart.js
   looks for it; the value moves from `Axis.Time` to `Axis.Ticks` and keeps the same
   `auto` / `data` / `labels` values.
+- `Axis.Color` removed — it wrote `scales[].color`, which Chart.js 4 has never read. A scale
+  declares no `color` of its own, nothing lets it inherit one, and every colour a scale draws with
+  comes from `grid`, `ticks`, `border` or `title`. There is no single equivalent, so pick the one
+  you meant: `Ticks.Color` for the tick labels, `Grid.Color` for the grid lines, `Border.Color` for
+  the axis line, `AxesTitle.Color` for the axis title.
 - `LineDataset.Y2AxisId` and `ScatterDataset.Y2AxisId` removed — they wrote `y2AxisID`, which is not
   a Chart.js option. A dataset names its scale with `yAxisID`: use `YAxisId = "y2"`.
 - `LineDataset.FillColor` and `LineDataset.StrokeColor` removed — `fillColor` and `strokeColor` are
@@ -56,6 +62,17 @@ type without changing what you can assign to them; those are the last three bull
   `PieChartConfig`, `PolarChartConfig`, `RadarChartConfig` and `ScatterChartConfig` — it wrote
   `onAnimationComplete` at the root of the config object, where Chart.js does not read it. Delete
   the assignment; Chart.js 4's `options.animation.onComplete` has no property yet.
+- `Title.Padding` is a `TitlePadding?` instead of the four-sided `Padding`, carrying `Top` and
+  `Bottom` only: `new Padding { Top = 8, Right = 8, Bottom = 16, Left = 8 }` becomes
+  `new TitlePadding { Top = 8, Bottom = 16 }`. Chart.js types `plugins.title.padding` as
+  `number | { top, bottom }` and the title box reads only `padding.height` (top plus bottom) and
+  `padding.top` — a horizontal title spans the full chart width and a vertical one the full height,
+  so `left` and `right` had no extent to occupy and were silently discarded. Like `Axis.Color`, the
+  removed values compiled and serialized in 1.0.0 and changed nothing on screen, so migrating is
+  visually a no-op. `new TitlePadding(6)` gives equal padding above and below, which is what a bare
+  number means to Chart.js too. This reaches the seven chart types whose options class exposes
+  `Plugins`; radar's `RadarOptions` has none, so it is unaffected. The four-sided `Padding` class is
+  unchanged and remains correct for `DataLabels.Padding`, where all four sides are read.
 - Eighteen properties became nullable so that `0` and `false` can be sent at all (the full list is
   under *Fixed*), and `Legend.Labels` is `LegendLabels?`. **Assigning any of them is unchanged** —
   `Tension = 0` and `Fill = false` still compile exactly as before. Only code that **reads** one
@@ -163,6 +180,23 @@ The rest:
   the exception left the filter permanently pinned to its fallback, so no legend entry could be
   hidden. The discriminator is placed on the object directly now, and the chart configuration
   reaches the JS layer as an object rather than being rebuilt with `eval`.
+
+##### Tested
+
+The repository has a test suite — 284 tests, where upstream had none. CI runs it on every push and
+pull request, and the publish workflow runs it again and will not pack a release that fails.
+
+- Golden-JSON snapshots of the serialized configuration for all eight chart types, in an empty, a
+  minimal and a fully populated variant, so any change to what goes on the wire shows up as a diff.
+- Every `[JsonPropertyName]` in the model tree validated against the option paths generated from
+  Chart.js's own TypeScript definitions and those of the bundled plugins. A property that writes a
+  key nothing reads now fails the build. The generated allowlist is checked in, and the suite fails
+  if it goes stale against the vendored bundle versions.
+- One regression test per defect fixed in 1.0.0 and 2.0.0, including one per removed property and
+  one per nullability change.
+
+This is what found the last two defects in this release — `Axis.Color` and the title padding —
+before it shipped rather than after.
 
 #### [1.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/0.96...v1.0.0)
 

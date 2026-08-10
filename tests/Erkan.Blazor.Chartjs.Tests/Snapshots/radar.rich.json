@@ -1,0 +1,46 @@
+{
+  "data": {
+    "datasets": [
+      {
+        "backgroundColor": "rgba(101,31,255,0.2)",
+        "borderColor": "#5a2ebf",
+        "borderWidth": 2,
+        "fill": false,
+        "pointBackgroundColor": "#5a2ebf",
+        "pointBorderColor": "#ffffff",
+        "pointHoverBackgroundColor": "#ffffff",
+        "pointHoverBorderColor": "#5a2ebf",
+        "data": [
+          10,
+          20,
+          30,
+          40
+        ],
+        "label": "Skills"
+      }
+    ],
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr"
+    ]
+  },
+  "options": {
+    "elements": {
+      "line": {
+        "borderWidth": 0
+      }
+    },
+    "maintainAspectRatio": false,
+    "responsive": true,
+    "scales": {
+      "r": {
+        "beginAtZero": true,
+        "max": 50,
+        "min": 0
+      }
+    }
+  },
+  "type": "radar"
+}

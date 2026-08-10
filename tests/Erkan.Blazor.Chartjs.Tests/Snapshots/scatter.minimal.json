@@ -1,0 +1,35 @@
+{
+  "data": {
+    "datasets": [
+      {
+        "data": [
+          {
+            "x": 1.5,
+            "y": 2.5
+          }
+        ],
+        "label": "Samples"
+      }
+    ],
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr"
+    ]
+  },
+  "options": {
+    "hasOnHoverAsync": false,
+    "maintainAspectRatio": false,
+    "plugins": {
+      "legend": {
+        "display": true,
+        "reverse": false,
+        "hasLegendClick": false
+      }
+    },
+    "responsive": true,
+    "registerDataLabels": false
+  },
+  "type": "scatter"
+}

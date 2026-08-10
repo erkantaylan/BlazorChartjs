@@ -39,6 +39,13 @@ jobs:
           fi
 
       - run: dotnet restore
+
+      # Gate the release on the test suite. Most of what it guards is invisible at runtime:
+      # a property that serializes to a key Chart.js does not read, or a value that silently
+      # vanishes on the way out, produces no error anywhere - it just quietly does nothing in
+      # the user's chart. Catch it here rather than in a bug report against a published version.
+      - run: dotnet test tests/Erkan.Blazor.Chartjs.Tests/Erkan.Blazor.Chartjs.Tests.csproj -c Release --no-restore
+
       - run: dotnet pack src/Erkan.Blazor.Chartjs.csproj -c Release --no-restore -o artifacts ${{ steps.ver.outputs.args }}
 
       - uses: actions/upload-artifact@v4

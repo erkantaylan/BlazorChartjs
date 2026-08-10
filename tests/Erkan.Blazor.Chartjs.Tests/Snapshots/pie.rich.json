@@ -1,0 +1,136 @@
+{
+  "data": {
+    "datasets": [
+      {
+        "backgroundColor": [
+          "#2bb0ed",
+          "#5ed0fa",
+          "#81defd",
+          "#b3ecff"
+        ],
+        "borderWidth": 1,
+        "hoverOffset": 8,
+        "data": [
+          10,
+          20,
+          30,
+          40
+        ],
+        "label": "Share"
+      }
+    ],
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr"
+    ]
+  },
+  "options": {
+    "circumference": 360,
+    "rotation": 0,
+    "hasOnHoverAsync": false,
+    "maintainAspectRatio": false,
+    "plugins": {
+      "datalabels": {
+        "align": "end",
+        "anchor": "end",
+        "backgroundColor": "#ffffff",
+        "borderColor": "#334e68",
+        "borderRadius": 4,
+        "borderWidth": 1,
+        "clamp": true,
+        "clip": false,
+        "color": "#102a43",
+        "font": {
+          "size": 11,
+          "weight": "600"
+        },
+        "offset": 6,
+        "opacity": 0.9,
+        "padding": {
+          "top": 2,
+          "left": 4,
+          "bottom": 2,
+          "right": 4
+        },
+        "rotation": 0,
+        "textAlign": "center",
+        "textStrokeColor": "#ffffff",
+        "textStrokeWidth": 1,
+        "textShadowBlur": 2,
+        "textShadowColor": "rgba(0,0,0,0.25)"
+      },
+      "legend": {
+        "align": "center",
+        "display": true,
+        "fullSize": true,
+        "labels": {
+          "hasFilter": false,
+          "color": "#1f2933",
+          "font": {
+            "family": "Inter",
+            "lineHeight": "1.2",
+            "size": 13,
+            "style": "normal",
+            "weight": "500"
+          },
+          "boxWidth": 18,
+          "boxHeight": 18,
+          "padding": 12,
+          "usePointStyle": true,
+          "pointStyleWidth": 10,
+          "pointStyle": "circle",
+          "textAlign": "left",
+          "useBorderRadius": true,
+          "borderRadius": 4
+        },
+        "position": "bottom",
+        "reverse": false,
+        "rtl": false,
+        "textDirection": "ltr",
+        "hasLegendClick": false
+      },
+      "tooltip": {
+        "backgroundColor": "rgba(11,31,51,0.92)",
+        "titleColor": "#ffffff",
+        "titleFont": {
+          "size": 14,
+          "weight": "600"
+        },
+        "bodyColor": "#dbe4ee",
+        "bodyFont": {
+          "size": 13
+        },
+        "footerColor": "#9fb3c8",
+        "footerFont": {
+          "size": 12,
+          "style": "italic"
+        },
+        "multiKeyBackground": "#102a43",
+        "borderColor": "#334e68",
+        "borderWidth": 1
+      },
+      "title": {
+        "align": "start",
+        "color": "#0b1f33",
+        "display": true,
+        "fullSize": true,
+        "position": "top",
+        "text": "Share of voice",
+        "padding": {
+          "top": 8,
+          "bottom": 16
+        },
+        "font": {
+          "family": "Inter",
+          "size": 18,
+          "weight": "700"
+        }
+      }
+    },
+    "responsive": true,
+    "registerDataLabels": false
+  },
+  "type": "pie"
+}

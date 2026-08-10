@@ -26,16 +26,6 @@
         public Border? Border { get; set; }
 
         /// <summary>
-        /// Gets or sets the color.
-        /// </summary>
-        /// <value>
-        /// The color.
-        /// </value>
-        [JsonPropertyName("color")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Color { get; set; }
-
-        /// <summary>
         /// Gets or sets the display.
         /// </summary>
         /// <value>

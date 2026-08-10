@@ -1,0 +1,252 @@
+{
+  "data": {
+    "datasets": [
+      {
+        "backgroundColor": "rgba(101,214,173,0.7)",
+        "data": [
+          {
+            "x": 10,
+            "y": 20,
+            "r": 5
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "r": 0
+          }
+        ],
+        "label": "Clusters"
+      }
+    ],
+    "labels": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr"
+    ]
+  },
+  "options": {
+    "hasOnHoverAsync": false,
+    "maintainAspectRatio": false,
+    "plugins": {
+      "datalabels": {
+        "align": "end",
+        "anchor": "end",
+        "backgroundColor": "#ffffff",
+        "borderColor": "#334e68",
+        "borderRadius": 4,
+        "borderWidth": 1,
+        "clamp": true,
+        "clip": false,
+        "color": "#102a43",
+        "font": {
+          "size": 11,
+          "weight": "600"
+        },
+        "offset": 6,
+        "opacity": 0.9,
+        "padding": {
+          "top": 2,
+          "left": 4,
+          "bottom": 2,
+          "right": 4
+        },
+        "rotation": 0,
+        "textAlign": "center",
+        "textStrokeColor": "#ffffff",
+        "textStrokeWidth": 1,
+        "textShadowBlur": 2,
+        "textShadowColor": "rgba(0,0,0,0.25)"
+      },
+      "legend": {
+        "align": "center",
+        "display": true,
+        "fullSize": true,
+        "labels": {
+          "hasFilter": false,
+          "color": "#1f2933",
+          "font": {
+            "family": "Inter",
+            "lineHeight": "1.2",
+            "size": 13,
+            "style": "normal",
+            "weight": "500"
+          },
+          "boxWidth": 18,
+          "boxHeight": 18,
+          "padding": 12,
+          "usePointStyle": true,
+          "pointStyleWidth": 10,
+          "pointStyle": "circle",
+          "textAlign": "left",
+          "useBorderRadius": true,
+          "borderRadius": 4
+        },
+        "position": "bottom",
+        "reverse": false,
+        "rtl": false,
+        "textDirection": "ltr",
+        "hasLegendClick": false
+      },
+      "tooltip": {
+        "backgroundColor": "rgba(11,31,51,0.92)",
+        "titleColor": "#ffffff",
+        "titleFont": {
+          "size": 14,
+          "weight": "600"
+        },
+        "bodyColor": "#dbe4ee",
+        "bodyFont": {
+          "size": 13
+        },
+        "footerColor": "#9fb3c8",
+        "footerFont": {
+          "size": 12,
+          "style": "italic"
+        },
+        "multiKeyBackground": "#102a43",
+        "borderColor": "#334e68",
+        "borderWidth": 1
+      },
+      "title": {
+        "align": "start",
+        "color": "#0b1f33",
+        "display": true,
+        "fullSize": true,
+        "position": "top",
+        "text": "Cluster density",
+        "padding": {
+          "top": 8,
+          "bottom": 16
+        },
+        "font": {
+          "family": "Inter",
+          "size": 18,
+          "weight": "700"
+        }
+      },
+      "zoom": {
+        "limits": {
+          "x": {
+            "min": "original",
+            "max": "original",
+            "minRange": 2
+          },
+          "y": {
+            "min": 0,
+            "max": 200,
+            "minRange": 10
+          }
+        },
+        "pan": {
+          "enabled": true,
+          "mode": "x",
+          "modifierKey": "shift",
+          "overScaleMode": "y",
+          "threshold": 0
+        },
+        "zoom": {
+          "drag": {
+            "enabled": true,
+            "backgroundColor": "rgba(54,162,235,0.3)",
+            "borderColor": "rgb(54,162,235)",
+            "borderWidth": 1,
+            "modifierKey": "alt",
+            "threshold": 0
+          },
+          "mode": "xy",
+          "overScaleMode": "y",
+          "pinch": {
+            "enabled": true
+          },
+          "scaleMode": "xy",
+          "wheel": {
+            "enabled": true,
+            "modifierKey": "ctrl",
+            "speed": 0.05
+          }
+        }
+      }
+    },
+    "responsive": true,
+    "registerDataLabels": false,
+    "scales": {
+      "x": {
+        "border": {
+          "color": "#9aa5b1",
+          "dash": [
+            4,
+            4
+          ],
+          "dashOffset": 2,
+          "display": true,
+          "width": 1,
+          "z": 1
+        },
+        "display": true,
+        "grid": {
+          "color": "#e4e7eb",
+          "display": true,
+          "drawOnChartArea": false,
+          "drawTicks": true
+        },
+        "position": "bottom",
+        "ticks": {
+          "hasCallback": false,
+          "hasAsyncCallback": false,
+          "color": "#52606d",
+          "crossAlign": "near",
+          "font": {
+            "size": 12
+          },
+          "maxRotation": 45,
+          "maxTicksLimit": 8,
+          "minRotation": 0,
+          "autoSkip": true
+        },
+        "title": {
+          "align": "center",
+          "color": "#3e4c59",
+          "font": {
+            "size": 13
+          },
+          "display": true,
+          "text": "Month"
+        },
+        "type": "category"
+      },
+      "y": {
+        "beginAtZero": true,
+        "border": {
+          "display": false
+        },
+        "display": true,
+        "grid": {
+          "color": "#f0f4f8",
+          "display": true,
+          "drawOnChartArea": true
+        },
+        "max": 100,
+        "min": 0,
+        "position": "left",
+        "stacked": false,
+        "suggestedMax": 120,
+        "suggestedMin": 0,
+        "ticks": {
+          "hasCallback": false,
+          "hasAsyncCallback": false,
+          "color": "#52606d",
+          "maxTicksLimit": 6,
+          "stepSize": 20
+        },
+        "title": {
+          "align": "center",
+          "display": true,
+          "text": "Requests"
+        },
+        "type": "linear"
+      }
+    }
+  },
+  "type": "bubble"
+}

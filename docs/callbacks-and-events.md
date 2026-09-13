@@ -180,6 +180,8 @@ With this code, if the user moves the mouse on the chart, the function writes th
 
 Both styles can be used at once: the component callback runs first, then the one on `Options`.
 
+Both styles fire from Chart.js's own event handling, so `Options.Events` decides when: the hover callbacks run on every event the chart listens to and only follow the pointer while `mousemove` is one of them, and the click callbacks need `click`. See [Hover and events](chart-options.md#hover-and-events).
+
 `LegendClickContext.LegendIndex` is the index the clicked entry stands for: the **dataset** index on charts whose legend has one entry per dataset (bar, line, scatter, bubble …), and the **data** index on pie, doughnut and polar-area charts, whose legend has one entry per slice. `OnChartOver` carries the same `HoverContext` as `OnHoverAsync`, so the same caveat applies — on a chart with no `x`/`y` scale (pie, doughnut, polar area, radar) it reports `0` for both axis values rather than throwing.
 
 > These three parameters existed upstream but were never wired to anything, so nothing ever invoked them. They fire now.

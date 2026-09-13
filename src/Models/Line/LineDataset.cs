@@ -126,18 +126,22 @@ namespace Erkan.Blazor.Chartjs.Models.Line
             set
             {
                 _stepMode = value;
-                SteppedString = value?.Value;
+                StepModeString = value?.Value;
             }
         }
         private StepMode? _stepMode;
 
         /// <summary>
-        /// Gets or sets the stepped string.
+        /// Gets or sets the step mode string.
         /// </summary>
-        /// <value>The stepped string.</value>
+        /// <value>
+        /// The step mode string. <c>"true"</c> and <c>"false"</c> are written as JSON booleans,
+        /// because Chart.js tests <c>stepped</c> for truthiness; anything else as a string.
+        /// </value>
         [JsonPropertyName("stepped")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? SteppedString { get; set; }
+        [JsonConverter(typeof(StepModeJsonConverter))]
+        public string? StepModeString { get; set; }
 
         /// <summary>
         /// Gets or sets the tension.

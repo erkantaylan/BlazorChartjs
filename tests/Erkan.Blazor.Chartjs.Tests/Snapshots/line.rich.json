@@ -9,7 +9,7 @@
         "fill": false,
         "pointRadius": 3,
         "pointStyle": "circle",
-        "stepped": "false",
+        "stepped": false,
         "tension": 0,
         "yAxisID": "y",
         "data": [

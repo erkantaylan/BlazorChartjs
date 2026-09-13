@@ -44,6 +44,15 @@
         public RadarOptionsScales? Scales { get; set; }
 
         /// <summary>
+        /// Gets or sets the Chart.js plugins to attach to this chart, by the global name their
+        /// script defines on <c>window</c>. Works exactly as <see cref="Options.RegisterPlugins"/>.
+        /// </summary>
+        /// <value>The global names, or <c>null</c> to attach none.</value>
+        [JsonPropertyName("registerPlugins")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? RegisterPlugins { get; set; }
+
+        /// <summary>
         /// Gets or sets Chart.js options this class has no property for, written into
         /// <c>options</c> next to the typed keys.
         /// </summary>

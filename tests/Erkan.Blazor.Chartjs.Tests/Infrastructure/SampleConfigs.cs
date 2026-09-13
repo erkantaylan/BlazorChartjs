@@ -399,6 +399,7 @@ public static class SampleConfigs
             Elements = new Elements { Line = new Line { BorderColor = "#334e68", BorderWidth = 2 } },
             Scales = CartesianScales(),
             Plugins = StyledPlugins("Revenue by month"),
+            RegisterPlugins = ["chartjs-plugin-autocolors"],
             ExtraOptions = new()
             {
                 ["layout"] = new { padding = new { top = 8, right = 16, bottom = 8, left = 16 } },

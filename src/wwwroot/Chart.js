@@ -451,6 +451,34 @@ export function chartSetup(id, dotnetConfig, config, hooks) {
     if (config?.options?.registerDataLabels !== undefined)
         delete config.options.registerDataLabels;
 
+    // Any other Chart.js plugin, named by the global its script defines. Attached to this
+    // chart only, for the same reason as DataLabels above. The list is a wrapper key, never a
+    // Chart.js option, so it is deleted whether or not it names anything.
+    let registerPlugins = config?.options?.registerPlugins;
+    if (config?.options)
+        delete config.options.registerPlugins;
+
+    if (Array.isArray(registerPlugins)) {
+        for (const name of registerPlugins) {
+            const plugin = typeof name === 'string' && name ? window[name] : undefined;
+            if (!plugin) {
+                console.warn('[BlazorChartjs] RegisterPlugins names "' + name + '" but no global of that name is loaded.');
+                continue;
+            }
+            // A bundle that exposes a namespace ({ default: plugin }) rather than the plugin
+            // itself would otherwise be handed to Chart.js as a plugin with no id.
+            if (!plugin.id) {
+                console.warn('[BlazorChartjs] RegisterPlugins names "' + name + '" but that global is not a Chart.js plugin (it has no id).');
+                continue;
+            }
+
+            if (!config.plugins) config.plugins = [];
+            // RegisterDataLabels and RegisterPlugins may both name ChartDataLabels.
+            if (!config.plugins.includes(plugin))
+                config.plugins.push(plugin);
+        }
+    }
+
     // chartjs-plugin-annotation is only registered when the chart actually declares
     // annotations, so charts without them keep the plugin out of the draw loop.
     if (config?.options?.plugins?.annotation) {

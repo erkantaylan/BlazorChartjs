@@ -216,6 +216,22 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public bool RegisterDataLabels { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets the Chart.js plugins to attach to this chart, by the global name their
+        /// script defines on <c>window</c> — <c>"ChartDataLabels"</c>, <c>"ChartZoom"</c>,
+        /// <c>"chartjs-plugin-annotation"</c>, <c>"chartjs-plugin-autocolors"</c>, or a plugin of
+        /// your own assigned to <c>window</c>.
+        /// </summary>
+        /// <value>
+        /// The global names. Each plugin is attached to this chart only, never registered
+        /// process-wide; a name with no global behind it logs a console warning and is skipped.
+        /// The list is read and removed by the component, so it never reaches Chart.js as an
+        /// option. Configure the plugin through <see cref="Common.Plugins.ExtraOptions"/>.
+        /// </value>
+        [JsonPropertyName("registerPlugins")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? RegisterPlugins { get; set; }
+
+        /// <summary>
         /// Gets or sets the scales.
         /// </summary>
         /// <value>

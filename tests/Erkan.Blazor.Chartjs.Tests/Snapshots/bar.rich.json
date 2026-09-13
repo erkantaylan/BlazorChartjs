@@ -179,6 +179,9 @@
     },
     "responsive": true,
     "registerDataLabels": false,
+    "registerPlugins": [
+      "chartjs-plugin-autocolors"
+    ],
     "scales": {
       "x": {
         "border": {

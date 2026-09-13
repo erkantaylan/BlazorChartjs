@@ -353,6 +353,7 @@ public static class SampleConfigs
             Labels = Labels,
             Datasets =
             [
+                // the falsy values and the number forms of the unions
                 new BarDataset
                 {
                     Label = "Revenue",
@@ -360,10 +361,42 @@ public static class SampleConfigs
                     BackgroundColor = ["#3ebd93", "#65d6ad", "#8eedc7", "#c6f7e2"],
                     BorderColor = ["#199473"],
                     BorderWidth = 2,
+                    BorderRadius = 0,
+                    BorderSkipped = BorderSkipped.False,
                     HoverBackgroundColor = ["#147d64"],
+                    HoverBorderColor = ["#0b1f33"],
+                    HoverBorderWidth = 0,
+                    HoverBorderRadius = 6,
+                    BarThickness = 12,
+                    MaxBarThickness = 24,
+                    MinBarLength = 0,
+                    BarPercentage = 0.9m,
+                    CategoryPercentage = 1,
+                    Base = 0,
+                    InflateAmount = 0,
+                    Grouped = false,
+                    SkipNull = false,
+                    Clip = 0,
+                    IndexAxis = Axes.X,
+                    PointStyle = PointStyle.RectangleRounded,
+                    XAxisId = Scales.XAxisId,
+                    YAxisId = Scales.YAxisId,
                     Stack = "primary",
                     Order = 1,
                     DataLabels = new DataLabels { Color = "#102a43", Offset = 0, Clamp = false },
+                },
+                // the object and keyword forms
+                new BarDataset
+                {
+                    Label = "Costs",
+                    Data = [5, null, 15, 20],
+                    BorderRadius = new BorderRadius { TopLeft = 8, TopRight = 8 },
+                    HoverBorderRadius = new BorderRadius(10, 10, 0, 0),
+                    BorderSkipped = BorderSkipped.Middle,
+                    BarThickness = BarThickness.Flex,
+                    InflateAmount = InflateAmount.Auto,
+                    Grouped = true,
+                    SkipNull = true,
                 },
             ],
         },

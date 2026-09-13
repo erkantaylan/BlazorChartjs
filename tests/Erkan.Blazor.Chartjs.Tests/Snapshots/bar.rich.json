@@ -8,14 +8,35 @@
           "#8eedc7",
           "#c6f7e2"
         ],
+        "barPercentage": 0.9,
+        "barThickness": 12,
+        "base": 0,
         "borderColor": [
           "#199473"
         ],
+        "borderRadius": 0,
+        "borderSkipped": false,
         "borderWidth": 2,
+        "categoryPercentage": 1,
+        "clip": 0,
+        "grouped": false,
         "hoverBackgroundColor": [
           "#147d64"
         ],
+        "hoverBorderColor": [
+          "#0b1f33"
+        ],
+        "hoverBorderRadius": 6,
+        "hoverBorderWidth": 0,
+        "indexAxis": "x",
+        "inflateAmount": 0,
+        "maxBarThickness": 24,
+        "minBarLength": 0,
+        "pointStyle": "rectRounded",
+        "skipNull": false,
         "stack": "primary",
+        "xAxisID": "x",
+        "yAxisID": "y",
         "data": [
           10,
           20,
@@ -29,6 +50,30 @@
         },
         "label": "Revenue",
         "order": 1
+      },
+      {
+        "barThickness": "flex",
+        "borderRadius": {
+          "topLeft": 8,
+          "topRight": 8
+        },
+        "borderSkipped": "middle",
+        "grouped": true,
+        "hoverBorderRadius": {
+          "topLeft": 10,
+          "topRight": 10,
+          "bottomLeft": 0,
+          "bottomRight": 0
+        },
+        "inflateAmount": "auto",
+        "skipNull": true,
+        "data": [
+          5,
+          null,
+          15,
+          20
+        ],
+        "label": "Costs"
       }
     ],
     "labels": [

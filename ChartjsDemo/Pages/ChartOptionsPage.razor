@@ -4,8 +4,8 @@
 
 <p>
     The options that belong to the chart as a whole rather than to a dataset, a scale or a plugin:
-    layout padding, sizing, the chart's own colours, hover, the DOM events the chart listens to, and
-    Chart.js's built-in <code>colors</code> plugin.
+    layout padding, sizing, the chart's own colours, hover, the DOM events the chart listens to,
+    Chart.js's built-in <code>colors</code> plugin, and where the tooltip goes and how it is laid out.
 </p>
 
 <h4>Default palette, chart colour, layout padding and hover</h4>
@@ -108,13 +108,68 @@ Plugins = new Plugins()
 }
 </CodeSnippet>
 
+<h4>Tooltip position, caret and colour boxes</h4>
+
+<p>
+    <code>Tooltip.Mode = Index</code> with <code>Intersect = false</code> lists all three series for a
+    month wherever the pointer is over the chart, while hovering still highlights only a point you are
+    on. <code>Position = Nearest</code> anchors the tooltip to the series nearest the pointer instead of
+    the average of all three, and <code>YAlign = Bottom</code> puts the caret at the bottom, so the
+    tooltip always sits above that point, centred by <code>XAlign</code>. The caret is twice its default
+    size and stands 8px off the point; the box has 12px padding and rounder corners, and
+    <code>UsePointStyle</code> draws each series' own marker, 10px across, in place of a square.
+</p>
+
+<Chart Config="_config4" @ref="_chart4" Height="400px"></Chart>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+_config4 = new LineChartConfig()
+{
+    Options = new Options()
+    {
+        Plugins = new Plugins()
+        {
+            Tooltip = new Tooltip()
+            {
+                Mode = InteractionMode.Index,
+                Intersect = false,
+                Position = TooltipPosition.Nearest,
+                XAlign = TooltipXAlign.Center,
+                YAlign = TooltipYAlign.Bottom,
+                CaretSize = 10,
+                CaretPadding = 8,
+                CornerRadius = 12,
+                Padding = new Padding(12),
+                TitleAlign = TextAlign.Center,
+                TitleMarginBottom = 10,
+                BodySpacing = 6,
+                UsePointStyle = true,
+                BoxWidth = 10,
+                BoxHeight = 10,
+                BoxPadding = 6,
+                BackgroundColor = "#0f172a",
+                BorderColor = "#38bdf8",
+                BorderWidth = 1
+            }
+        }
+    }
+};
+
+_config4.Data.Labels = LineDataExamples.SimpleLineText;
+_config4.Data.Datasets.Add(new LineDataset() { Label = "North", Data = LineDataExamples.SimpleLine, PointStyle = PointStyle.Circle, PointRadius = 5 });
+_config4.Data.Datasets.Add(new LineDataset() { Label = "South", Data = LineDataExamples.SimpleLine2, PointStyle = PointStyle.Triangle, PointRadius = 6 });
+_config4.Data.Datasets.Add(new LineDataset() { Label = "West", Data = LineDataExamples.SimpleLine3, PointStyle = PointStyle.RectangleRot, PointRadius = 6 });
+</CodeSnippet>
+
 @code {
     private BarChartConfig? _config1;
     private LineChartConfig? _config2;
     private LineChartConfig? _config3;
+    private LineChartConfig? _config4;
     private Chart? _chart1;
     private Chart? _chart2;
     private Chart? _chart3;
+    private Chart? _chart4;
 
     protected override void OnInitialized()
     {
@@ -157,6 +212,43 @@ Plugins = new Plugins()
 
         _config2 = ClickOnlyLineChart(forcePalette: false);
         _config3 = ClickOnlyLineChart(forcePalette: true);
+
+        _config4 = new LineChartConfig()
+        {
+            Options = new Options()
+            {
+                Plugins = new Plugins()
+                {
+                    Tooltip = new Tooltip()
+                    {
+                        Mode = InteractionMode.Index,
+                        Intersect = false,
+                        Position = TooltipPosition.Nearest,
+                        XAlign = TooltipXAlign.Center,
+                        YAlign = TooltipYAlign.Bottom,
+                        CaretSize = 10,
+                        CaretPadding = 8,
+                        CornerRadius = 12,
+                        Padding = new Padding(12),
+                        TitleAlign = TextAlign.Center,
+                        TitleMarginBottom = 10,
+                        BodySpacing = 6,
+                        UsePointStyle = true,
+                        BoxWidth = 10,
+                        BoxHeight = 10,
+                        BoxPadding = 6,
+                        BackgroundColor = "#0f172a",
+                        BorderColor = "#38bdf8",
+                        BorderWidth = 1
+                    }
+                }
+            }
+        };
+
+        _config4.Data.Labels = LineDataExamples.SimpleLineText;
+        _config4.Data.Datasets.Add(new LineDataset() { Label = "North", Data = LineDataExamples.SimpleLine, PointStyle = PointStyle.Circle, PointRadius = 5 });
+        _config4.Data.Datasets.Add(new LineDataset() { Label = "South", Data = LineDataExamples.SimpleLine2, PointStyle = PointStyle.Triangle, PointRadius = 6 });
+        _config4.Data.Datasets.Add(new LineDataset() { Label = "West", Data = LineDataExamples.SimpleLine3, PointStyle = PointStyle.RectangleRot, PointRadius = 6 });
     }
 
     private static LineChartConfig ClickOnlyLineChart(bool forcePalette)

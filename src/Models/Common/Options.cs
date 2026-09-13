@@ -224,5 +224,17 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         [JsonPropertyName("scales")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Dictionary<string, Axis> Scales { get; set; }
+
+        /// <summary>
+        /// Gets or sets Chart.js options this class has no property for, written into
+        /// <c>options</c> next to the typed keys.
+        /// </summary>
+        /// <value>
+        /// Each entry becomes one key, spelled exactly as given:
+        /// <c>["layout"] = new { padding = 24 }</c> writes <c>"layout": { "padding": 24 }</c>.
+        /// A key must not repeat one a property of this class already writes.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object?>? ExtraOptions { get; set; }
     }
 }

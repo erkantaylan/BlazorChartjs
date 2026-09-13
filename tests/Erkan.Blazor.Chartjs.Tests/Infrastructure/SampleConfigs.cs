@@ -25,7 +25,9 @@ namespace Erkan.Blazor.Chartjs.Tests.Infrastructure;
 ///   options object. This is where a stray <c>[]</c>, a bare <c>null</c> or a leaked
 ///   wrapper-internal marker shows up, because nothing here asked for any of them.</item>
 ///   <item><c>Rich</c> — what a real consumer sets: scales, legend, title, tooltip,
-///   datalabels and zoom, exercised as widely as each chart type's options class allows.</item>
+///   datalabels and zoom, exercised as widely as each chart type's options class allows, plus
+///   an <c>ExtraOptions</c> entry on every class that has the bag. Each of those entries is a
+///   key Chart.js really reads, because the key check validates them like any other.</item>
 /// </list>
 /// </remarks>
 public static class SampleConfigs
@@ -223,6 +225,7 @@ public static class SampleConfigs
                 UseBorderRadius = true,
                 BorderRadius = 4,
             },
+            ExtraOptions = new() { ["maxHeight"] = 64 },
         },
         Title = new Title
         {
@@ -234,6 +237,7 @@ public static class SampleConfigs
             FullSize = true,
             Font = new Font { Family = "Inter", Size = 18, Weight = "700" },
             Padding = new TitlePadding { Top = 8, Bottom = 16 },
+            ExtraOptions = new() { ["weight"] = 2000 },
         },
         Tooltip = new Tooltip
         {
@@ -247,6 +251,7 @@ public static class SampleConfigs
             BorderColor = "#334e68",
             BorderWidth = 1,
             MultiKeyBackground = "#102a43",
+            ExtraOptions = new() { ["cornerRadius"] = 8, ["displayColors"] = false },
         },
         DataLabels = new DataLabels
         {
@@ -269,6 +274,11 @@ public static class SampleConfigs
             TextStrokeWidth = 1,
             textShadowBlur = 2,
             TextShadowColor = "rgba(0,0,0,0.25)",
+        },
+        // plugins.subtitle has no typed model; the bag reaches it
+        ExtraOptions = new()
+        {
+            ["subtitle"] = new { display = true, text = "through Plugins.ExtraOptions" },
         },
     };
 
@@ -310,6 +320,7 @@ public static class SampleConfigs
             Border = new Border { Display = false },
             Ticks = new Ticks { Color = "#52606d", StepSize = 20, MaxTicksLimit = 6 },
             Title = new AxesTitle { Display = true, Text = "Requests", Align = Align.Center },
+            ExtraOptions = new() { ["grace"] = "5%", ["reverse"] = false },
         },
     };
 
@@ -361,6 +372,7 @@ public static class SampleConfigs
                     Stack = "primary",
                     Order = 1,
                     DataLabels = new DataLabels { Color = "#102a43", Offset = 0, Clamp = false },
+                    ExtraOptions = new() { ["borderRadius"] = 6, ["borderSkipped"] = false },
                 },
             ],
         },
@@ -387,6 +399,10 @@ public static class SampleConfigs
             Elements = new Elements { Line = new Line { BorderColor = "#334e68", BorderWidth = 2 } },
             Scales = CartesianScales(),
             Plugins = StyledPlugins("Revenue by month"),
+            ExtraOptions = new()
+            {
+                ["layout"] = new { padding = new { top = 8, right = 16, bottom = 8, left = 16 } },
+            },
         },
     };
 
@@ -405,6 +421,7 @@ public static class SampleConfigs
                     {
                         Label = "Clusters",
                         BackgroundColor = "rgba(101,214,173,0.7)",
+                        ExtraOptions = new() { ["borderColor"] = "#199473", ["borderWidth"] = 1 },
                         Data =
                         [
                             new BubbleCoords { X = 10, Y = 20, R = 5 },
@@ -511,6 +528,7 @@ public static class SampleConfigs
                         YAxisId = Scales.Y2AxisId,
                         Tension = 0.4m,
                         Fill = true,
+                        ExtraOptions = new() { ["spanGaps"] = true, ["borderDash"] = new[] { 6, 3 } },
                     },
                 ],
             },
@@ -576,8 +594,8 @@ public static class SampleConfigs
     /// <remarks>
     /// Radar is the odd one out: <see cref="RadarOptions"/> is a separate class carrying only
     /// elements, scales, responsive and maintainAspectRatio — it has no Plugins property at
-    /// all, so a radar chart cannot be given a legend, title, tooltip or datalabels through
-    /// the wrapper. The snapshot records that gap rather than working around it.
+    /// all, so a radar chart's legend and title can only be given through
+    /// <see cref="RadarOptions.ExtraOptions"/>, which is what this configuration does.
     /// </remarks>
     private static RadarChartConfig RichRadar() => new()
     {
@@ -610,6 +628,11 @@ public static class SampleConfigs
             {
                 R = new RadarOptionsScalesRadius { BeginAtZero = true, Min = 0, Max = 50 },
             },
+            // RadarOptions has no Plugins property; the bag is the only way to a radar legend
+            ExtraOptions = new()
+            {
+                ["plugins"] = new { legend = new { position = "right" }, title = new { display = true, text = "Skills" } },
+            },
         },
     };
 
@@ -636,6 +659,7 @@ public static class SampleConfigs
                         ShowLine = false,
                         Tension = 0,
                         YAxisId = Scales.YAxisId,
+                        ExtraOptions = new() { ["hidden"] = false, ["pointHoverRadius"] = 8 },
                         Data =
                         [
                             new ScatterXYValue { X = 1.5m, Y = 2.5m },

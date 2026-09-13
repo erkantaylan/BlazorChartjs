@@ -29,7 +29,9 @@
           "offset": 0
         },
         "label": "Revenue",
-        "order": 1
+        "order": 1,
+        "borderRadius": 6,
+        "borderSkipped": false
       }
     ],
     "labels": [
@@ -127,7 +129,8 @@
         "reverse": false,
         "rtl": false,
         "textDirection": "ltr",
-        "hasLegendClick": false
+        "hasLegendClick": false,
+        "maxHeight": 64
       },
       "tooltip": {
         "backgroundColor": "rgba(11,31,51,0.92)",
@@ -147,7 +150,9 @@
         },
         "multiKeyBackground": "#102a43",
         "borderColor": "#334e68",
-        "borderWidth": 1
+        "borderWidth": 1,
+        "cornerRadius": 8,
+        "displayColors": false
       },
       "title": {
         "align": "start",
@@ -164,7 +169,12 @@
           "family": "Inter",
           "size": 18,
           "weight": "700"
-        }
+        },
+        "weight": 2000
+      },
+      "subtitle": {
+        "display": true,
+        "text": "through Plugins.ExtraOptions"
       }
     },
     "responsive": true,
@@ -243,7 +253,17 @@
           "display": true,
           "text": "Requests"
         },
-        "type": "linear"
+        "type": "linear",
+        "grace": "5%",
+        "reverse": false
+      }
+    },
+    "layout": {
+      "padding": {
+        "top": 8,
+        "right": 16,
+        "bottom": 8,
+        "left": 16
       }
     }
   },

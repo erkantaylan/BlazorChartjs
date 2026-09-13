@@ -120,5 +120,16 @@
         [JsonPropertyName("borderWidth")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? BorderWidth { get; set; }
+
+        /// <summary>
+        /// Gets or sets tooltip options this class has no property for, written into
+        /// <c>options.plugins.tooltip</c> next to the typed keys.
+        /// </summary>
+        /// <value>
+        /// Each entry becomes one key, spelled exactly as given: <c>["cornerRadius"] = 8</c>.
+        /// A key must not repeat one a property of this class already writes.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object?>? ExtraOptions { get; set; }
     }
 }

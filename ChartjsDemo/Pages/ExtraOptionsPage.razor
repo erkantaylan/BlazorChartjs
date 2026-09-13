@@ -1,0 +1,262 @@
+@page "/extraOptions"
+
+<h3>Extra options and plugins</h3>
+
+<p>
+    When a model has no property for a Chart.js option, put the option in that model's
+    <code>ExtraOptions</code>. Its entries are written into the same JSON object as the typed
+    properties, using the Chart.js key names. <code>Options</code>, <code>Plugins</code>,
+    <code>Axis</code>, <code>Legend</code>, <code>Tooltip</code>, <code>Title</code>, every
+    dataset and <code>RadarOptions</code> have one. A key must not repeat one the class already
+    writes — see <a href="https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/extra-options.md">docs/extra-options.md</a>.
+</p>
+
+<h4>Options the models do not have</h4>
+
+<p>
+    Layout padding, a subtitle, a legend title, square tooltips, rounded bars and extra room
+    above the tallest bar. None of these has a typed property.
+</p>
+
+<Chart Config="_config1" @ref="_chart1" Height="400px"></Chart>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+_config1 = new BarChartConfig()
+{
+    Options = new Options()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        // options.layout
+        ExtraOptions = new() { ["layout"] = new { padding = 24 } },
+        Plugins = new Plugins()
+        {
+            Title = new Title() { Display = true, Text = "Monthly value" },
+            // options.plugins.subtitle
+            ExtraOptions = new()
+            {
+                ["subtitle"] = new { display = true, text = "set through Plugins.ExtraOptions", padding = new { bottom = 12 } }
+            },
+            Legend = new Legend()
+            {
+                Position = LegendPosition.Right,
+                // options.plugins.legend.title
+                ExtraOptions = new() { ["title"] = new { display = true, text = "Series" } }
+            },
+            Tooltip = new Tooltip()
+            {
+                // options.plugins.tooltip.cornerRadius and .displayColors
+                ExtraOptions = new() { ["cornerRadius"] = 0, ["displayColors"] = false }
+            }
+        },
+        Scales = new Dictionary&lt;string, Axis&gt;()
+        {
+            {
+                Scales.YAxisId, new Axis()
+                {
+                    BeginAtZero = true,
+                    // options.scales.y.grace
+                    ExtraOptions = new() { ["grace"] = "10%" }
+                }
+            }
+        }
+    }
+};
+
+_config1.Data.Labels = BarDataExamples.SimpleBarText;
+_config1.Data.Datasets.Add(new BarDataset()
+{
+    Label = "Value",
+    Data = BarDataExamples.SimpleBar.Select(l => l.Value).ToList(),
+    BackgroundColor = SampleColors.Palette1,
+    BorderColor = SampleColors.PaletteBorder1,
+    BorderWidth = 1,
+    // data.datasets[0].borderRadius and .borderSkipped
+    ExtraOptions = new() { ["borderRadius"] = 8, ["borderSkipped"] = false }
+});
+</CodeSnippet>
+
+<hr />
+
+<h4>Any plugin the page loads</h4>
+
+<p>
+    <code>RegisterPlugins</code> takes the global names that plugin scripts define on
+    <code>window</code>, and attaches each plugin to this chart only. Here it is
+    <code>chartjs-plugin-autocolors</code>, which ships in the package but has no typed model.
+    Its options go through <code>Plugins.ExtraOptions</code> under the plugin's id. The built-in
+    <code>colors</code> plugin is switched off the same way. If every bar has its own colour,
+    the plugin was attached. If they are all grey, it was not, and the browser console says why.
+</p>
+
+<CodeSnippet Language="Language.xml" Style="Style.VisualStudio">
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.umd.js">&lt;/script>
+&lt;script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-autocolors/chartjs-plugin-autocolors.min.js">&lt;/script>
+</CodeSnippet>
+
+<Chart Config="_config2" @ref="_chart2" Height="300px"></Chart>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+_config2 = new BarChartConfig()
+{
+    Options = new Options()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        RegisterPlugins = new List&lt;string&gt;() { "chartjs-plugin-autocolors" },
+        Plugins = new Plugins()
+        {
+            ExtraOptions = new()
+            {
+                ["autocolors"] = new { mode = "data" },
+                ["colors"] = new { enabled = false }
+            }
+        }
+    }
+};
+
+_config2.Data.Labels = BarDataExamples.SimpleBarText;
+_config2.Data.Datasets.Add(new BarDataset()
+{
+    Label = "Value",
+    Data = BarDataExamples.SimpleBar.Select(l => l.Value).ToList()
+});
+</CodeSnippet>
+
+<hr />
+
+<h4>A radar chart's legend and title</h4>
+
+<p>
+    <code>RadarOptions</code> has no <code>Plugins</code> property. Without its
+    <code>ExtraOptions</code>, a radar chart could not move its legend or show a title.
+</p>
+
+<Chart Config="_config3" @ref="_chart3" Height="400px"></Chart>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+_config3 = new RadarChartConfig()
+{
+    Options = new RadarOptions()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        ExtraOptions = new()
+        {
+            ["plugins"] = new
+            {
+                legend = new { position = "right" },
+                title = new { display = true, text = "Set through RadarOptions.ExtraOptions" }
+            }
+        }
+    }
+};
+
+_config3.Data.Labels = RadarDataExamples.RadarSimpleText;
+_config3.Data.Datasets.AddRange(RadarDataExamples.RadarDatasets);
+</CodeSnippet>
+
+@code {
+    private BarChartConfig? _config1;
+    private BarChartConfig? _config2;
+    private RadarChartConfig? _config3;
+    private Chart? _chart1;
+    private Chart? _chart2;
+    private Chart? _chart3;
+
+    protected override void OnInitialized()
+    {
+        _config1 = new BarChartConfig()
+        {
+            Options = new Options()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                ExtraOptions = new() { ["layout"] = new { padding = 24 } },
+                Plugins = new Plugins()
+                {
+                    Title = new Title() { Display = true, Text = "Monthly value" },
+                    ExtraOptions = new()
+                    {
+                        ["subtitle"] = new { display = true, text = "set through Plugins.ExtraOptions", padding = new { bottom = 12 } }
+                    },
+                    Legend = new Legend()
+                    {
+                        Position = LegendPosition.Right,
+                        ExtraOptions = new() { ["title"] = new { display = true, text = "Series" } }
+                    },
+                    Tooltip = new Tooltip()
+                    {
+                        ExtraOptions = new() { ["cornerRadius"] = 0, ["displayColors"] = false }
+                    }
+                },
+                Scales = new Dictionary<string, Axis>()
+                {
+                    {
+                        Scales.YAxisId, new Axis()
+                        {
+                            BeginAtZero = true,
+                            ExtraOptions = new() { ["grace"] = "10%" }
+                        }
+                    }
+                }
+            }
+        };
+
+        _config1.Data.Labels = BarDataExamples.SimpleBarText;
+        _config1.Data.Datasets.Add(new BarDataset()
+        {
+            Label = "Value",
+            Data = BarDataExamples.SimpleBar.Select(l => l.Value).ToList(),
+            BackgroundColor = SampleColors.Palette1,
+            BorderColor = SampleColors.PaletteBorder1,
+            BorderWidth = 1,
+            ExtraOptions = new() { ["borderRadius"] = 8, ["borderSkipped"] = false }
+        });
+
+        _config2 = new BarChartConfig()
+        {
+            Options = new Options()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                RegisterPlugins = new List<string>() { "chartjs-plugin-autocolors" },
+                Plugins = new Plugins()
+                {
+                    ExtraOptions = new()
+                    {
+                        ["autocolors"] = new { mode = "data" },
+                        ["colors"] = new { enabled = false }
+                    }
+                }
+            }
+        };
+
+        _config2.Data.Labels = BarDataExamples.SimpleBarText;
+        _config2.Data.Datasets.Add(new BarDataset()
+        {
+            Label = "Value",
+            Data = BarDataExamples.SimpleBar.Select(l => l.Value).ToList()
+        });
+
+        _config3 = new RadarChartConfig()
+        {
+            Options = new RadarOptions()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                ExtraOptions = new()
+                {
+                    ["plugins"] = new
+                    {
+                        legend = new { position = "right" },
+                        title = new { display = true, text = "Set through RadarOptions.ExtraOptions" }
+                    }
+                }
+            }
+        };
+
+        _config3.Data.Labels = RadarDataExamples.RadarSimpleText;
+        _config3.Data.Datasets.AddRange(RadarDataExamples.RadarDatasets);
+    }
+}

@@ -163,7 +163,8 @@ For what each type's model actually exposes, and where it stops, see [Feature co
 - [Upgrading](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/upgrading.md) — from `Erkan.Blazor.Chartjs` 1.0.0, and from upstream `PSC.Blazor.Components.Chartjs`
 - [Updating data](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/updating-data.md) — `AddData`, `AddDataset<T>` and `ClearData` on a chart that has already rendered
 - [Callbacks and events](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/callbacks-and-events.md) — tooltip, tick and legend callbacks, `OnClickAsync`, `OnHoverAsync` and the component's event parameters
-- [Styling](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/styling.md) — legend label styling and the axis border
+- [Chart options](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/chart-options.md) — size and aspect ratio, layout padding, hover and the events a chart listens to
+- [Styling](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/styling.md) — legend label styling, the chart's own colours, the default colour palette, line dataset styling (dashes, gaps, point colours, step modes) and the axis border
 - [Plugins](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/plugins.md) — data labels, zoom and pan, and attaching any other Chart.js plugin with `RegisterPlugins`
 - [Extra options](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/extra-options.md) — `ExtraOptions`, for the Chart.js options the models have no property for
 - [Changelog](https://github.com/erkantaylan/BlazorChartjs/blob/main/CHANGELOG.md)
@@ -189,6 +190,8 @@ Contributors to the upstream project, whose work this fork inherits:
 ## Credits
 
 Original project by [Enrico Rossini](https://github.com/erossini) — [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs), documented on [PureSourceCode.com](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/). Nearly all of the component's design and the bulk of its code are his.
+
+Parts of the original code were taken from [ChartJs.Blazor](https://github.com/mariusmuntean/ChartJs.Blazor) by Marius Muntean, Joel L. and the ChartJs.Blazor contributors, which is MIT licensed; their copyright notice is in [LICENSE](https://github.com/erkantaylan/BlazorChartjs/blob/main/LICENSE).
 
 This fork is maintained by [erkantaylan](https://github.com/erkantaylan) and released under the same MIT license. It is not affiliated with or endorsed by PureSourceCode; please raise issues with this fork at [erkantaylan/BlazorChartjs](https://github.com/erkantaylan/BlazorChartjs/issues) rather than upstream.
 

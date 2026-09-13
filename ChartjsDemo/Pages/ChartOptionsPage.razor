@@ -1,0 +1,186 @@
+@page "/chartOptions"
+
+<h3>Chart options</h3>
+
+<p>
+    The options that belong to the chart as a whole rather than to a dataset, a scale or a plugin:
+    layout padding, sizing, the chart's own colours, hover, the DOM events the chart listens to, and
+    Chart.js's built-in <code>colors</code> plugin.
+</p>
+
+<h4>Default palette, chart colour, layout padding and hover</h4>
+
+<p>
+    None of the three datasets sets a colour, so the <code>colors</code> plugin paints them from its
+    palette. <code>Options.Color</code> colours the legend labels — in Chart.js 4.5.1 that is the only
+    text the per-chart colour reaches, so the title and ticks carry their own <code>Color</code> and
+    <code>Font</code>. <code>Layout.Padding</code> puts 32px between the canvas edge and the chart, and
+    <code>Hover</code> highlights all three bars of a month at once, while <code>Interaction</code>
+    keeps the tooltip on the single bar under the pointer.
+</p>
+
+<Chart Config="_config1" @ref="_chart1" Height="400px"></Chart>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+_config1 = new BarChartConfig()
+{
+    Options = new Options()
+    {
+        Color = "#1e3a8a",
+        Layout = new Layout() { Padding = new Padding(32) },
+        Interaction = new Interaction() { Mode = InteractionMode.Nearest, Intersect = true },
+        Hover = new Interaction() { Mode = InteractionMode.Index, Intersect = false },
+        Plugins = new Plugins()
+        {
+            Colors = new Colors() { Enabled = true },
+            Legend = new Legend()
+            {
+                Position = LegendPosition.Bottom,
+                Labels = new LegendLabels() { Font = new Font() { Family = "Georgia, serif", Size = 14 } }
+            },
+            Title = new Title()
+            {
+                Display = true,
+                Text = "Themed chart",
+                Color = "#1e3a8a",
+                Font = new Font() { Family = "Georgia, serif", Size = 18 }
+            }
+        },
+        Scales = new Dictionary&lt;string, Axis&gt;()
+        {
+            { Scales.XAxisId, new Axis() { Ticks = new Ticks() { Color = "#1e3a8a", Font = new Font() { Family = "Georgia, serif" } } } },
+            { Scales.YAxisId, new Axis() { Ticks = new Ticks() { Color = "#1e3a8a", Font = new Font() { Family = "Georgia, serif" } } } }
+        }
+    }
+};
+
+_config1.Data.Labels = LineDataExamples.SimpleLineText;
+_config1.Data.Datasets.Add(new BarDataset() { Label = "North", Data = LineDataExamples.SimpleLine });
+_config1.Data.Datasets.Add(new BarDataset() { Label = "South", Data = LineDataExamples.SimpleLine2 });
+_config1.Data.Datasets.Add(new BarDataset() { Label = "West", Data = LineDataExamples.SimpleLine3 });
+</CodeSnippet>
+
+<h4>Chart colours, aspect ratio and click-only events</h4>
+
+<p>
+    <code>Options.BackgroundColor</code> and <code>Options.BorderColor</code> are what every line and
+    point falls back to when its dataset sets no colour. Setting either one also switches the
+    <code>colors</code> plugin off, which is why both series are slate here. The chart is given no
+    <code>Height</code>: <code>MaintainAspectRatio = true</code> with <code>AspectRatio = 3</code>
+    makes it three times as wide as it is tall. <code>Events</code> lists only <code>click</code>, so
+    nothing happens on hover and the tooltip appears when you click a point.
+</p>
+
+<Chart Config="_config2" @ref="_chart2"></Chart>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+_config2 = new LineChartConfig()
+{
+    Options = new Options()
+    {
+        BackgroundColor = "rgba(71, 85, 105, 0.25)",
+        BorderColor = "#475569",
+        MaintainAspectRatio = true,
+        AspectRatio = 3,
+        ResizeDelay = 100,
+        Events = ["click"]
+    }
+};
+
+_config2.Data.Labels = LineDataExamples.SimpleLineText;
+_config2.Data.Datasets.Add(new LineDataset() { Label = "This year", Data = LineDataExamples.SimpleLine });
+_config2.Data.Datasets.Add(new LineDataset() { Label = "Last year", Data = LineDataExamples.SimpleLine2 });
+</CodeSnippet>
+
+<h4>Forcing the palette</h4>
+
+<p>
+    The same chart with <code>Colors.ForceOverride = true</code>: the palette now wins over the chart's
+    own colours, and over any colour a dataset sets.
+</p>
+
+<Chart Config="_config3" @ref="_chart3"></Chart>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+Plugins = new Plugins()
+{
+    Colors = new Colors() { ForceOverride = true }
+}
+</CodeSnippet>
+
+@code {
+    private BarChartConfig? _config1;
+    private LineChartConfig? _config2;
+    private LineChartConfig? _config3;
+    private Chart? _chart1;
+    private Chart? _chart2;
+    private Chart? _chart3;
+
+    protected override void OnInitialized()
+    {
+        _config1 = new BarChartConfig()
+        {
+            Options = new Options()
+            {
+                Color = "#1e3a8a",
+                Layout = new Layout() { Padding = new Padding(32) },
+                Interaction = new Interaction() { Mode = InteractionMode.Nearest, Intersect = true },
+                Hover = new Interaction() { Mode = InteractionMode.Index, Intersect = false },
+                Plugins = new Plugins()
+                {
+                    Colors = new Colors() { Enabled = true },
+                    Legend = new Legend()
+                    {
+                        Position = LegendPosition.Bottom,
+                        Labels = new LegendLabels() { Font = new Font() { Family = "Georgia, serif", Size = 14 } }
+                    },
+                    Title = new Title()
+                    {
+                        Display = true,
+                        Text = "Themed chart",
+                        Color = "#1e3a8a",
+                        Font = new Font() { Family = "Georgia, serif", Size = 18 }
+                    }
+                },
+                Scales = new Dictionary<string, Axis>()
+                {
+                    { Scales.XAxisId, new Axis() { Ticks = new Ticks() { Color = "#1e3a8a", Font = new Font() { Family = "Georgia, serif" } } } },
+                    { Scales.YAxisId, new Axis() { Ticks = new Ticks() { Color = "#1e3a8a", Font = new Font() { Family = "Georgia, serif" } } } }
+                }
+            }
+        };
+
+        _config1.Data.Labels = LineDataExamples.SimpleLineText;
+        _config1.Data.Datasets.Add(new BarDataset() { Label = "North", Data = LineDataExamples.SimpleLine });
+        _config1.Data.Datasets.Add(new BarDataset() { Label = "South", Data = LineDataExamples.SimpleLine2 });
+        _config1.Data.Datasets.Add(new BarDataset() { Label = "West", Data = LineDataExamples.SimpleLine3 });
+
+        _config2 = ClickOnlyLineChart(forcePalette: false);
+        _config3 = ClickOnlyLineChart(forcePalette: true);
+    }
+
+    private static LineChartConfig ClickOnlyLineChart(bool forcePalette)
+    {
+        var config = new LineChartConfig()
+        {
+            Options = new Options()
+            {
+                BackgroundColor = "rgba(71, 85, 105, 0.25)",
+                BorderColor = "#475569",
+                MaintainAspectRatio = true,
+                AspectRatio = 3,
+                ResizeDelay = 100,
+                Events = ["click"],
+                Plugins = new Plugins()
+                {
+                    Colors = forcePalette ? new Colors() { ForceOverride = true } : null
+                }
+            }
+        };
+
+        config.Data.Labels = LineDataExamples.SimpleLineText;
+        config.Data.Datasets.Add(new LineDataset() { Label = "This year", Data = LineDataExamples.SimpleLine });
+        config.Data.Datasets.Add(new LineDataset() { Label = "Last year", Data = LineDataExamples.SimpleLine2 });
+        return config;
+    }
+}

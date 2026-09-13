@@ -55,13 +55,29 @@
       },
       "x": false
     },
+    "aspectRatio": 2,
+    "backgroundColor": "rgba(62,189,147,0.2)",
+    "borderColor": "#199473",
+    "color": "#243b53",
+    "devicePixelRatio": 2,
     "elements": {
       "line": {
         "borderColor": "#334e68",
         "borderWidth": 2
       }
     },
+    "events": [
+      "mousemove",
+      "mouseout",
+      "click"
+    ],
     "hasOnHoverAsync": false,
+    "hover": {
+      "intersect": false,
+      "includeInvisible": true,
+      "mode": "index",
+      "axis": "x"
+    },
     "indexAxis": "x",
     "interaction": {
       "intersect": false,
@@ -69,9 +85,22 @@
       "mode": "index",
       "axis": "x"
     },
+    "layout": {
+      "autoPadding": false,
+      "padding": {
+        "top": 8,
+        "left": 16,
+        "bottom": 8,
+        "right": 16
+      }
+    },
     "locale": "tr-TR",
     "maintainAspectRatio": false,
     "plugins": {
+      "colors": {
+        "enabled": true,
+        "forceOverride": true
+      },
       "datalabels": {
         "align": "end",
         "anchor": "end",
@@ -177,6 +206,7 @@
         "text": "through Plugins.ExtraOptions"
       }
     },
+    "resizeDelay": 0,
     "responsive": true,
     "registerDataLabels": false,
     "registerPlugins": [
@@ -261,12 +291,11 @@
         "reverse": false
       }
     },
-    "layout": {
-      "padding": {
-        "top": 8,
-        "right": 16,
-        "bottom": 8,
-        "left": 16
+    "transitions": {
+      "active": {
+        "animation": {
+          "duration": 0
+        }
       }
     }
   },

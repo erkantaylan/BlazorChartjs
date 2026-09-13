@@ -30,8 +30,14 @@
     "circumference": 360,
     "rotation": 0,
     "hasOnHoverAsync": false,
+    "layout": {
+      "autoPadding": true
+    },
     "maintainAspectRatio": false,
     "plugins": {
+      "colors": {
+        "forceOverride": false
+      },
       "datalabels": {
         "align": "end",
         "anchor": "end",
@@ -137,6 +143,7 @@
         "text": "through Plugins.ExtraOptions"
       }
     },
+    "resizeDelay": 250,
     "responsive": true,
     "registerDataLabels": false
   },

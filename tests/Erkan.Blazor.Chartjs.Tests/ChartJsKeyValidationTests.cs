@@ -71,8 +71,6 @@ public class ChartJsKeyValidationTests
     /// </summary>
     private static readonly HashSet<string> UnreachableModelTypes =
     [
-        "Autocolors",
-        "Colors",
         "LineDataType",
         "Parsing",
     ];

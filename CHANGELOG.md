@@ -18,12 +18,58 @@ and would drop them.
 
 ##### Added
 
+- Chart-level options on `Options` that had no property
+  ([#4](https://github.com/erkantaylan/BlazorChartjs/issues/4)), each written to the key Chart.js
+  4.5.1 reads, and each omitted when left `null`:
+  - `Layout` — a new `Layout` class with `Padding` (the existing four-sided `Padding`) and
+    `AutoPadding`, serialized to `options.layout`.
+  - `AspectRatio` (`double?`), `ResizeDelay` (`int?`) and `DevicePixelRatio` (`double?`).
+  - `Color`, `BackgroundColor` and `BorderColor`. `BackgroundColor` and `BorderColor` are what every
+    bar, line, point and arc falls back to when its dataset sets no colour. `Color` reaches less than
+    its name suggests: Chart.js uses the per-chart value for legend label text only, and the title,
+    ticks, axis titles and datalabels fall back to the page-wide `Chart.defaults.color` instead.
+  - `Hover`, an `Interaction` — the same four settings, applied to hover only and falling back to
+    `Interaction` for whatever it leaves unset.
+  - `Events` (`List<string>?`), the DOM events the chart listens to. `[]` is written as `[]` and
+    means none; the package's hover and click callbacks only fire on the events listed.
+- `Plugins.Colors` configures Chart.js's built-in `colors` plugin through the existing `Colors`
+  class, which nothing referenced before: `Enabled`, and `ForceOverride` to apply the palette over
+  colours that are already set. Without `ForceOverride` the plugin colours nothing once any dataset,
+  `Options.Elements`, `Options.BackgroundColor` or `Options.BorderColor` sets a colour.
+- `docs/chart-options.md` — size and aspect ratio, layout padding, hover and events — and a
+  **Chart options** demo page.
+
+There is deliberately no `Options.Font`. Chart.js declares a per-chart `options.font`, but 4.5.1
+reads it only for radial-scale point labels, which no chart built on `Options` can show; everything
+else falls back to the page-wide `Chart.defaults.font`. A property that changed nothing on screen is
+the defect the key-validation tests exist to prevent, so each text element's own `Font` remains the
+way to set one.
+
+- `LineDataset` gained the line and point styling Chart.js reads on a line dataset
+  ([#8](https://github.com/erkantaylan/BlazorChartjs/issues/8), upstream
+  [#95](https://github.com/erossini/BlazorChartjs/issues/95), which asked for dashes because
+  series in similar colours could not be told apart):
+  - the line — `BorderDash` (`List<decimal>?`), `BorderDashOffset`, `BorderCapStyle` and
+    `BorderJoinStyle` (new string-enum classes, with `BorderCapStyleString` and
+    `BorderJoinStyleString` twins), `SpanGaps`, `ShowLine`, and `HoverBackgroundColor`,
+    `HoverBorderColor` and `HoverBorderWidth`;
+  - the points — `PointBackgroundColor`, `PointBorderColor`, `PointHoverBackgroundColor` and
+    `PointHoverBorderColor` as `List<string>?`, one colour per point, and `PointBorderWidth`,
+    `PointHitRadius`, `PointHoverRadius`, `PointHoverBorderWidth` and `PointRotation` as `int?`;
+  - placement — `XAxisId` (`xAxisID`), `Stack`, `Clip` and `DrawActiveElementsOnTop`.
+
+  Every one is nullable and omitted when unset. Two keep only one form of a Chart.js union:
+  `SpanGaps` is `bool?`, with no numeric largest-gap form, and `Clip` is a pixel count for every
+  side, with no `false` and no per-side object. `segment`, `hidden`, `indexAxis`, the
+  `hoverBorderDash`/`hoverBorderDashOffset`/`hoverBorderCapStyle`/`hoverBorderJoinStyle` group,
+  fill targets and `pointStyle: false` still have no property. The demo has a new *Line Styling*
+  page, and the *Step Line* page compares the step modes.
 - `ExtraOptions`, a `Dictionary<string, object?>` marked `[JsonExtensionData]`, on `Options`,
   `RadarOptions`, `Plugins`, `Legend`, `Title`, `Tooltip`, `Axis`, `Dataset` and `CustomDataset`,
   which covers every dataset type, and `PieOptions` through `Options`. Its entries are written into
   the JSON object their class writes, after the typed keys and spelled exactly as given, so an
   option the models have no property for can be set by its Chart.js name:
-  `Options.ExtraOptions["layout"]`, `Plugins.ExtraOptions["subtitle"]`,
+  `Options.ExtraOptions["transitions"]`, `Plugins.ExtraOptions["subtitle"]`,
   `Axis.ExtraOptions["grace"]`, `Dataset.ExtraOptions["borderRadius"]`. Until now a missing
   property was a dead end: there was no bag anywhere, and a subclassed dataset lost its extra
   properties because `Data<T>.Datasets` serializes by the declared type
@@ -47,6 +93,12 @@ and would drop them.
 
 ##### Changed
 
+- `Options.MaintainAspectRatio` and `Options.Responsive` are `bool?` instead of `bool`, and still
+  start out `false` and `true`, so an existing chart sends exactly what it sent before — including
+  the `maintainAspectRatio: false` the `<Chart>` component's `Height` parameter depends on. Assign
+  `null` to write no key and leave the choice to Chart.js (whose defaults are `true` for both).
+  Assigning `true` or `false` is unchanged; code that reads one into a `bool` needs
+  `options.Responsive ?? true` or `== true`. `RadarOptions` keeps its own non-nullable pair.
 - `README.md` is a short front page now — installation, a quick start, the implemented charts and
   an index of the documentation — and the reference material it used to carry lives under `docs/`,
   moved as it was rather than rewritten:
@@ -63,6 +115,44 @@ and would drop them.
   gone: it repeated this file, and the four things it said that this file did not — the UMD build
   name, the patched moment adapter, the crosshair redraw batching and the tick snap-to-zero
   threshold — are in the `1.0.0` entry now.
+- `LineDataset.SteppedString` is renamed `StepModeString`, the `<Property>String` name every other
+  string-enum twin in the library uses. Code that assigns `StepMode` is unaffected; code that set
+  the raw string needs the new name: `SteppedString = "middle"` becomes
+  `StepModeString = "middle"`. The rename comes with the `stepped` fix under *Fixed*, and
+  `"true"` and `"false"` assigned to the twin directly are sent as booleans too.
+
+##### Fixed
+
+- `LICENSE` carries the copyright notice of
+  [ChartJs.Blazor](https://github.com/mariusmuntean/ChartJs.Blazor) — `Copyright (c) 2019 Marius
+  Muntean` and `Copyright (c) 2021 Joel L.` — above Enrico Rossini's line. Upstream reused
+  ChartJs.Blazor code from its first commit (a `ColorUtil` class it later deleted, and `IDataset`)
+  without the notice the MIT licence requires, and this fork inherited the gap: nothing in the
+  repository or the package named the project it came from. The package's `<Copyright>` names the
+  same holders, and the README's Credits section names ChartJs.Blazor and its contributors. Upstream
+  [#84](https://github.com/erossini/BlazorChartjs/issues/84) asked for this and was closed without
+  it.
+- `StepMode.False` draws straight lines. Every `StepMode` went out as a string, so `False` sent
+  `"stepped": "false"`. Chart.js tests `stepped` for truthiness, and a non-empty string is truthy,
+  so the line was drawn stepped, in `before` mode. That was the value meant to turn stepping off,
+  or to override a chart-level `stepped`. `False` and `True` are now sent as the JSON booleans
+  `false` and `true`; `Before`, `After` and `Middle` stay strings. `True` was only ever right
+  because `"true"` is truthy too. The feature coverage table had listed the property as `Stepped`
+  and as working; it is `StepMode`, and it works now
+  ([#8](https://github.com/erkantaylan/BlazorChartjs/issues/8)).
+
+##### Removed
+
+- `IDataset` and `IDataset<T>` (`Erkan.Blazor.Chartjs.Interfaces`) removed. Both came from
+  [ChartJs.Blazor](https://github.com/mariusmuntean/ChartJs.Blazor)'s `Common/IDataset.cs` in
+  upstream's first commit, and nothing in the library has implemented, accepted or returned either
+  since — datasets derive from the `Dataset` and `CustomDataset<T>` classes, and `Data<T>.Datasets`
+  is a plain `List<T>`. The only code the removal can break is a type of your own that implements one of them; drop
+  the interface from its declaration.
+- `Autocolors` removed. It modelled `plugins.autocolors` for `chartjs-plugin-autocolors`, which this
+  package vendors but has never registered, and no configuration referenced the class, so it could
+  not reach a chart at all. Chart.js 4's built-in `colors` plugin does the same job: use
+  `Plugins.Colors`. The vendored bundle stays under `lib/`.
 
 #### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
 

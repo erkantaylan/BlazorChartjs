@@ -34,9 +34,20 @@
     ]
   },
   "options": {
+    "aspectRatio": 1.5,
+    "events": [
+      "click"
+    ],
     "hasOnHoverAsync": false,
-    "maintainAspectRatio": false,
+    "hover": {
+      "mode": "point",
+      "axis": "xy"
+    },
+    "maintainAspectRatio": true,
     "plugins": {
+      "colors": {
+        "forceOverride": true
+      },
       "datalabels": {
         "align": "end",
         "anchor": "end",

@@ -28,9 +28,12 @@
     ]
   },
   "options": {
+    "devicePixelRatio": 1.5,
     "hasOnHoverAsync": false,
-    "maintainAspectRatio": false,
     "plugins": {
+      "colors": {
+        "enabled": true
+      },
       "datalabels": {
         "align": "end",
         "anchor": "end",
@@ -178,7 +181,7 @@
         "text": "through Plugins.ExtraOptions"
       }
     },
-    "responsive": true,
+    "resizeDelay": 100,
     "registerDataLabels": false,
     "scales": {
       "x": {

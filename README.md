@@ -164,7 +164,8 @@ For what each type's model actually exposes, and where it stops, see [Feature co
 - [Updating data](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/updating-data.md) — `AddData`, `AddDataset<T>` and `ClearData` on a chart that has already rendered
 - [Callbacks and events](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/callbacks-and-events.md) — tooltip, tick and legend callbacks, `OnClickAsync`, `OnHoverAsync` and the component's event parameters
 - [Styling](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/styling.md) — legend label styling and the axis border
-- [Plugins](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/plugins.md) — data labels, zoom and pan
+- [Plugins](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/plugins.md) — data labels, zoom and pan, and attaching any other Chart.js plugin with `RegisterPlugins`
+- [Extra options](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/extra-options.md) — `ExtraOptions`, for the Chart.js options the models have no property for
 - [Changelog](https://github.com/erkantaylan/BlazorChartjs/blob/main/CHANGELOG.md)
 
 ## Links

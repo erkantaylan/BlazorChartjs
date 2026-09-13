@@ -16,6 +16,35 @@ and would drop them.
 
 #### Unreleased
 
+##### Added
+
+- `ExtraOptions`, a `Dictionary<string, object?>` marked `[JsonExtensionData]`, on `Options`,
+  `RadarOptions`, `Plugins`, `Legend`, `Title`, `Tooltip`, `Axis`, `Dataset` and `CustomDataset`,
+  which covers every dataset type, and `PieOptions` through `Options`. Its entries are written into
+  the JSON object their class writes, after the typed keys and spelled exactly as given, so an
+  option the models have no property for can be set by its Chart.js name:
+  `Options.ExtraOptions["layout"]`, `Plugins.ExtraOptions["subtitle"]`,
+  `Axis.ExtraOptions["grace"]`, `Dataset.ExtraOptions["borderRadius"]`. Until now a missing
+  property was a dead end: there was no bag anywhere, and a subclassed dataset lost its extra
+  properties because `Data<T>.Datasets` serializes by the declared type
+  ([#3](https://github.com/erkantaylan/BlazorChartjs/issues/3)). `RadarOptions` has one too,
+  because it does not derive from `Options` and has no `Plugins`. A radar chart's legend, title
+  and tooltip had no way in at all, and now go through `RadarOptions.ExtraOptions["plugins"]`. A
+  key must not repeat one the class already writes: System.Text.Json writes both, and
+  `docs/extra-options.md` explains what that does and how to hand a key over instead. The bag is
+  not validated, and it cannot express a JavaScript function.
+- `Options.RegisterPlugins` and `RadarOptions.RegisterPlugins`, a `List<string>?` of global names
+  such as `"ChartDataLabels"` or `"chartjs-plugin-autocolors"`. The component looks each one up on
+  `window` and attaches it to that chart alone, never through the process-wide `Chart.register`.
+  A name with no global behind it, or one whose global has no `id`, logs a console warning
+  instead. Registration used to be hard-coded for datalabels and annotation, so a page that loaded
+  any other plugin had no way to attach it. The list is removed before Chart.js sees the
+  configuration, like the other wrapper-only keys, and the key allowlist is regenerated to exempt
+  it.
+- `docs/extra-options.md`, and an "Any other Chart.js plugin" section in `docs/plugins.md`.
+- An "Extra options and plugins" demo page. The demo's `index.html` now also loads the vendored
+  `chartjs-plugin-autocolors` script, which it attaches to one chart there.
+
 ##### Changed
 
 - `README.md` is a short front page now — installation, a quick start, the implemented charts and

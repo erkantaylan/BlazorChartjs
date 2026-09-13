@@ -1,0 +1,299 @@
+@page "/barStyling"
+
+<h3>Bar Styling</h3>
+
+<p>
+    Two datasets on named axes. <em>Actual</em> is thin, fully rounded and ungrouped, so it sits
+    over the wider <em>Target</em> bar instead of beside it; <em>Target</em> rounds only its top
+    corners.
+</p>
+
+<Chart Config="_config1" Height="400px"></Chart>
+
+<h3>A stack outlined as one</h3>
+
+<p>
+    <code>BorderSkipped.Middle</code> drops the border where stacked bars meet, and
+    <code>BorderRadius</code> rounds the two ends of each stack.
+</p>
+
+<Chart Config="_config2" Height="400px"></Chart>
+
+<h3>Missing values</h3>
+
+<p>
+    <em>Last year</em> has no value for East and West. <code>SkipNull = true</code> gives the
+    remaining bar the whole category instead of leaving a gap beside it.
+</p>
+
+<Chart Config="_config3" Height="300px"></Chart>
+
+<hr />
+
+<h3>Code</h3>
+
+<p>
+    This is the component to add in your page.
+</p>
+
+<CodeSnippet Language="Language.xml" Style="Style.VisualStudio">
+&lt;Chart Config="_config1" Height="400px">&lt;/Chart>
+&lt;Chart Config="_config2" Height="400px">&lt;/Chart>
+&lt;Chart Config="_config3" Height="300px">&lt;/Chart>
+</CodeSnippet>
+
+<p>
+    Then, in the code section, add the following code:
+</p>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+private BarChartConfig _config1 = new BarChartConfig();
+private BarChartConfig _config2 = new BarChartConfig();
+private BarChartConfig _config3 = new BarChartConfig();
+
+protected override void OnInitialized()
+{
+    // two named axes: the datasets bind to them with XAxisId and YAxisId
+    _config1.Options = new Options()
+        {
+            Responsive = true,
+            MaintainAspectRatio = false,
+            Scales = new Dictionary&lt;string, Axis>()
+            {
+                {
+                    "months", new Axis()
+                    {
+                        Position = Position.Bottom,
+                        Grid = new Grid() { Display = false },
+                        Title = new AxesTitle() { Display = true, Text = "Month" }
+                    }
+                },
+                {
+                    "revenue", new Axis()
+                    {
+                        Position = Position.Left,
+                        BeginAtZero = true,
+                        Title = new AxesTitle() { Display = true, Text = "Revenue (k€)" }
+                    }
+                }
+            }
+        };
+    _config1.Data.Labels = BarDataExamples.StylingLabels;
+    _config1.Data.Datasets.Add(new BarDataset()
+        {
+            Label = "Actual",
+            Data = BarDataExamples.StylingActual.ToList(),
+            // green where the month beat its target, red where it missed
+            BackgroundColor = BarDataExamples.StylingActual
+                .Zip(BarDataExamples.StylingTarget, (actual, target) => actual >= target ? "#199473" : "#e12d39")
+                .ToList(),
+            HoverBackgroundColor = new List&lt;string> { "#102a43" },
+            // thin, and not given a slot of its own: it sits over the target bar
+            BarThickness = 14,
+            Grouped = false,
+            // a radius of half the width, on all four corners, draws a pill
+            BorderRadius = 7,
+            BorderSkipped = BorderSkipped.False,
+            XAxisId = "months",
+            YAxisId = "revenue",
+            Order = 1
+        });
+    _config1.Data.Datasets.Add(new BarDataset()
+        {
+            Label = "Target",
+            Data = BarDataExamples.StylingTarget.ToList(),
+            BackgroundColor = new List&lt;string> { "#d9e2ec" },
+            Grouped = false,
+            CategoryPercentage = 0.6m,
+            BarPercentage = 1,
+            // only the two corners away from the axis
+            BorderRadius = new BorderRadius { TopLeft = 6, TopRight = 6 },
+            XAxisId = "months",
+            YAxisId = "revenue",
+            Order = 2
+        });
+
+    // a stack outlined as one: no border where the bars meet, round corners at either end
+    _config2.Options = new Options()
+        {
+            Responsive = true,
+            MaintainAspectRatio = false,
+            Scales = new Dictionary&lt;string, Axis>()
+            {
+                { Scales.XAxisId, new Axis() { Stacked = true } },
+                { Scales.YAxisId, new Axis() { Stacked = true } }
+            }
+        };
+    _config2.Data.Labels = BarDataExamples.StylingLabels;
+    foreach (var (label, data, colour) in new[]
+        {
+            ("Wholesale", BarDataExamples.StackWholesale, "#9fb3c8"),
+            ("Store", BarDataExamples.StackStore, "#627d98"),
+            ("Online", BarDataExamples.StackOnline, "#334e68")
+        })
+    {
+        _config2.Data.Datasets.Add(new BarDataset()
+            {
+                Label = label,
+                Data = data.ToList(),
+                BackgroundColor = new List&lt;string> { colour },
+                BorderColor = new List&lt;string> { "#102a43" },
+                BorderWidth = 2,
+                BorderSkipped = BorderSkipped.Middle,
+                BorderRadius = 10,
+                MaxBarThickness = 48,
+                HoverBorderWidth = 3
+            });
+    }
+
+    // Last year has no value for East and West: SkipNull closes the gap it would leave
+    _config3.Options = new Options()
+        {
+            Responsive = true,
+            MaintainAspectRatio = false
+        };
+    _config3.Data.Labels = BarDataExamples.SkipNullLabels;
+    _config3.Data.Datasets.Add(new BarDataset()
+        {
+            Label = "Last year",
+            Data = BarDataExamples.SkipNullLastYear.ToList(),
+            BackgroundColor = new List&lt;string> { "#9fb3c8" },
+            BorderRadius = 4,
+            SkipNull = true
+        });
+    _config3.Data.Datasets.Add(new BarDataset()
+        {
+            Label = "This year",
+            Data = BarDataExamples.SkipNullThisYear.ToList(),
+            BackgroundColor = new List&lt;string> { "#334e68" },
+            BorderRadius = 4,
+            SkipNull = true
+        });
+}
+</CodeSnippet>
+
+@code {
+    private BarChartConfig _config1 = new BarChartConfig();
+    private BarChartConfig _config2 = new BarChartConfig();
+    private BarChartConfig _config3 = new BarChartConfig();
+
+    protected override void OnInitialized()
+    {
+        // two named axes: the datasets bind to them with XAxisId and YAxisId
+        _config1.Options = new Options()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                Scales = new Dictionary<string, Axis>()
+                {
+                    {
+                        "months", new Axis()
+                        {
+                            Position = Position.Bottom,
+                            Grid = new Grid() { Display = false },
+                            Title = new AxesTitle() { Display = true, Text = "Month" }
+                        }
+                    },
+                    {
+                        "revenue", new Axis()
+                        {
+                            Position = Position.Left,
+                            BeginAtZero = true,
+                            Title = new AxesTitle() { Display = true, Text = "Revenue (k€)" }
+                        }
+                    }
+                }
+            };
+        _config1.Data.Labels = BarDataExamples.StylingLabels;
+        _config1.Data.Datasets.Add(new BarDataset()
+            {
+                Label = "Actual",
+                Data = BarDataExamples.StylingActual.ToList(),
+                // green where the month beat its target, red where it missed
+                BackgroundColor = BarDataExamples.StylingActual
+                    .Zip(BarDataExamples.StylingTarget, (actual, target) => actual >= target ? "#199473" : "#e12d39")
+                    .ToList(),
+                HoverBackgroundColor = new List<string> { "#102a43" },
+                // thin, and not given a slot of its own: it sits over the target bar
+                BarThickness = 14,
+                Grouped = false,
+                // a radius of half the width, on all four corners, draws a pill
+                BorderRadius = 7,
+                BorderSkipped = BorderSkipped.False,
+                XAxisId = "months",
+                YAxisId = "revenue",
+                Order = 1
+            });
+        _config1.Data.Datasets.Add(new BarDataset()
+            {
+                Label = "Target",
+                Data = BarDataExamples.StylingTarget.ToList(),
+                BackgroundColor = new List<string> { "#d9e2ec" },
+                Grouped = false,
+                CategoryPercentage = 0.6m,
+                BarPercentage = 1,
+                // only the two corners away from the axis
+                BorderRadius = new BorderRadius { TopLeft = 6, TopRight = 6 },
+                XAxisId = "months",
+                YAxisId = "revenue",
+                Order = 2
+            });
+
+        // a stack outlined as one: no border where the bars meet, round corners at either end
+        _config2.Options = new Options()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false,
+                Scales = new Dictionary<string, Axis>()
+                {
+                    { Scales.XAxisId, new Axis() { Stacked = true } },
+                    { Scales.YAxisId, new Axis() { Stacked = true } }
+                }
+            };
+        _config2.Data.Labels = BarDataExamples.StylingLabels;
+        foreach (var (label, data, colour) in new[]
+            {
+                ("Wholesale", BarDataExamples.StackWholesale, "#9fb3c8"),
+                ("Store", BarDataExamples.StackStore, "#627d98"),
+                ("Online", BarDataExamples.StackOnline, "#334e68")
+            })
+        {
+            _config2.Data.Datasets.Add(new BarDataset()
+                {
+                    Label = label,
+                    Data = data.ToList(),
+                    BackgroundColor = new List<string> { colour },
+                    BorderColor = new List<string> { "#102a43" },
+                    BorderWidth = 2,
+                    BorderSkipped = BorderSkipped.Middle,
+                    BorderRadius = 10,
+                    MaxBarThickness = 48,
+                    HoverBorderWidth = 3
+                });
+        }
+
+        // Last year has no value for East and West: SkipNull closes the gap it would leave
+        _config3.Options = new Options()
+            {
+                Responsive = true,
+                MaintainAspectRatio = false
+            };
+        _config3.Data.Labels = BarDataExamples.SkipNullLabels;
+        _config3.Data.Datasets.Add(new BarDataset()
+            {
+                Label = "Last year",
+                Data = BarDataExamples.SkipNullLastYear.ToList(),
+                BackgroundColor = new List<string> { "#9fb3c8" },
+                BorderRadius = 4,
+                SkipNull = true
+            });
+        _config3.Data.Datasets.Add(new BarDataset()
+            {
+                Label = "This year",
+                Data = BarDataExamples.SkipNullThisYear.ToList(),
+                BackgroundColor = new List<string> { "#334e68" },
+                BorderRadius = 4,
+                SkipNull = true
+            });
+    }
+}

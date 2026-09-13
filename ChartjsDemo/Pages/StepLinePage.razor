@@ -1,8 +1,19 @@
 ﻿@page "/linestep"
+@using Erkan.Blazor.Chartjs.Models.Common.StringEnums
 
 <h3>Step Line</h3>
 
 <Chart Config="_config1" @ref="_chart1" Height="200px"></Chart>
+
+<h3>Step modes compared</h3>
+
+<p>
+    The same values, offset, once per <code>StepMode</code>. <code>StepMode.False</code> draws
+    straight segments: it is sent as the JSON boolean <code>false</code>, which also overrides a
+    chart-level <code>stepped</code>.
+</p>
+
+<Chart Config="_config2" Height="400px"></Chart>
 
 <hr />
 
@@ -45,9 +56,40 @@ protected override async Task OnInitializedAsync()
 }
 </CodeSnippet>
 
+<p>
+    The step modes compared:
+</p>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+&#64;using Erkan.Blazor.Chartjs.Models.Common.StringEnums
+
+private LineChartConfig _config2 = new LineChartConfig();
+
+protected override void OnInitialized()
+{
+    _config2.Data.Labels = LineDataExamples.StepModesText;
+    AddStepMode("StepMode.False", StepMode.False, 150, 0);
+    AddStepMode("StepMode.Before (same as True)", StepMode.Before, 100, 1);
+    AddStepMode("StepMode.Middle", StepMode.Middle, 50, 3);
+    AddStepMode("StepMode.After", StepMode.After, 0, 4);
+}
+
+private void AddStepMode(string label, StepMode mode, decimal offset, int colour)
+{
+    _config2.Data.Datasets.Add(new LineDataset()
+        {
+            Label = label,
+            Data = LineDataExamples.StepModes.Select(value => value + offset).ToList(),
+            BorderColor = SampleColors.PaletteBorder1[colour],
+            StepMode = mode
+        });
+}
+</CodeSnippet>
+
 @code {
     private LineChartConfig? _config1;
     private Chart? _chart1;
+    private LineChartConfig _config2 = new LineChartConfig();
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,6 +108,23 @@ protected override async Task OnInitializedAsync()
                 PointRadius = 15,
                 PointStyle = PointStyle.Cross,
                 StepMode = Erkan.Blazor.Chartjs.Models.Common.StringEnums.StepMode.True
+            });
+
+        _config2.Data.Labels = LineDataExamples.StepModesText;
+        AddStepMode("StepMode.False", StepMode.False, 150, 0);
+        AddStepMode("StepMode.Before (same as True)", StepMode.Before, 100, 1);
+        AddStepMode("StepMode.Middle", StepMode.Middle, 50, 3);
+        AddStepMode("StepMode.After", StepMode.After, 0, 4);
+    }
+
+    private void AddStepMode(string label, StepMode mode, decimal offset, int colour)
+    {
+        _config2.Data.Datasets.Add(new LineDataset()
+            {
+                Label = label,
+                Data = LineDataExamples.StepModes.Select(value => value + offset).ToList(),
+                BorderColor = SampleColors.PaletteBorder1[colour],
+                StepMode = mode
             });
     }
 }

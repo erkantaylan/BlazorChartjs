@@ -1,0 +1,167 @@
+@page "/lineStyling"
+
+<h3>Line Styling</h3>
+
+<p>
+    Dashed lines tell similar-coloured series apart, cap and join styles shape the dashes and
+    corners, and every point can take its own colour. Hover a point on <em>Actual</em> to see
+    the hover radius and border.
+</p>
+
+<Chart Config="_config1" Height="400px"></Chart>
+
+<h3>Gaps in the data</h3>
+
+<p>
+    Both series have <code>null</code> values. <code>SpanGaps = true</code> joins the points on
+    either side of a gap; without it the line breaks.
+</p>
+
+<Chart Config="_config2" Height="300px"></Chart>
+
+<hr />
+
+<h3>Code</h3>
+
+<p>
+    This is the component to add in your page.
+</p>
+
+<CodeSnippet Language="Language.xml" Style="Style.VisualStudio">
+&lt;Chart Config="_config1" Height="400px">&lt;/Chart>
+&lt;Chart Config="_config2" Height="300px">&lt;/Chart>
+</CodeSnippet>
+
+<p>
+    Then, in the code section, add the following code:
+</p>
+
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+private LineChartConfig _config1 = new LineChartConfig();
+private LineChartConfig _config2 = new LineChartConfig();
+
+protected override void OnInitialized()
+{
+    _config1.Data.Labels = LineDataExamples.StylingLineText;
+    _config1.Data.Datasets.Add(new LineDataset()
+        {
+            Label = "Target",
+            Data = LineDataExamples.StylingTarget.ToList(),
+            BorderColor = "#627d98",
+            BorderWidth = 2,
+            BorderDash = new List&lt;decimal> { 8, 4 },
+            PointRadius = 0
+        });
+    _config1.Data.Datasets.Add(new LineDataset()
+        {
+            Label = "Forecast",
+            Data = LineDataExamples.StylingForecast.ToList(),
+            BorderColor = "#9fb3c8",
+            BorderWidth = 3,
+            // a 1px dash with round caps draws dots
+            BorderDash = new List&lt;decimal> { 1, 6 },
+            BorderCapStyle = BorderCapStyle.Round,
+            PointRadius = 0
+        });
+    _config1.Data.Datasets.Add(new LineDataset()
+        {
+            Label = "Actual",
+            Data = LineDataExamples.StylingActual.ToList(),
+            BorderColor = "#334e68",
+            BorderWidth = 2,
+            BorderJoinStyle = BorderJoinStyle.Round,
+            // one colour per point: red under target, green over it
+            PointBackgroundColor = LineDataExamples.StylingActual
+                .Select(value => value &lt; 60 ? "#e12d39" : "#199473")
+                .ToList(),
+            // a single entry applies to every point
+            PointBorderColor = new List&lt;string> { "#ffffff" },
+            PointBorderWidth = 2,
+            PointRadius = 6,
+            PointHitRadius = 10,
+            PointHoverRadius = 9,
+            PointHoverBorderColor = new List&lt;string> { "#102a43" },
+            PointHoverBorderWidth = 3
+        });
+
+    _config2.Data.Labels = LineDataExamples.GapLineText;
+    _config2.Data.Datasets.Add(new LineDataset()
+        {
+            Label = "SpanGaps = true",
+            Data = LineDataExamples.GapLine.ToList(),
+            BorderColor = SampleColors.PaletteBorder1[4],
+            SpanGaps = true
+        });
+    _config2.Data.Datasets.Add(new LineDataset()
+        {
+            Label = "SpanGaps not set",
+            Data = LineDataExamples.GapLine.Select(value => value + 20).ToList(),
+            BorderColor = SampleColors.PaletteBorder1[0]
+        });
+}
+</CodeSnippet>
+
+@code {
+    private LineChartConfig _config1 = new LineChartConfig();
+    private LineChartConfig _config2 = new LineChartConfig();
+
+    protected override void OnInitialized()
+    {
+        _config1.Data.Labels = LineDataExamples.StylingLineText;
+        _config1.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Target",
+                Data = LineDataExamples.StylingTarget.ToList(),
+                BorderColor = "#627d98",
+                BorderWidth = 2,
+                BorderDash = new List<decimal> { 8, 4 },
+                PointRadius = 0
+            });
+        _config1.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Forecast",
+                Data = LineDataExamples.StylingForecast.ToList(),
+                BorderColor = "#9fb3c8",
+                BorderWidth = 3,
+                // a 1px dash with round caps draws dots
+                BorderDash = new List<decimal> { 1, 6 },
+                BorderCapStyle = BorderCapStyle.Round,
+                PointRadius = 0
+            });
+        _config1.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "Actual",
+                Data = LineDataExamples.StylingActual.ToList(),
+                BorderColor = "#334e68",
+                BorderWidth = 2,
+                BorderJoinStyle = BorderJoinStyle.Round,
+                // one colour per point: red under target, green over it
+                PointBackgroundColor = LineDataExamples.StylingActual
+                    .Select(value => value < 60 ? "#e12d39" : "#199473")
+                    .ToList(),
+                // a single entry applies to every point
+                PointBorderColor = new List<string> { "#ffffff" },
+                PointBorderWidth = 2,
+                PointRadius = 6,
+                PointHitRadius = 10,
+                PointHoverRadius = 9,
+                PointHoverBorderColor = new List<string> { "#102a43" },
+                PointHoverBorderWidth = 3
+            });
+
+        _config2.Data.Labels = LineDataExamples.GapLineText;
+        _config2.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "SpanGaps = true",
+                Data = LineDataExamples.GapLine.ToList(),
+                BorderColor = SampleColors.PaletteBorder1[4],
+                SpanGaps = true
+            });
+        _config2.Data.Datasets.Add(new LineDataset()
+            {
+                Label = "SpanGaps not set",
+                Data = LineDataExamples.GapLine.Select(value => value + 20).ToList(),
+                BorderColor = SampleColors.PaletteBorder1[0]
+            });
+    }
+}

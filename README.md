@@ -189,6 +189,8 @@ Contributors to the upstream project, whose work this fork inherits:
 
 Original project by [Enrico Rossini](https://github.com/erossini) — [erossini/BlazorChartjs](https://github.com/erossini/BlazorChartjs), documented on [PureSourceCode.com](https://www.puresourcecode.com/dotnet/blazor/blazor-component-for-chartjs/). Nearly all of the component's design and the bulk of its code are his.
 
+Parts of the original code were taken from [ChartJs.Blazor](https://github.com/mariusmuntean/ChartJs.Blazor) by Marius Muntean, Joel L. and the ChartJs.Blazor contributors, which is MIT licensed; their copyright notice is in [LICENSE](https://github.com/erkantaylan/BlazorChartjs/blob/main/LICENSE).
+
 This fork is maintained by [erkantaylan](https://github.com/erkantaylan) and released under the same MIT license. It is not affiliated with or endorsed by PureSourceCode; please raise issues with this fork at [erkantaylan/BlazorChartjs](https://github.com/erkantaylan/BlazorChartjs/issues) rather than upstream.
 
 ## License

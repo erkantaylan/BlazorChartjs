@@ -75,6 +75,41 @@ public class ChartJsKeyValidationTests
         "Parsing",
     ];
 
+    /// <summary>
+    /// Dataset options Chart.js 4.5.1 reads on the dataset but declares only somewhere else, so the
+    /// generated key list, built from those declarations and the bundles' defaults, does not have
+    /// them. Each path is accepted, and anything beneath it is validated, as the path it is
+    /// declared at.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The exemption is a claim about the vendored bundle, so it has to cite the code that makes it
+    /// true. <see cref="Undeclared_dataset_options_are_still_read_and_still_undeclared"/> checks
+    /// that code is still in <c>src/wwwroot/lib/Chart.js/chart.js</c>, and fails once a regenerated
+    /// key list declares the path itself, so the entry cannot outlive its reason. Only options the
+    /// Chart.js documentation lists as dataset properties belong here.
+    /// </para>
+    /// </remarks>
+    private static readonly UndeclaredDatasetOption[] UndeclaredDatasetOptions =
+    [
+        // The bar controller's options resolver takes the dataset itself as its first scope, and
+        // _calculateBarIndexPixels reads skipNull from it. The declarations only put skipNull on
+        // BarControllerChartOptions, which becomes options.skipNull.
+        new("data.datasets.skipNull", "options.skipNull",
+        [
+            "const scopes = config.getOptionScopes(this.getDataset(), scopeKeys, true); this.options = config.createResolver(scopes, this.getContext());",
+            "const options = this.options; const skipNull = options.skipNull;",
+        ]),
+        // Element options are resolved from the dataset first, and on hover under the 'hover'
+        // prefix, for every key BarElement has a default for — borderRadius among them. The
+        // declarations only put hoverBorderRadius on BarHoverOptions, used for elements.bar.
+        new("data.datasets.hoverBorderRadius", "options.elements.bar.hoverBorderRadius",
+        [
+            "const prefixes = active ? [ `${elementType}Hover`, 'hover', elementType, '' ] : [ elementType, '' ]; const scopes = config.getOptionScopes(this.getDataset(), scopeKeys); const names = Object.keys(defaults.elements[elementType]);",
+            "class BarElement extends Element { static id = 'bar'; static defaults = { borderSkipped: 'start', borderWidth: 0, borderRadius: 0,",
+        ]),
+    ];
+
     // -----------------------------------------------------------------------------------
 
     /// <summary>
@@ -85,8 +120,7 @@ public class ChartJsKeyValidationTests
     public void Every_declared_key_lands_where_ChartJs_reads_it()
     {
         var offenders = ModelGraph.AllKeys
-            .Where(key => !Keys.IsStripped(key.Path))
-            .Where(key => !Keys.Paths.Contains(key.Path))
+            .Where(key => !IsAccepted(key.Path))
             .ToList();
 
         if (offenders.Count == 0) return;
@@ -126,8 +160,7 @@ public class ChartJsKeyValidationTests
         var offenders = JsonPaths.Enumerate(config)
             .Select(node => node.Path)
             .Distinct(StringComparer.Ordinal)
-            .Where(path => !Keys.IsStripped(path))
-            .Where(path => !Keys.Paths.Contains(path))
+            .Where(path => !IsAccepted(path))
             .Order(StringComparer.Ordinal)
             .ToList();
 
@@ -253,7 +286,62 @@ public class ChartJsKeyValidationTests
         }
     }
 
+    /// <summary>
+    /// Keeps <see cref="UndeclaredDatasetOptions"/> honest in both directions: the code that reads
+    /// each option is still in the vendored bundle, the path it is validated as still exists, and
+    /// the key list still lacks the option — once a regenerated list has it, the entry goes.
+    /// </summary>
+    [Fact]
+    public void Undeclared_dataset_options_are_still_read_and_still_undeclared()
+    {
+        var bundle = Path.Combine(TestPaths.RepositoryRoot, "src", "wwwroot", "lib", "Chart.js", "chart.js");
+        var source = System.Text.RegularExpressions.Regex.Replace(File.ReadAllText(bundle), @"\s+", " ");
+
+        Assert.Contains($"Chart.js v{Keys.Versions["chart.js"]}", source[..200], StringComparison.Ordinal);
+
+        foreach (var option in UndeclaredDatasetOptions)
+        {
+            Assert.False(Keys.Paths.Contains(option.Path),
+                $"{option.Path} is in the generated key list now. Remove it from UndeclaredDatasetOptions.");
+            Assert.True(Keys.Paths.Contains(option.DeclaredAs),
+                $"{option.Path} is validated as {option.DeclaredAs}, which the key list no longer has.");
+
+            foreach (var evidence in option.Evidence)
+            {
+                Assert.True(source.Contains(evidence, StringComparison.Ordinal),
+                    $"The vendored chart.js no longer contains the code that reads {option.Path}:{Environment.NewLine}"
+                    + $"  {evidence}{Environment.NewLine}"
+                    + "Check that Chart.js still reads the option on the dataset before keeping the exemption.");
+            }
+        }
+    }
+
     // -----------------------------------------------------------------------------------
+
+    /// <summary>
+    /// A key Chart.js reads where the models write it: in the generated list, stripped by the
+    /// interop module before Chart.js sees it, or an undeclared dataset option whose declared twin
+    /// is in the list.
+    /// </summary>
+    private static bool IsAccepted(string path) =>
+        Keys.IsStripped(path)
+        || Keys.Paths.Contains(path)
+        || UndeclaredDatasetOptions.Any(option => option.AcceptedAs(path) is { } declared && Keys.Paths.Contains(declared));
+
+    /// <param name="Path">Where the models write the option.</param>
+    /// <param name="DeclaredAs">Where the Chart.js declarations put the same option.</param>
+    /// <param name="Evidence">
+    /// Code from the vendored <c>chart.js</c>, whitespace collapsed to single spaces, that reads the
+    /// option at <paramref name="Path"/>.
+    /// </param>
+    private sealed record UndeclaredDatasetOption(string Path, string DeclaredAs, string[] Evidence)
+    {
+        /// <summary>The declared path to validate <paramref name="path"/> as, or <c>null</c> if it is not under <see cref="Path"/>.</summary>
+        public string? AcceptedAs(string path) =>
+            path == Path ? DeclaredAs
+            : path.StartsWith(Path + ".", StringComparison.Ordinal) ? DeclaredAs + path[Path.Length..]
+            : null;
+    }
 
     private static object Build(string kind, string shape) => shape switch
     {

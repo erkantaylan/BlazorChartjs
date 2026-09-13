@@ -14,6 +14,27 @@ The `1.0.0` and `2.0.0` entries are written by hand. **Do not regenerate this fi
 `auto-changelog`** without re-applying them — the tool rewrites the whole file from commit messages
 and would drop them.
 
+#### Unreleased
+
+##### Changed
+
+- `README.md` is a short front page now — installation, a quick start, the implemented charts and
+  an index of the documentation — and the reference material it used to carry lives under `docs/`,
+  moved as it was rather than rewritten:
+  - `docs/feature-coverage.md` — the Feature coverage tables, and the escape hatches.
+  - `docs/upgrading.md` — upgrading from 1.0.0, and migrating from `PSC.Blazor.Components.Chartjs`.
+  - `docs/updating-data.md` — `AddData`, `AddDataset<T>` and `ClearData`.
+  - `docs/callbacks-and-events.md` — the tooltip, tick and legend callbacks, `OnClickAsync`,
+    `OnHoverAsync`, and the `OnChartClick` / `OnChartOver` / `OnLegendClick` parameters.
+  - `docs/styling.md` — legend label styling and the axis border.
+  - `docs/plugins.md` — data labels, zoom and pan.
+
+  The README is also the package page on nuget.org, which renders it outside the repository, so
+  every link from it into the repository is an absolute GitHub URL. Its `Fork changes` section is
+  gone: it repeated this file, and the four things it said that this file did not — the UMD build
+  name, the patched moment adapter, the crosshair redraw batching and the tick snap-to-zero
+  threshold — are in the `1.0.0` entry now.
+
 #### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
 
 > 10 August 2026
@@ -212,6 +233,12 @@ First release of the `Erkan.Blazor.Chartjs` fork, from upstream `0.96`. Targets 
 - `TargetFramework` `net8.0` → `net10.0`; all Microsoft packages on 10.0.x.
 - Chart.js **3.9.1 → 4.5.1**, chartjs-plugin-zoom **1.2.1 → 2.2.0**, chartjs-plugin-autocolors
   **0.2.2 → 0.3.1**. Bundled chartjs-plugin-annotation **3.1.0** and moment **2.30.1**.
+- Chart.js is loaded from its UMD build, `chart.umd.js`. The `chart.js` file beside it is the ES
+  module build and throws `Unexpected token 'export'` under a classic `<script>` tag, so renaming the
+  package in the old script path is not enough.
+- The bundled `chartjs-adapter-moment` is hand-patched to apply a per-instance locale in `format()`,
+  so it is deliberately excluded from `libman.json`. Do not overwrite it with a LibMan restore
+  without re-applying that patch.
 - Removed the stale Chart.js 3.x module chunks and type definitions.
 - Demo site for this fork deploys to <https://erkantaylan.github.io/BlazorChartjs/>.
 
@@ -265,9 +292,11 @@ First release of the `Erkan.Blazor.Chartjs` fork, from upstream `0.96`. Targets 
 - Axis tick float-noise cleanup rounded to 10 decimal places, zeroing legitimate values below
   `1e-10`. The tolerance is relative to the axis range now: at least 12 significant digits and more
   where the axis resolution needs them, exact integers left alone, and any rounding that would be
-  visible at the axis's own resolution refused.
+  visible at the axis's own resolution refused. On linear and radial axes, a tick below one
+  ten-billionth of the visible span snaps to zero.
 - `AddData` performed a full chart re-render per point; the whole batch is now one round trip and
   one redraw.
+- The crosshair redrew on every mouse move; redraws are coalesced to one per animation frame.
 - Canvas `Height` and `Width` were both silently dropped when set together (missing CSS semicolon).
 - `LegendLabelsFilter`, `TicksCallback`, `TitleCallbacks` and `TooltipCallbacksLabel` threw
   `NotSupportedException` when the property they read was null; they return an empty result now.

@@ -38,6 +38,9 @@ public class RemovedPropertyRegressionTests
     // colour the scale draws with is read from grid, ticks, border or title.
     [InlineData(typeof(Axis), "Color",
         "use Ticks.Color, Grid.Color, Border.Color or AxesTitle.Color")]
+    // Unreleased — fill is a line and radar option. A bar has nothing to fill, and the key only
+    // passed the key check because dataset option paths are unioned across chart types.
+    [InlineData(typeof(BarDataset), "Fill", "a bar has no fill; a line series belongs in a LineDataset")]
     public void Removed_property_is_still_removed(Type owner, string property, string replacement)
     {
         Assert.True(owner.GetProperty(property) is null,

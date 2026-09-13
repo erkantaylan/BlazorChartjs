@@ -361,7 +361,6 @@ public static class SampleConfigs
                     BorderColor = ["#199473"],
                     BorderWidth = 2,
                     HoverBackgroundColor = ["#147d64"],
-                    Fill = true,
                     Stack = "primary",
                     Order = 1,
                     DataLabels = new DataLabels { Color = "#102a43", Offset = 0, Clamp = false },

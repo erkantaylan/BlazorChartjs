@@ -42,16 +42,6 @@
         public int? BorderWidth { get; set; }
 
         /// <summary>
-        /// Gets or sets the fill.
-        /// </summary>
-        /// <value>
-        /// The fill.
-        /// </value>
-        [JsonPropertyName("fill")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public bool? Fill { get; set; }
-
-        /// <summary>
         /// Gets or sets the background color hover.
         /// </summary>
         /// <value>

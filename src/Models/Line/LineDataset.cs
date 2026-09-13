@@ -391,7 +391,7 @@ namespace Erkan.Blazor.Chartjs.Models.Line
         /// </value>
         [JsonPropertyName("stepped")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonConverter(typeof(StepModeJsonConverter))]
+        [JsonConverter(typeof(BooleanStringJsonConverter))]
         public string? StepModeString { get; set; }
 
         /// <summary>

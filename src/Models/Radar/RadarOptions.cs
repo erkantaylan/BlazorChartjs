@@ -45,7 +45,9 @@
 
         /// <summary>
         /// Gets or sets the Chart.js plugins to attach to this chart, by the global name their
-        /// script defines on <c>window</c>. Works exactly as <see cref="Options.RegisterPlugins"/>.
+        /// script defines on <c>window</c>. Attached as <see cref="Options.RegisterPlugins"/>
+        /// attaches them; a radar chart has no <c>Plugins</c>, so the plugin's options go in
+        /// <see cref="ExtraOptions"/> under <c>["plugins"]</c>.
         /// </summary>
         /// <value>The global names, or <c>null</c> to attach none.</value>
         [JsonPropertyName("registerPlugins")]

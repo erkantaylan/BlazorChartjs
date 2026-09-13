@@ -328,9 +328,9 @@ namespace Erkan.Blazor.Chartjs.Models.Common
 
         /// <summary>
         /// Gets or sets the Chart.js plugins to attach to this chart, by the global name their
-        /// script defines on <c>window</c> — <c>"ChartDataLabels"</c>, <c>"ChartZoom"</c>,
-        /// <c>"chartjs-plugin-annotation"</c>, <c>"chartjs-plugin-autocolors"</c>, or a plugin of
-        /// your own assigned to <c>window</c>.
+        /// script defines on <c>window</c> — <c>"ChartDataLabels"</c>,
+        /// <c>"chartjs-plugin-autocolors"</c>, or a plugin of your own assigned to <c>window</c>.
+        /// The zoom and annotation scripts register themselves as they load and need no entry.
         /// </summary>
         /// <value>
         /// The global names. Each plugin is attached to this chart only, never registered
@@ -358,7 +358,8 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// </summary>
         /// <value>
         /// Each entry becomes one key, spelled exactly as given:
-        /// <c>["layout"] = new { padding = 24 }</c> writes <c>"layout": { "padding": 24 }</c>.
+        /// <c>["datasets"] = new { bar = new { categoryPercentage = 0.6 } }</c> writes
+        /// <c>"datasets": { "bar": { "categoryPercentage": 0.6 } }</c>.
         /// A key must not repeat one a property of this class already writes.
         /// </value>
         [JsonExtensionData]

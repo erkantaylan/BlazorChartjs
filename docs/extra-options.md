@@ -14,8 +14,8 @@ var config = new BarChartConfig
 {
     Options = new Options
     {
-        // options.layout
-        ExtraOptions = new() { ["layout"] = new { padding = 24 } },
+        // options.datasets.bar: defaults for every bar dataset on the chart
+        ExtraOptions = new() { ["datasets"] = new { bar = new { categoryPercentage = 0.6 } } },
         Plugins = new Plugins
         {
             // options.plugins.subtitle
@@ -57,7 +57,7 @@ The `options` object that serializes to, in full — the bag entries sit inside 
   "responsive": true,
   "registerDataLabels": false,
   "scales": { "y": { "beginAtZero": true, "grace": "5%" } },
-  "layout": { "padding": 24 }
+  "datasets": { "bar": { "categoryPercentage": 0.6 } }
 }
 ```
 
@@ -79,7 +79,7 @@ The `options` object that serializes to, in full — the bag entries sit inside 
 
 Put an option in the bag of the class whose JSON object holds it. A legend option goes in `Legend.ExtraOptions`, not in `Plugins.ExtraOptions["legend"]`: `Options.Plugins` and `Plugins.Legend` are created by default, so that `legend` key is already written.
 
-Classes without a bag (`LegendLabels`, `Ticks`, `Grid`, `Border`, `AxesTitle`, `Font`, `Interaction`, `Elements`, `Animations`, the zoom and datalabels classes) are reached from the level above. To get to `ticks.padding`, set `Axis.Ticks` to `null` and write the whole `ticks` object through `Axis.ExtraOptions`. That axis then loses the typed `Ticks` properties, including its tick callbacks. The same works for `Title.Text`: leave it unset, and `Title.ExtraOptions["text"] = new[] { "First line", "Second line" }` gives a multi-line title.
+Classes without a bag (`LegendLabels`, `Ticks`, `Grid`, `Border`, `AxesTitle`, `Font`, `Layout`, `Padding`, `Colors`, `Interaction`, `Elements`, `Animations`, the zoom and datalabels classes) are reached from the level above. To get to `ticks.padding`, set `Axis.Ticks` to `null` and write the whole `ticks` object through `Axis.ExtraOptions`. That axis then loses the typed `Ticks` properties, including its tick callbacks. The same works for `Title.Text`: leave it unset, and `Title.ExtraOptions["text"] = new[] { "First line", "Second line" }` gives a multi-line title.
 
 ### How entries are written
 
@@ -110,8 +110,8 @@ Blazor turns that JSON into a JavaScript object with `JSON.parse`, which keeps t
 To let the bag own a key the model has a property for:
 
 - **The property is nullable** (most are): leave it `null`. `new Tooltip { ExtraOptions = new() { ["borderWidth"] = 2 } }` writes `{"borderWidth":2}`.
-- **The property has a non-null default**: set it to `null` first. `Options.Plugins` and `Plugins.Legend` start out as new objects, and `Legend.Display` starts out `true`, so `plugins`, `legend` and the legend's `display` are written unless you clear them.
-- **The property is not nullable**, so its key is always written: use the property. That is `Responsive` and `MaintainAspectRatio` on `Options` and on `RadarOptions`, `Options.RegisterDataLabels` and `Legend.Reverse`.
+- **The property has a non-null default**: set it to `null` first. `Options.Plugins` and `Plugins.Legend` start out as new objects, `Options.Responsive` starts out `true`, `Options.MaintainAspectRatio` `false` and `Legend.Display` `true`, so all five keys are written unless you clear them.
+- **The property is not nullable**, so its key is always written: use the property. That is `Responsive` and `MaintainAspectRatio` on `RadarOptions`, `Options.RegisterDataLabels` and `Legend.Reverse`.
 
 When a later release adds a property for a key you set through the bag, move the value to the property. Otherwise it becomes a clash.
 

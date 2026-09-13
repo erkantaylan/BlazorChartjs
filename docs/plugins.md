@@ -73,7 +73,7 @@ Notes for anyone coming from upstream:
 
 ## Any other Chart.js plugin
 
-`Options.RegisterPlugins` attaches any Chart.js plugin the page has loaded, by the global name its script defines on `window`. `RadarOptions` has the same property. Load the script after `chart.umd.js`, name the global, and configure the plugin through `Plugins.ExtraOptions` under the plugin's `id` — see [Extra options](extra-options.md):
+`Options.RegisterPlugins` attaches any Chart.js plugin the page has loaded, by the global name its script defines on `window`. Load the script after `chart.umd.js`, name the global, and configure the plugin through `Plugins.ExtraOptions` under the plugin's `id` — see [Extra options](extra-options.md). `RadarOptions` has the same `RegisterPlugins`, but no `Plugins`, so a radar chart's plugin options go in `RadarOptions.ExtraOptions["plugins"]` instead.
 
 ```html
 <script src="_content/Erkan.Blazor.Chartjs/lib/Chart.js/chart.umd.js"></script>
@@ -98,7 +98,7 @@ The globals the bundled plugin scripts define:
 | chartjs-plugin-datalabels | `ChartDataLabels` | `datalabels` | Yes — or `RegisterDataLabels = true`, which does the same. Naming both attaches it once. |
 | chartjs-plugin-autocolors | `chartjs-plugin-autocolors` | `autocolors` | Yes. |
 | chartjs-plugin-zoom | `ChartZoom` | `zoom` | No. Its script calls `Chart.register` as it loads, so it is already on every chart. |
-| chartjs-plugin-annotation | `chartjs-plugin-annotation` | `annotation` | No. Its script registers it as it loads, like zoom. |
+| chartjs-plugin-annotation | `chartjs-plugin-annotation` | `annotation` | No. Its script calls `Chart.register` as it loads, like zoom, and the component registers it again whenever `Plugins.Annotation` is set. |
 
 A plugin you wrote works the same way:
 

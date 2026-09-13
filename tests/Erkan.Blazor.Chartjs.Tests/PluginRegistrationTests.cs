@@ -63,7 +63,7 @@ public class PluginRegistrationTests
             Options = new Options
             {
                 RegisterPlugins = ["chartjs-plugin-autocolors"],
-                ExtraOptions = new() { ["layout"] = new { padding = 24 } },
+                ExtraOptions = new() { ["datasets"] = new { bar = new { categoryPercentage = 0.5 } } },
                 Plugins = new Plugins { ExtraOptions = new() { ["autocolors"] = new { mode = "data" } } },
             },
         };
@@ -82,7 +82,7 @@ public class PluginRegistrationTests
             var options = payload.RootElement[2].GetProperty("options");
 
             Assert.Equal("""["chartjs-plugin-autocolors"]""", options.GetProperty("registerPlugins").GetRawText());
-            Assert.Equal("""{"padding":24}""", options.GetProperty("layout").GetRawText());
+            Assert.Equal("""{"bar":{"categoryPercentage":0.5}}""", options.GetProperty("datasets").GetRawText());
             Assert.Equal("""{"mode":"data"}""", options.GetProperty("plugins").GetProperty("autocolors").GetRawText());
             Assert.False(options.TryGetProperty("extraOptions", out _));
         }

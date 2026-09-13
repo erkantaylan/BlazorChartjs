@@ -14,21 +14,21 @@
 <h4>Options the models do not have</h4>
 
 <p>
-    Layout padding, a subtitle, a legend title, square tooltips, rounded bars and extra room
-    above the tallest bar. None of these has a typed property.
+    Narrower bars set once for every bar dataset, a subtitle, a legend title, square tooltips,
+    rounded bars and extra room above the tallest bar. None of these has a typed property.
 </p>
 
 <Chart Config="_config1" @ref="_chart1" Height="400px"></Chart>
 
-<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio" LoadMainScript="false">
+<CodeSnippet Language="Language.csharp" Style="Style.VisualStudio">
 _config1 = new BarChartConfig()
 {
     Options = new Options()
     {
         Responsive = true,
         MaintainAspectRatio = false,
-        // options.layout
-        ExtraOptions = new() { ["layout"] = new { padding = 24 } },
+        // options.datasets.bar: defaults for every bar dataset on the chart
+        ExtraOptions = new() { ["datasets"] = new { bar = new { categoryPercentage = 0.5 } } },
         Plugins = new Plugins()
         {
             Title = new Title() { Display = true, Text = "Monthly value" },
@@ -85,7 +85,7 @@ _config1.Data.Datasets.Add(new BarDataset()
     <code>window</code>, and attaches each plugin to this chart only. Here it is
     <code>chartjs-plugin-autocolors</code>, which ships in the package but has no typed model.
     Its options go through <code>Plugins.ExtraOptions</code> under the plugin's id. The built-in
-    <code>colors</code> plugin is switched off the same way. If every bar has its own colour,
+    <code>colors</code> plugin is switched off with <code>Plugins.Colors</code>. If every bar has its own colour,
     the plugin was attached. If they are all grey, it was not, and the browser console says why.
 </p>
 
@@ -106,11 +106,8 @@ _config2 = new BarChartConfig()
         RegisterPlugins = new List&lt;string&gt;() { "chartjs-plugin-autocolors" },
         Plugins = new Plugins()
         {
-            ExtraOptions = new()
-            {
-                ["autocolors"] = new { mode = "data" },
-                ["colors"] = new { enabled = false }
-            }
+            Colors = new Colors() { Enabled = false },
+            ExtraOptions = new() { ["autocolors"] = new { mode = "data" } }
         }
     }
 };
@@ -172,7 +169,7 @@ _config3.Data.Datasets.AddRange(RadarDataExamples.RadarDatasets);
             {
                 Responsive = true,
                 MaintainAspectRatio = false,
-                ExtraOptions = new() { ["layout"] = new { padding = 24 } },
+                ExtraOptions = new() { ["datasets"] = new { bar = new { categoryPercentage = 0.5 } } },
                 Plugins = new Plugins()
                 {
                     Title = new Title() { Display = true, Text = "Monthly value" },
@@ -223,11 +220,8 @@ _config3.Data.Datasets.AddRange(RadarDataExamples.RadarDatasets);
                 RegisterPlugins = new List<string>() { "chartjs-plugin-autocolors" },
                 Plugins = new Plugins()
                 {
-                    ExtraOptions = new()
-                    {
-                        ["autocolors"] = new { mode = "data" },
-                        ["colors"] = new { enabled = false }
-                    }
+                    Colors = new Colors() { Enabled = false },
+                    ExtraOptions = new() { ["autocolors"] = new { mode = "data" } }
                 }
             }
         };

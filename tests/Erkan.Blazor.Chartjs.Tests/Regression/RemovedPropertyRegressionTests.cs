@@ -64,6 +64,23 @@ public class RemovedPropertyRegressionTests
     }
 
     /// <summary>
+    /// <c>Autocolors</c> modelled <c>plugins.autocolors</c> for chartjs-plugin-autocolors, which this
+    /// package vendors but never registers, and nothing referenced the class. Chart.js 4's built-in
+    /// colors plugin does the same job and is reachable as <see cref="Plugins.Colors"/>.
+    /// </summary>
+    [Fact]
+    public void Autocolors_is_gone_and_Plugins_Colors_replaces_it()
+    {
+        Assert.Null(ModelGraph.LibraryAssembly.GetType("Erkan.Blazor.Chartjs.Models.Common.Autocolors"));
+
+        Assert.Equal(typeof(Colors), typeof(Plugins).GetProperty(nameof(Plugins.Colors))!.PropertyType);
+        var paths = JsonPaths.Map(new Plugins { Colors = new Colors { Enabled = true } });
+        Assert.True(paths["colors.enabled"].GetBoolean());
+        Assert.False(paths.ContainsKey("autocolors"));
+        Assert.True(ChartJsKeyList.Current.Paths.Contains("options.plugins.colors.enabled"));
+    }
+
+    /// <summary>
     /// 1.0.0: grouped-stacked bars rendered misaligned because <c>Stack</c> was a
     /// <c>List&lt;string&gt;</c> and serialized as an array. Chart.js wants a string.
     /// </summary>

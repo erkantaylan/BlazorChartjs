@@ -43,10 +43,25 @@
     ]
   },
   "options": {
+    "events": [
+      "mousemove",
+      "mouseout",
+      "click",
+      "touchstart",
+      "touchmove"
+    ],
     "hasOnHoverAsync": false,
+    "hover": {
+      "intersect": true
+    },
     "interaction": {
       "intersect": false,
       "mode": "nearest"
+    },
+    "layout": {
+      "padding": {
+        "top": 24
+      }
     },
     "maintainAspectRatio": false,
     "plugins": {

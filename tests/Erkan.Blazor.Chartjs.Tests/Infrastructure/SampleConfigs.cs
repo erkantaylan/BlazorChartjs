@@ -25,7 +25,8 @@ namespace Erkan.Blazor.Chartjs.Tests.Infrastructure;
 ///   options object. This is where a stray <c>[]</c>, a bare <c>null</c> or a leaked
 ///   wrapper-internal marker shows up, because nothing here asked for any of them.</item>
 ///   <item><c>Rich</c> — what a real consumer sets: scales, legend, title, tooltip,
-///   datalabels and zoom, exercised as widely as each chart type's options class allows.</item>
+///   datalabels, zoom and the chart-level layout, sizing, colour, hover and events options,
+///   exercised as widely as each chart type's options class allows.</item>
 /// </list>
 /// </remarks>
 public static class SampleConfigs
@@ -198,8 +199,11 @@ public static class SampleConfigs
     };
 
     /// <summary>Legend, title, tooltip and datalabels, configured the way an app that themes its charts would.</summary>
-    private static Plugins StyledPlugins(string title) => new()
+    /// <param name="title">The title text.</param>
+    /// <param name="colors">The built-in colors plugin's options, or <c>null</c> to leave it unconfigured.</param>
+    private static Plugins StyledPlugins(string title, Colors? colors = null) => new()
     {
+        Colors = colors,
         Legend = new Legend
         {
             Display = true,
@@ -364,10 +368,26 @@ public static class SampleConfigs
                 },
             ],
         },
+        // every chart-level option; the other rich configs each take a subset
         Options = new Options
         {
             Responsive = true,
             MaintainAspectRatio = false,
+            AspectRatio = 2,
+            ResizeDelay = 0,
+            DevicePixelRatio = 2,
+            Color = "#243b53",
+            BackgroundColor = "rgba(62,189,147,0.2)",
+            BorderColor = "#199473",
+            Layout = new Layout { AutoPadding = false, Padding = new Padding(8, 16, 8, 16) },
+            Hover = new Interaction
+            {
+                Mode = InteractionMode.Index,
+                Axis = AxisInteractions.X,
+                Intersect = false,
+                IncludeInvisible = true,
+            },
+            Events = ["mousemove", "mouseout", "click"],
             IndexAxis = Axes.X,
             Locale = "tr-TR",
             Animation = true,
@@ -386,13 +406,13 @@ public static class SampleConfigs
             },
             Elements = new Elements { Line = new Line { BorderColor = "#334e68", BorderWidth = 2 } },
             Scales = CartesianScales(),
-            Plugins = StyledPlugins("Revenue by month"),
+            Plugins = StyledPlugins("Revenue by month", new Colors { Enabled = true, ForceOverride = true }),
         },
     };
 
     private static BubbleChartConfig RichBubble()
     {
-        var plugins = StyledPlugins("Cluster density");
+        var plugins = StyledPlugins("Cluster density", new Colors { Enabled = true });
         plugins.Zoom = FullZoom();
         return new BubbleChartConfig
         {
@@ -415,7 +435,11 @@ public static class SampleConfigs
             },
             Options = new Options
             {
-                Responsive = true,
+                // null on both hands the decision back to Chart.js: neither key is written
+                Responsive = null,
+                MaintainAspectRatio = null,
+                DevicePixelRatio = 1.5,
+                ResizeDelay = 100,
                 Scales = CartesianScales(),
                 Plugins = plugins,
             },
@@ -442,7 +466,11 @@ public static class SampleConfigs
         Options = new Options
         {
             Responsive = true,
-            Plugins = StyledPlugins("Traffic share"),
+            MaintainAspectRatio = true,
+            AspectRatio = 1,
+            Color = "#334e68",
+            Layout = new Layout { Padding = new Padding(12) },
+            Plugins = StyledPlugins("Traffic share", new Colors { Enabled = false }),
         },
     };
 
@@ -520,6 +548,10 @@ public static class SampleConfigs
                 Scales = scales,
                 Plugins = plugins,
                 Interaction = new Interaction { Mode = InteractionMode.Nearest, Intersect = false },
+                // hover overrides interaction for hover alone; what it leaves unset falls back to it
+                Hover = new Interaction { Intersect = true },
+                Events = ["mousemove", "mouseout", "click", "touchstart", "touchmove"],
+                Layout = new Layout { Padding = new Padding { Top = 24 } },
             },
         };
     }
@@ -546,7 +578,9 @@ public static class SampleConfigs
             Responsive = true,
             Circumference = 360,
             Rotation = 0,
-            Plugins = StyledPlugins("Share of voice"),
+            ResizeDelay = 250,
+            Layout = new Layout { AutoPadding = true },
+            Plugins = StyledPlugins("Share of voice", new Colors { ForceOverride = false }),
         },
     };
 
@@ -569,6 +603,7 @@ public static class SampleConfigs
         Options = new Options
         {
             Responsive = true,
+            BorderColor = "#ffffff",
             Plugins = StyledPlugins("Coverage by area"),
         },
     };
@@ -615,7 +650,7 @@ public static class SampleConfigs
 
     private static ScatterChartConfig RichScatter()
     {
-        var plugins = StyledPlugins("Samples");
+        var plugins = StyledPlugins("Samples", new Colors { ForceOverride = true });
         plugins.Zoom = FullZoom();
         return new ScatterChartConfig
         {
@@ -647,6 +682,10 @@ public static class SampleConfigs
             Options = new Options
             {
                 Responsive = true,
+                MaintainAspectRatio = true,
+                AspectRatio = 1.5,
+                Hover = new Interaction { Mode = InteractionMode.Point, Axis = AxisInteractions.XY },
+                Events = ["click"],
                 Scales = CartesianScales(),
                 Plugins = plugins,
             },

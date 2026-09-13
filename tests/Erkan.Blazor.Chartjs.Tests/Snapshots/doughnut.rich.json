@@ -27,9 +27,22 @@
     ]
   },
   "options": {
+    "aspectRatio": 1,
+    "color": "#334e68",
     "hasOnHoverAsync": false,
-    "maintainAspectRatio": false,
+    "layout": {
+      "padding": {
+        "top": 12,
+        "left": 12,
+        "bottom": 12,
+        "right": 12
+      }
+    },
+    "maintainAspectRatio": true,
     "plugins": {
+      "colors": {
+        "enabled": false
+      },
       "datalabels": {
         "align": "end",
         "anchor": "end",

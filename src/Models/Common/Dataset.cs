@@ -68,5 +68,16 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         [JsonPropertyName("type")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Type { get; set; }
+
+        /// <summary>
+        /// Gets or sets dataset options the dataset classes have no property for, written into
+        /// this entry of <c>data.datasets</c> next to the typed keys.
+        /// </summary>
+        /// <value>
+        /// Each entry becomes one key, spelled exactly as given: <c>["borderRadius"] = 6</c>.
+        /// A key must not repeat one a property of the dataset class already writes.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object?>? ExtraOptions { get; set; }
     }
 }

@@ -40,6 +40,15 @@
         "max": 50,
         "min": 0
       }
+    },
+    "plugins": {
+      "legend": {
+        "position": "right"
+      },
+      "title": {
+        "display": true,
+        "text": "Skills"
+      }
     }
   },
   "type": "radar"

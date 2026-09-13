@@ -39,6 +39,7 @@ public class InternalMarkerLeakTests
     [InlineData("hasOnHoverAsync")]
     [InlineData("hasLegendClick")]
     [InlineData("registerDataLabels")]
+    [InlineData("registerPlugins")]
     public void Marker_is_deleted_by_the_interop_layer(string marker)
     {
         Assert.Contains($"delete", Interop);
@@ -63,6 +64,23 @@ public class InternalMarkerLeakTests
 
         Assert.DoesNotContain($".{key} = undefined", Interop, StringComparison.Ordinal);
         Assert.DoesNotContain($".{key}=undefined", Interop, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// <c>registerPlugins</c> is removed before the names in it are resolved, not inside the
+    /// branch that resolves them — so a list that names only missing globals, or is not a list
+    /// at all, still does not reach Chart.js as <c>options.registerPlugins</c>.
+    /// </summary>
+    [Fact]
+    public void RegisterPlugins_is_deleted_before_its_names_are_resolved()
+    {
+        var delete = Interop.IndexOf("delete config.options.registerPlugins;", StringComparison.Ordinal);
+        var resolve = Interop.IndexOf("Array.isArray(registerPlugins)", StringComparison.Ordinal);
+
+        Assert.True(delete >= 0, "src/wwwroot/Chart.js no longer deletes options.registerPlugins.");
+        Assert.True(resolve > delete,
+            "options.registerPlugins is deleted inside or after the branch that resolves it, "
+            + "so a list that resolves nothing would reach Chart.js as a live option.");
     }
 
     /// <summary>

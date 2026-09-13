@@ -82,5 +82,17 @@
         [JsonPropertyName("annotation")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public AnnotationOptions? Annotation { get; set; }
+
+        /// <summary>
+        /// Gets or sets plugin options this class has no property for, written into
+        /// <c>options.plugins</c> next to the typed keys.
+        /// </summary>
+        /// <value>
+        /// Each entry becomes one key, spelled exactly as given and usually named after a plugin's
+        /// <c>id</c>: <c>["subtitle"] = new { display = true, text = "…" }</c>.
+        /// A key must not repeat one a property of this class already writes.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object?>? ExtraOptions { get; set; }
     }
 }

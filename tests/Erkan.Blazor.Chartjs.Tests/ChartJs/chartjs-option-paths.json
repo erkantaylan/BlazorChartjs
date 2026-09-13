@@ -36,7 +36,8 @@
     "hasLabel",
     "hasLegendClick",
     "hasOnHoverAsync",
-    "registerDataLabels"
+    "registerDataLabels",
+    "registerPlugins"
   ],
   "runtimeOnlyPaths": [
     "data.datasets.animation.animateRotate",

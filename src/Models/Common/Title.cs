@@ -146,5 +146,18 @@
         [JsonPropertyName("font")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Font? Font { get; set; }
+
+        /// <summary>
+        /// Gets or sets title options this class has no property for, written into
+        /// <c>options.plugins.title</c> next to the typed keys.
+        /// </summary>
+        /// <value>
+        /// Each entry becomes one key, spelled exactly as given. It is also how a multi-line
+        /// title is written while <see cref="Text"/> is a single string: leave <see cref="Text"/>
+        /// unset and add <c>["text"] = new[] { "First line", "Second line" }</c>.
+        /// A key must not repeat one a property of this class already writes.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object?>? ExtraOptions { get; set; }
     }
 }

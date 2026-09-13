@@ -327,6 +327,22 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public bool RegisterDataLabels { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets the Chart.js plugins to attach to this chart, by the global name their
+        /// script defines on <c>window</c> — <c>"ChartDataLabels"</c>,
+        /// <c>"chartjs-plugin-autocolors"</c>, or a plugin of your own assigned to <c>window</c>.
+        /// The zoom and annotation scripts register themselves as they load and need no entry.
+        /// </summary>
+        /// <value>
+        /// The global names. Each plugin is attached to this chart only, never registered
+        /// process-wide; a name with no global behind it logs a console warning and is skipped.
+        /// The list is read and removed by the component, so it never reaches Chart.js as an
+        /// option. Configure the plugin through <see cref="Common.Plugins.ExtraOptions"/>.
+        /// </value>
+        [JsonPropertyName("registerPlugins")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? RegisterPlugins { get; set; }
+
+        /// <summary>
         /// Gets or sets the scales.
         /// </summary>
         /// <value>
@@ -335,5 +351,18 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         [JsonPropertyName("scales")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Dictionary<string, Axis> Scales { get; set; }
+
+        /// <summary>
+        /// Gets or sets Chart.js options this class has no property for, written into
+        /// <c>options</c> next to the typed keys.
+        /// </summary>
+        /// <value>
+        /// Each entry becomes one key, spelled exactly as given:
+        /// <c>["datasets"] = new { bar = new { categoryPercentage = 0.6 } }</c> writes
+        /// <c>"datasets": { "bar": { "categoryPercentage": 0.6 } }</c>.
+        /// A key must not repeat one a property of this class already writes.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object?>? ExtraOptions { get; set; }
     }
 }

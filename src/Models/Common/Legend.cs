@@ -144,5 +144,15 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         [JsonIgnore]
         public Func<LegendClickContext, ValueTask>? OnClickAsync { get; set; }
 
+        /// <summary>
+        /// Gets or sets legend options this class has no property for, written into
+        /// <c>options.plugins.legend</c> next to the typed keys.
+        /// </summary>
+        /// <value>
+        /// Each entry becomes one key, spelled exactly as given: <c>["maxHeight"] = 60</c>.
+        /// A key must not repeat one a property of this class already writes.
+        /// </value>
+        [JsonExtensionData]
+        public Dictionary<string, object?>? ExtraOptions { get; set; }
     }
 }

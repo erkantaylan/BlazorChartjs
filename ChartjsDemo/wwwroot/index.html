@@ -61,6 +61,9 @@
     <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-zoom/chartjs-plugin-zoom.js"></script>
     <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-datalabels/chartjs-plugin-datalabels.js"></script>
     <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-annotation/chartjs-plugin-annotation.min.js"></script>
+    <!-- Defines window["chartjs-plugin-autocolors"] and registers nothing; the Extra options
+         page attaches it to one chart with Options.RegisterPlugins. -->
+    <script src="_content/Erkan.Blazor.Chartjs/lib/chartjs-plugin-autocolors/chartjs-plugin-autocolors.min.js"></script>
 
     <!-- Root-relative ("/_content/...") would resolve to the domain root and 404 when the
          app is served from a subpath such as /BlazorChartjs/. Kept relative so it resolves

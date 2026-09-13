@@ -166,15 +166,25 @@ public static class ModelGraph
     }
 
     /// <summary>
-    /// The properties <c>System.Text.Json</c> would write: public, with a public getter, and
-    /// not unconditionally ignored.
+    /// The properties <c>System.Text.Json</c> would write under a key of their own: public, with
+    /// a public getter, not unconditionally ignored, and not a <c>[JsonExtensionData]</c> bag.
     /// </summary>
+    /// <remarks>
+    /// An <c>ExtraOptions</c> bag writes its entries inline beside the typed keys and never
+    /// writes <c>extraOptions</c> itself, so walking it as a property would report a path no
+    /// configuration can emit. Its entries are chosen by the caller at runtime; the ones the
+    /// sample configurations set are checked where every runtime key is, on the emitted JSON.
+    /// </remarks>
     public static IEnumerable<PropertyInfo> SerializedProperties(Type type) =>
         type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.GetIndexParameters().Length == 0)
             .Where(p => p.GetMethod is { IsPublic: true })
             .Where(p => !IsUnconditionallyIgnored(p))
+            .Where(p => !IsExtensionData(p))
             .OrderBy(p => p.Name, StringComparer.Ordinal);
+
+    public static bool IsExtensionData(PropertyInfo property) =>
+        property.GetCustomAttribute<JsonExtensionDataAttribute>() is not null;
 
     private static bool IsUnconditionallyIgnored(PropertyInfo property)
     {

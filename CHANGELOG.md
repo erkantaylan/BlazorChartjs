@@ -212,6 +212,12 @@ First release of the `Erkan.Blazor.Chartjs` fork, from upstream `0.96`. Targets 
 - `TargetFramework` `net8.0` → `net10.0`; all Microsoft packages on 10.0.x.
 - Chart.js **3.9.1 → 4.5.1**, chartjs-plugin-zoom **1.2.1 → 2.2.0**, chartjs-plugin-autocolors
   **0.2.2 → 0.3.1**. Bundled chartjs-plugin-annotation **3.1.0** and moment **2.30.1**.
+- Chart.js is loaded from its UMD build, `chart.umd.js`. The `chart.js` file beside it is the ES
+  module build and throws `Unexpected token 'export'` under a classic `<script>` tag, so renaming the
+  package in the old script path is not enough.
+- The bundled `chartjs-adapter-moment` is hand-patched to apply a per-instance locale in `format()`,
+  so it is deliberately excluded from `libman.json`. Do not overwrite it with a LibMan restore
+  without re-applying that patch.
 - Removed the stale Chart.js 3.x module chunks and type definitions.
 - Demo site for this fork deploys to <https://erkantaylan.github.io/BlazorChartjs/>.
 
@@ -265,9 +271,11 @@ First release of the `Erkan.Blazor.Chartjs` fork, from upstream `0.96`. Targets 
 - Axis tick float-noise cleanup rounded to 10 decimal places, zeroing legitimate values below
   `1e-10`. The tolerance is relative to the axis range now: at least 12 significant digits and more
   where the axis resolution needs them, exact integers left alone, and any rounding that would be
-  visible at the axis's own resolution refused.
+  visible at the axis's own resolution refused. On linear and radial axes, a tick below one
+  ten-billionth of the visible span snaps to zero.
 - `AddData` performed a full chart re-render per point; the whole batch is now one round trip and
   one redraw.
+- The crosshair redrew on every mouse move; redraws are coalesced to one per animation frame.
 - Canvas `Height` and `Width` were both silently dropped when set together (missing CSS semicolon).
 - `LegendLabelsFilter`, `TicksCallback`, `TitleCallbacks` and `TooltipCallbacksLabel` threw
   `NotSupportedException` when the property they read was null; they return an empty result now.

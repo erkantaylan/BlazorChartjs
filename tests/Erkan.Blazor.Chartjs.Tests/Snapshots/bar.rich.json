@@ -159,24 +159,56 @@
         "hasLegendClick": false
       },
       "tooltip": {
+        "enabled": true,
+        "mode": "index",
+        "intersect": false,
+        "axis": "x",
+        "includeInvisible": false,
+        "position": "nearest",
+        "xAlign": "left",
+        "yAlign": "center",
         "backgroundColor": "rgba(11,31,51,0.92)",
         "titleColor": "#ffffff",
         "titleFont": {
           "size": 14,
           "weight": "600"
         },
+        "titleAlign": "center",
+        "titleSpacing": 4,
+        "titleMarginBottom": 8,
         "bodyColor": "#dbe4ee",
         "bodyFont": {
           "size": 13
         },
+        "bodyAlign": "left",
+        "bodySpacing": 4,
         "footerColor": "#9fb3c8",
         "footerFont": {
           "size": 12,
           "style": "italic"
         },
+        "footerAlign": "right",
+        "footerSpacing": 0,
+        "footerMarginTop": 10,
+        "padding": {
+          "top": 10,
+          "left": 12,
+          "bottom": 10,
+          "right": 12
+        },
+        "caretPadding": 6,
+        "caretSize": 8,
+        "cornerRadius": 4,
         "multiKeyBackground": "#102a43",
+        "displayColors": true,
+        "boxWidth": 10,
+        "boxHeight": 10,
+        "boxPadding": 4,
+        "usePointStyle": true,
         "borderColor": "#334e68",
-        "borderWidth": 1
+        "borderWidth": 1,
+        "rtl": false,
+        "textDirection": "ltr"
       },
       "title": {
         "align": "start",

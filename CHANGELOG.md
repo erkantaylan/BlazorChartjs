@@ -35,6 +35,15 @@ and would drop them.
   name, the patched moment adapter, the crosshair redraw batching and the tick snap-to-zero
   threshold — are in the `1.0.0` entry now.
 
+##### Removed
+
+- `IDataset` and `IDataset<T>` (`Erkan.Blazor.Chartjs.Interfaces`) removed. Both came from
+  [ChartJs.Blazor](https://github.com/mariusmuntean/ChartJs.Blazor)'s `Common/IDataset.cs` in
+  upstream's first commit, and nothing in the library has implemented, accepted or returned either
+  since — datasets derive from the `Dataset` and `CustomDataset<T>` classes, and `Data<T>.Datasets`
+  is a plain `List<T>`. The only code the removal can break is a type of your own that implements one of them; drop
+  the interface from its declaration.
+
 #### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
 
 > 10 August 2026

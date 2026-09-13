@@ -16,8 +16,43 @@ and would drop them.
 
 #### Unreleased
 
+##### Added
+
+- Chart-level options on `Options` that had no property
+  ([#4](https://github.com/erkantaylan/BlazorChartjs/issues/4)), each written to the key Chart.js
+  4.5.1 reads, and each omitted when left `null`:
+  - `Layout` — a new `Layout` class with `Padding` (the existing four-sided `Padding`) and
+    `AutoPadding`, serialized to `options.layout`.
+  - `AspectRatio` (`double?`), `ResizeDelay` (`int?`) and `DevicePixelRatio` (`double?`).
+  - `Color`, `BackgroundColor` and `BorderColor`. `BackgroundColor` and `BorderColor` are what every
+    bar, line, point and arc falls back to when its dataset sets no colour. `Color` reaches less than
+    its name suggests: Chart.js uses the per-chart value for legend label text only, and the title,
+    ticks, axis titles and datalabels fall back to the page-wide `Chart.defaults.color` instead.
+  - `Hover`, an `Interaction` — the same four settings, applied to hover only and falling back to
+    `Interaction` for whatever it leaves unset.
+  - `Events` (`List<string>?`), the DOM events the chart listens to. `[]` is written as `[]` and
+    means none; the package's hover and click callbacks only fire on the events listed.
+- `Plugins.Colors` configures Chart.js's built-in `colors` plugin through the existing `Colors`
+  class, which nothing referenced before: `Enabled`, and `ForceOverride` to apply the palette over
+  colours that are already set. Without `ForceOverride` the plugin colours nothing once any dataset,
+  `Options.Elements`, `Options.BackgroundColor` or `Options.BorderColor` sets a colour.
+- `docs/chart-options.md` — size and aspect ratio, layout padding, hover and events — and a
+  **Chart options** demo page.
+
+There is deliberately no `Options.Font`. Chart.js declares a per-chart `options.font`, but 4.5.1
+reads it only for radial-scale point labels, which no chart built on `Options` can show; everything
+else falls back to the page-wide `Chart.defaults.font`. A property that changed nothing on screen is
+the defect the key-validation tests exist to prevent, so each text element's own `Font` remains the
+way to set one.
+
 ##### Changed
 
+- `Options.MaintainAspectRatio` and `Options.Responsive` are `bool?` instead of `bool`, and still
+  start out `false` and `true`, so an existing chart sends exactly what it sent before — including
+  the `maintainAspectRatio: false` the `<Chart>` component's `Height` parameter depends on. Assign
+  `null` to write no key and leave the choice to Chart.js (whose defaults are `true` for both).
+  Assigning `true` or `false` is unchanged; code that reads one into a `bool` needs
+  `options.Responsive ?? true` or `== true`. `RadarOptions` keeps its own non-nullable pair.
 - `README.md` is a short front page now — installation, a quick start, the implemented charts and
   an index of the documentation — and the reference material it used to carry lives under `docs/`,
   moved as it was rather than rewritten:
@@ -34,6 +69,13 @@ and would drop them.
   gone: it repeated this file, and the four things it said that this file did not — the UMD build
   name, the patched moment adapter, the crosshair redraw batching and the tick snap-to-zero
   threshold — are in the `1.0.0` entry now.
+
+##### Removed
+
+- `Autocolors` removed. It modelled `plugins.autocolors` for `chartjs-plugin-autocolors`, which this
+  package vendors but has never registered, and no configuration referenced the class, so it could
+  not reach a chart at all. Chart.js 4's built-in `colors` plugin does the same job: use
+  `Plugins.Colors`. The vendored bundle stays under `lib/`.
 
 #### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
 

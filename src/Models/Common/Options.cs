@@ -98,9 +98,9 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// </summary>
         /// <value>
         /// In Chart.js 4.5.1 this per-chart value is the fallback for legend label text only. The
-        /// title, tick labels, axis titles and tooltip fall back to the page-wide
+        /// title, tick labels, axis titles and datalabels fall back to the page-wide
         /// <c>Chart.defaults.color</c> (<c>#666</c>) instead, so set <c>Title.Color</c>,
-        /// <c>Ticks.Color</c>, <c>AxesTitle.Color</c> and the <c>Tooltip</c> colours on each.
+        /// <c>Ticks.Color</c>, <c>AxesTitle.Color</c> and <c>DataLabels.Color</c> on each.
         /// </value>
         [JsonPropertyName("color")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -134,7 +134,8 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// Event names such as <c>"mousemove"</c> or <c>"click"</c>. Chart.js defaults to
         /// <c>mousemove</c>, <c>mouseout</c>, <c>click</c>, <c>touchstart</c> and <c>touchmove</c>; an
         /// empty list is written as <c>[]</c> and stops the chart reacting to any of them. Hover
-        /// callbacks need <c>mousemove</c> and click callbacks need <c>click</c>.
+        /// callbacks only follow the pointer while <c>mousemove</c> is listed, and click callbacks
+        /// need <c>click</c>.
         /// </value>
         [JsonPropertyName("events")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

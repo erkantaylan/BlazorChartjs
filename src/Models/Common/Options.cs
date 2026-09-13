@@ -59,6 +59,65 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public Animations? Animations { get; set; }
 
         /// <summary>
+        /// Gets or sets the canvas aspect ratio (<c>width / height</c>).
+        /// </summary>
+        /// <value>
+        /// The ratio Chart.js keeps the canvas at. Only read when <see cref="MaintainAspectRatio"/> is
+        /// <c>true</c>; Chart.js defaults it to <c>2</c>, and to <c>1</c> for radial charts.
+        /// </value>
+        [JsonPropertyName("aspectRatio")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public double? AspectRatio { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chart-wide default background colour.
+        /// </summary>
+        /// <value>
+        /// The fill colour every bar, point, line area and arc falls back to when neither its dataset
+        /// nor <see cref="Elements"/> sets one. Grid lines do not use it. Setting it also switches off
+        /// the built-in colors plugin unless <see cref="Colors.ForceOverride"/> is <c>true</c>.
+        /// </value>
+        [JsonPropertyName("backgroundColor")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? BackgroundColor { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chart-wide default border colour.
+        /// </summary>
+        /// <value>
+        /// The border colour every bar, point, line and arc falls back to when neither its dataset nor
+        /// <see cref="Elements"/> sets one. Grid lines do not use it. Setting it also switches off the
+        /// built-in colors plugin unless <see cref="Colors.ForceOverride"/> is <c>true</c>.
+        /// </value>
+        [JsonPropertyName("borderColor")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? BorderColor { get; set; }
+
+        /// <summary>
+        /// Gets or sets the chart's default text colour.
+        /// </summary>
+        /// <value>
+        /// In Chart.js 4.5.1 this per-chart value is the fallback for legend label text only. The
+        /// title, tick labels, axis titles and tooltip fall back to the page-wide
+        /// <c>Chart.defaults.color</c> (<c>#666</c>) instead, so set <c>Title.Color</c>,
+        /// <c>Ticks.Color</c>, <c>AxesTitle.Color</c> and the <c>Tooltip</c> colours on each.
+        /// </value>
+        [JsonPropertyName("color")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Color { get; set; }
+
+        /// <summary>
+        /// Gets or sets the device pixel ratio the canvas is rendered at.
+        /// </summary>
+        /// <value>
+        /// Overrides <c>window.devicePixelRatio</c>, e.g. to render a sharper canvas for printing.
+        /// Unset uses the browser's own ratio.
+        /// </value>
+        [JsonPropertyName("devicePixelRatio")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public double? DevicePixelRatio { get; set; }
+
+        /// <summary>
         /// Gets or sets the elements.
         /// </summary>
         /// <value>
@@ -67,6 +126,19 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         [JsonPropertyName("elements")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Elements? Elements { get; set; }
+
+        /// <summary>
+        /// Gets or sets the DOM events the chart listens to.
+        /// </summary>
+        /// <value>
+        /// Event names such as <c>"mousemove"</c> or <c>"click"</c>. Chart.js defaults to
+        /// <c>mousemove</c>, <c>mouseout</c>, <c>click</c>, <c>touchstart</c> and <c>touchmove</c>; an
+        /// empty list is written as <c>[]</c> and stops the chart reacting to any of them. Hover
+        /// callbacks need <c>mousemove</c> and click callbacks need <c>click</c>.
+        /// </value>
+        [JsonPropertyName("events")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? Events { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether there are groups for axes.
@@ -152,6 +224,17 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public string Height { get; set; }
 
         /// <summary>
+        /// Gets or sets the hover options.
+        /// </summary>
+        /// <value>
+        /// The same four settings as <see cref="Interaction"/>, applied to hover only. Any member left
+        /// unset falls back to <see cref="Interaction"/>.
+        /// </value>
+        [JsonPropertyName("hover")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Interaction? Hover { get; set; }
+
+        /// <summary>
         /// Gets or sets the index axis. <seealso cref="Axes"/>
         /// </summary>
         /// <value>
@@ -170,6 +253,16 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public Interaction? Interaction { get; set; }
 
         /// <summary>
+        /// Gets or sets the layout options.
+        /// </summary>
+        /// <value>
+        /// The padding around the chart area.
+        /// </value>
+        [JsonPropertyName("layout")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Layout? Layout { get; set; }
+
+        /// <summary>
         /// Gets or sets the locale for the chart. This is passed to Chart.js as the
         /// <c>locale</c> option and propagated to date adapters for time-based axes.
         /// Use a BCP 47 language tag (e.g. "tr-TR" for Turkish, "de-DE" for German).
@@ -180,13 +273,18 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public string? Locale { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether [maintain aspect ratio].
+        /// Gets or sets a value indicating whether the canvas keeps <see cref="AspectRatio"/> when it
+        /// resizes.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [maintain aspect ratio]; otherwise, <c>false</c>.
+        ///   <c>false</c> by default — unlike Chart.js, whose default is <c>true</c> — so the chart
+        ///   fills the height given to the <c>&lt;Chart&gt;</c> component's <c>Height</c> parameter.
+        ///   <c>true</c> sizes the height from the width instead. <c>null</c> writes nothing and hands
+        ///   the decision back to Chart.js.
         /// </value>
         [JsonPropertyName("maintainAspectRatio")]
-        public bool MaintainAspectRatio { get; set; } = false;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? MaintainAspectRatio { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the plugins.
@@ -199,13 +297,25 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public Plugins Plugins { get; set; } = new Plugins();
 
         /// <summary>
+        /// Gets or sets the delay, in milliseconds, before a resize is applied.
+        /// </summary>
+        /// <value>
+        /// Debounces resize updates. Chart.js defaults it to <c>0</c>, which resizes immediately.
+        /// </value>
+        [JsonPropertyName("resizeDelay")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? ResizeDelay { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this <see cref="Options"/> is responsive.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if responsive; otherwise, <c>false</c>.
+        ///   <c>true</c> by default, so the canvas resizes with its container; <c>false</c> fixes its
+        ///   size. <c>null</c> writes nothing and hands the decision back to Chart.js.
         /// </value>
         [JsonPropertyName("responsive")]
-        public bool Responsive { get; set; } = true;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Responsive { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating if you want to register the DataLabels plugin.

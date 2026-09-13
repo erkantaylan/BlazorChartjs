@@ -6,6 +6,16 @@
     public class Plugins
     {
         /// <summary>
+        /// Gets or sets the options of Chart.js's built-in colors plugin.
+        /// </summary>
+        /// <value>
+        /// The default palette for datasets that set no colours.
+        /// </value>
+        [JsonPropertyName("colors")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Colors? Colors { get; set; }
+
+        /// <summary>
         /// Gets or sets the data labels.
         /// </summary>
         /// <value>The data labels.</value>

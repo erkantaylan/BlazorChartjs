@@ -24,8 +24,8 @@ namespace Erkan.Blazor.Chartjs.Tests.Infrastructure;
 ///   <item><c>Minimal</c> — the least a working chart needs: labels, one dataset, and an
 ///   options object. This is where a stray <c>[]</c>, a bare <c>null</c> or a leaked
 ///   wrapper-internal marker shows up, because nothing here asked for any of them.</item>
-///   <item><c>Rich</c> — what a real consumer sets: scales, legend, title, tooltip,
-///   datalabels, zoom and the chart-level layout, sizing, colour, hover and events options,
+///   <item><c>Rich</c> — what a real consumer sets: scales, legend, title, the tooltip's styling,
+///   placement and layout, datalabels, zoom and the chart-level layout, sizing, colour, hover and events options,
 ///   exercised as widely as each chart type's options class allows, plus an
 ///   <c>ExtraOptions</c> entry on every class that has the bag. Each of those entries is a key
 ///   Chart.js really reads, because the key check validates them like any other, and none
@@ -246,17 +246,45 @@ public static class SampleConfigs
         },
         Tooltip = new Tooltip
         {
+            Enabled = true,
+            Mode = InteractionMode.Index,
+            Intersect = false,
+            Axis = AxisInteractions.X,
+            IncludeInvisible = false,
+            Position = TooltipPosition.Nearest,
+            XAlign = TooltipXAlign.Left,
+            YAlign = TooltipYAlign.Center,
             BackgroundColor = "rgba(11,31,51,0.92)",
             TitleColor = "#ffffff",
             TitleFont = new Font { Size = 14, Weight = "600" },
+            TitleAlign = TextAlign.Center,
+            TitleSpacing = 4,
+            TitleMarginBottom = 8,
             BodyColor = "#dbe4ee",
             BodyFont = new Font { Size = 13 },
+            BodyAlign = TextAlign.Left,
+            BodySpacing = 4,
             FooterColor = "#9fb3c8",
             FooterFont = new Font { Size = 12, Style = "italic" },
+            FooterAlign = TextAlign.Right,
+            FooterSpacing = 0,
+            FooterMarginTop = 10,
+            Padding = new Padding(10, 12, 10, 12),
+            CaretPadding = 6,
+            CaretSize = 8,
+            CornerRadius = 4,
             BorderColor = "#334e68",
             BorderWidth = 1,
             MultiKeyBackground = "#102a43",
-            ExtraOptions = new() { ["cornerRadius"] = 8, ["displayColors"] = false },
+            DisplayColors = true,
+            BoxWidth = 10,
+            BoxHeight = 10,
+            BoxPadding = 4,
+            UsePointStyle = true,
+            RTL = false,
+            TextDirection = TextDirection.LTR,
+            // cornerRadius and displayColors are typed on Tooltip now; the tooltip's own animation is not
+            ExtraOptions = new() { ["animation"] = new { duration = 150, easing = "easeOutQuad" } },
         },
         DataLabels = new DataLabels
         {
@@ -703,6 +731,14 @@ public static class SampleConfigs
     {
         var plugins = StyledPlugins("Samples", new Colors { ForceOverride = true });
         plugins.Zoom = FullZoom();
+        // the tooltip describes the one sample under the pointer, and clearing XAlign/YAlign
+        // hands the caret sides back to Chart.js: neither key is written
+        plugins.Tooltip!.Mode = InteractionMode.Point;
+        plugins.Tooltip.Intersect = true;
+        plugins.Tooltip.Axis = AxisInteractions.XY;
+        plugins.Tooltip.XAlign = null;
+        plugins.Tooltip.YAlign = null;
+        plugins.Tooltip.DisplayColors = false;
         return new ScatterChartConfig
         {
             Data = new ScatterData

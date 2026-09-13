@@ -14,8 +14,9 @@
 <h4>Options the models do not have</h4>
 
 <p>
-    Narrower bars set once for every bar dataset, a subtitle, a legend title, square tooltips,
-    rounded bars and extra room above the tallest bar. None of these has a typed property.
+    Narrower bars set once for every bar dataset, a subtitle, a legend title, a tooltip with one square
+    corner, rounded bars and extra room above the tallest bar. None of these can be set through a typed
+    property: <code>Tooltip.CornerRadius</code> takes one radius for all four corners.
 </p>
 
 <Chart Config="_config1" @ref="_chart1" Height="400px"></Chart>
@@ -45,8 +46,8 @@ _config1 = new BarChartConfig()
             },
             Tooltip = new Tooltip()
             {
-                // options.plugins.tooltip.cornerRadius and .displayColors
-                ExtraOptions = new() { ["cornerRadius"] = 0, ["displayColors"] = false }
+                // options.plugins.tooltip.cornerRadius, per corner
+                ExtraOptions = new() { ["cornerRadius"] = new { topLeft = 0, topRight = 12, bottomRight = 12, bottomLeft = 12 } }
             }
         },
         Scales = new Dictionary&lt;string, Axis&gt;()
@@ -184,7 +185,7 @@ _config3.Data.Datasets.AddRange(RadarDataExamples.RadarDatasets);
                     },
                     Tooltip = new Tooltip()
                     {
-                        ExtraOptions = new() { ["cornerRadius"] = 0, ["displayColors"] = false }
+                        ExtraOptions = new() { ["cornerRadius"] = new { topLeft = 0, topRight = 12, bottomRight = 12, bottomLeft = 12 } }
                     }
                 },
                 Scales = new Dictionary<string, Axis>()

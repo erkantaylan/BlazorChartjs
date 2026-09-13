@@ -30,7 +30,7 @@ Plugins = new Plugins()
 
 Every one of these is optional: leave a property `null` and it is not serialized at all, so Chart.js keeps its own default. For `Color` that default is `Options.Color` if the chart sets one (see [Chart colours](#chart-colours)) and the page-wide `#666` otherwise; for `Font` it is always the page-wide 12px Helvetica, because there is no per-chart font that reaches the legend. `PointStyle` mirrors into `PointStyleString` for a raw value the enumeration does not carry, the same pattern as `Legend.Align` / `AlignString`.
 
-`Tooltip` takes the same treatment for the same reason: `BackgroundColor`, `TitleColor`/`TitleFont`, `BodyColor`/`BodyFont`, `FooterColor`/`FooterFont`, `BorderColor` and `BorderWidth`.
+`Tooltip` takes the same treatment for the same reason: `BackgroundColor`, `TitleColor`/`TitleFont`, `BodyColor`/`BodyFont`, `FooterColor`/`FooterFont`, `BorderColor`, `BorderWidth` and `MultiKeyBackground` — and its placement and layout, below in [Tooltip](#tooltip).
 
 Chart.js reads these when the chart is built, and the `<Chart>` component compares `Config` **by reference** — so mutating `Labels.Color` on the config it is already holding changes nothing on screen. Switching theme at runtime means handing it a new config object:
 
@@ -49,6 +49,70 @@ Chart.js reads these when the chart is built, and the `<Chart>` component compar
 ```
 
 The component destroys the previous Chart.js instance and creates the new one for you.
+
+## Tooltip
+
+Beyond its colours and fonts, `Tooltip` sets what the tooltip describes, where it is drawn, and how its box is laid out ([#6](https://github.com/erkantaylan/BlazorChartjs/issues/6), and the position half of upstream [#46](https://github.com/erossini/BlazorChartjs/issues/46)):
+
+```csharp
+Plugins = new Plugins()
+{
+    Tooltip = new Tooltip()
+    {
+        // what it describes
+        Mode = InteractionMode.Index,     // every series at the hovered index
+        Intersect = false,                // wherever the pointer is, not only over a point
+
+        // where it goes
+        Position = TooltipPosition.Nearest,
+        XAlign = TooltipXAlign.Center,
+        YAlign = TooltipYAlign.Bottom,    // caret at the bottom: the tooltip sits above the point
+
+        // the box
+        Padding = new Padding(12),
+        CornerRadius = 12,
+        CaretSize = 10,
+        CaretPadding = 8,
+
+        // the text
+        TitleAlign = TextAlign.Center,
+        TitleMarginBottom = 10,
+        BodySpacing = 6,
+
+        // the colour box beside each item
+        UsePointStyle = true,
+        BoxWidth = 10,
+        BoxHeight = 10,
+        BoxPadding = 6
+    }
+}
+```
+
+As with the legend, every property is optional and a `null` one is not serialized, so Chart.js keeps its default; each property's XML documentation names that default.
+
+- **`Enabled = false`** draws no tooltip at all, and **`DisplayColors = false`** leaves out the colour boxes. Both are written as `false`, not dropped.
+- **`Mode`, `Intersect`, `Axis` and `IncludeInvisible`** are the four [`Interaction`](chart-options.md#hover-and-events) settings, applied to the tooltip alone. Each one the tooltip leaves unset falls back to `Options.Interaction`, never to `Options.Hover`, so a tooltip can list a whole month while hovering still highlights only the point under the pointer.
+- **`Position`** is `TooltipPosition.Average` (Chart.js's default: the middle of every item shown) or `TooltipPosition.Nearest` (the item nearest the pointer). `PositionString` carries the name of a positioner of your own, which has to be registered in page script, after `chart.umd.js` and before the chart is created — Chart.js looks the name up on the first hover and throws if nothing is registered under it:
+
+  ```html
+  <script>
+      Chart.Tooltip.positioners.cursor = function (items, eventPosition) {
+          return { x: eventPosition.x, y: eventPosition.y };
+      };
+  </script>
+  ```
+
+  ```csharp
+  Tooltip = new Tooltip() { PositionString = "cursor" }
+  ```
+
+- **`XAlign` and `YAlign` name the side the caret is on, not the side of the point the tooltip is on.** `YAlign = TooltipYAlign.Top` puts the caret on top, so the tooltip is drawn *below* the point; `XAlign = TooltipXAlign.Left` draws it to the right. Left unset, Chart.js picks the sides that keep the tooltip on the canvas; set, they are used even at the edge, where Chart.js pushes the box back inside the canvas.
+- **`Padding`** is the same four-sided `Padding` as `Layout.Padding`: `new Padding(12)` pads every side, `new Padding(top, right, bottom, left)` each one. **`CornerRadius`** is one radius for all four corners; for Chart.js's per-corner form, leave it `null` and write `ExtraOptions["cornerRadius"] = new { topLeft = 0, topRight = 12, bottomRight = 12, bottomLeft = 12 }` (see [Extra options](extra-options.md)).
+- **`TitleAlign`, `BodyAlign` and `FooterAlign`** align each block of text inside the box, with `TextAlign.Left` (the default), `Center` or `Right`. `TitleSpacing`, `BodySpacing` and `FooterSpacing` add space above and below every line of that block, and `TitleMarginBottom` and `FooterMarginTop` separate the blocks.
+- **`BoxWidth` and `BoxHeight`** default to the body font size. **`UsePointStyle`** swaps the square for each dataset's own point style, sized to the smaller of the two.
+- **`RTL`** and **`TextDirection`** work as they do on `Legend`.
+
+Every `TooltipPosition`, `TooltipXAlign`, `TooltipYAlign` and `TextAlign` property mirrors into a `*String` twin for a raw value, and assigning `null` clears both.
 
 ## Chart colours
 

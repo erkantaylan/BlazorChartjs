@@ -122,10 +122,10 @@ public class ExtraOptionsTests
             {
                 Options = new Options
                 {
-                    Plugins = new Plugins { Tooltip = new Tooltip { BorderWidth = 1, ExtraOptions = new() { ["cornerRadius"] = 8 } } },
+                    Plugins = new Plugins { Tooltip = new Tooltip { BorderWidth = 1, ExtraOptions = new() { ["animation"] = new { duration = 0 } } } },
                 },
             },
-            "options.plugins.tooltip", "borderWidth", "cornerRadius", "8"),
+            "options.plugins.tooltip", "borderWidth", "animation", """{"duration":0}"""),
 
         nameof(Title) => (
             new BarChartConfig

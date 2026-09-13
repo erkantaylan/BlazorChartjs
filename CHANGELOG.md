@@ -14,6 +14,27 @@ The `1.0.0` and `2.0.0` entries are written by hand. **Do not regenerate this fi
 `auto-changelog`** without re-applying them — the tool rewrites the whole file from commit messages
 and would drop them.
 
+#### Unreleased
+
+##### Changed
+
+- `README.md` is a short front page now — installation, a quick start, the implemented charts and
+  an index of the documentation — and the reference material it used to carry lives under `docs/`,
+  moved as it was rather than rewritten:
+  - `docs/feature-coverage.md` — the Feature coverage tables, and the escape hatches.
+  - `docs/upgrading.md` — upgrading from 1.0.0, and migrating from `PSC.Blazor.Components.Chartjs`.
+  - `docs/updating-data.md` — `AddData`, `AddDataset<T>` and `ClearData`.
+  - `docs/callbacks-and-events.md` — the tooltip, tick and legend callbacks, `OnClickAsync`,
+    `OnHoverAsync`, and the `OnChartClick` / `OnChartOver` / `OnLegendClick` parameters.
+  - `docs/styling.md` — legend label styling and the axis border.
+  - `docs/plugins.md` — data labels, zoom and pan.
+
+  The README is also the package page on nuget.org, which renders it outside the repository, so
+  every link from it into the repository is an absolute GitHub URL. Its `Fork changes` section is
+  gone: it repeated this file, and the four things it said that this file did not — the UMD build
+  name, the patched moment adapter, the crosshair redraw batching and the tick snap-to-zero
+  threshold — are in the `1.0.0` entry now.
+
 #### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
 
 > 10 August 2026

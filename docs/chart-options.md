@@ -38,7 +38,7 @@ Options = new Options()
 
 ## Hover and events
 
-`Options.Hover` takes the same `Interaction` as `Options.Interaction`, and applies it to **hover** only: which elements get their hover style. Anything `Hover` leaves unset falls back to `Interaction`. The tooltip does not read `Hover` — it follows `Interaction`. So this highlights every bar of a month while the tooltip still describes the single bar under the pointer:
+`Options.Hover` takes the same `Interaction` as `Options.Interaction`, and applies it to **hover** only: which elements get their hover style. Anything `Hover` leaves unset falls back to `Interaction`. The tooltip does not read `Hover` — it follows `Interaction`, unless `Tooltip` sets its own `Mode`, `Intersect`, `Axis` or `IncludeInvisible` (see [Tooltip](styling.md#tooltip)). So this highlights every bar of a month while the tooltip still describes the single bar under the pointer:
 
 ```csharp
 Options = new Options()

@@ -38,6 +38,30 @@ and would drop them.
   `Options.Elements`, `Options.BackgroundColor` or `Options.BorderColor` sets a colour.
 - `docs/chart-options.md` — size and aspect ratio, layout padding, hover and events — and a
   **Chart options** demo page.
+- The tooltip's behaviour, placement and layout on `Tooltip`
+  ([#6](https://github.com/erkantaylan/BlazorChartjs/issues/6)), which could set only colours, fonts,
+  the border and two callbacks — upstream [#46](https://github.com/erossini/BlazorChartjs/issues/46)
+  asked for its position as well as its colours. Each is written to the key the Chart.js 4.5.1 tooltip
+  reads, and omitted when left `null`:
+  - `Enabled`, and `Mode` (the existing `InteractionMode`), `Intersect`, `Axis` and
+    `IncludeInvisible`. Each of the four the tooltip leaves unset falls back to
+    `Options.Interaction`, so a tooltip can list every series at an index while hovering still
+    highlights only the point under the pointer.
+  - `Position`, a new `TooltipPosition` (`Average`, `Nearest`), with `PositionString` for the name
+    of a positioner registered in page script as `Chart.Tooltip.positioners.<name>`.
+  - `XAlign` and `YAlign`, new `TooltipXAlign` and `TooltipYAlign`. They name the side the caret is
+    on, so `YAlign = TooltipYAlign.Top` draws the tooltip below the point.
+  - `TitleAlign`, `BodyAlign` and `FooterAlign`, a new `TextAlign` (`Left`, `Center`, `Right`), and
+    `TitleSpacing`, `BodySpacing`, `FooterSpacing`, `TitleMarginBottom` and `FooterMarginTop`.
+  - `Padding` (the existing four-sided `Padding`; `new Padding(6)` is Chart.js's single-number
+    form), `CaretPadding`, `CaretSize` and `CornerRadius` — one radius for every corner.
+  - `DisplayColors`, `BoxWidth`, `BoxHeight`, `BoxPadding` and `UsePointStyle`.
+  - `RTL` and `TextDirection` (the existing `TextDirection`).
+
+  Every string-enum property mirrors into a `*String` twin, and assigning `null` clears both.
+  `external`, `filter`, `itemSort`, the remaining callbacks and the per-corner `cornerRadius` object
+  are still missing. A **Tooltip** section in `docs/styling.md` and a tooltip example on the
+  **Chart options** demo page show them.
 
 There is deliberately no `Options.Font`. Chart.js declares a per-chart `options.font`, but 4.5.1
 reads it only for radial-scale point labels, which no chart built on `Options` can show; everything

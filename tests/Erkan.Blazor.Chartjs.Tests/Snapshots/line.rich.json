@@ -3,14 +3,49 @@
     "datasets": [
       {
         "backgroundColor": "rgba(62,189,147,0.2)",
+        "borderCapStyle": "round",
         "borderColor": "#199473",
+        "borderDash": [
+          5,
+          2.5
+        ],
+        "borderDashOffset": 0,
+        "borderJoinStyle": "bevel",
         "borderWidth": 2,
+        "clip": 4,
         "cubicInterpolationMode": "default",
+        "drawActiveElementsOnTop": false,
         "fill": false,
+        "hoverBackgroundColor": "rgba(62,189,147,0.4)",
+        "hoverBorderColor": "#147d64",
+        "hoverBorderWidth": 3,
+        "pointBackgroundColor": [
+          "#199473",
+          "#3ebd93",
+          "#e12d39",
+          "#199473"
+        ],
+        "pointBorderColor": [
+          "#ffffff"
+        ],
+        "pointBorderWidth": 1,
+        "pointHitRadius": 6,
+        "pointHoverBackgroundColor": [
+          "#0b1f33"
+        ],
+        "pointHoverBorderColor": [
+          "#ffffff"
+        ],
+        "pointHoverBorderWidth": 2,
+        "pointHoverRadius": 5,
         "pointRadius": 3,
+        "pointRotation": 0,
         "pointStyle": "circle",
-        "stepped": "false",
+        "showLine": true,
+        "spanGaps": false,
+        "stepped": false,
         "tension": 0,
+        "xAxisID": "x",
         "yAxisID": "y",
         "data": [
           10,
@@ -24,6 +59,9 @@
       {
         "borderColor": "#e12d39",
         "fill": true,
+        "spanGaps": true,
+        "stack": "errors",
+        "stepped": "middle",
         "tension": 0.4,
         "yAxisID": "y2",
         "data": [

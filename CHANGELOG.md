@@ -35,6 +35,18 @@ and would drop them.
   name, the patched moment adapter, the crosshair redraw batching and the tick snap-to-zero
   threshold — are in the `1.0.0` entry now.
 
+##### Fixed
+
+- `LICENSE` carries the copyright notice of
+  [ChartJs.Blazor](https://github.com/mariusmuntean/ChartJs.Blazor) — `Copyright (c) 2019 Marius
+  Muntean` and `Copyright (c) 2021 Joel L.` — above Enrico Rossini's line. Upstream reused
+  ChartJs.Blazor code from its first commit (a `ColorUtil` class it later deleted, and `IDataset`)
+  without the notice the MIT licence requires, and this fork inherited the gap: nothing in the
+  repository or the package named the project it came from. The package's `<Copyright>` names the
+  same holders, and the README's Credits section names ChartJs.Blazor and its contributors. Upstream
+  [#84](https://github.com/erossini/BlazorChartjs/issues/84) asked for this and was closed without
+  it.
+
 ##### Removed
 
 - `IDataset` and `IDataset<T>` (`Erkan.Blazor.Chartjs.Interfaces`) removed. Both came from

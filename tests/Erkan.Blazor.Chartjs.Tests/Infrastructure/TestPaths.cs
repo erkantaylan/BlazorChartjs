@@ -30,4 +30,10 @@ public static class TestPaths
 
     public static string SourceModelsDirectory =>
         Path.Combine(RepositoryRoot, "src", "Models");
+
+    /// <summary>The licence file, which the csproj packs into the root of the NuGet package.</summary>
+    public static string License => Path.Combine(RepositoryRoot, "LICENSE");
+
+    public static string LibraryProject =>
+        Path.Combine(RepositoryRoot, "src", "Erkan.Blazor.Chartjs.csproj");
 }

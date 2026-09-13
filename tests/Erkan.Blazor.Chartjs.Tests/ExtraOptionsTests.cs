@@ -93,8 +93,8 @@ public class ExtraOptionsTests
     private static (IChartConfig Config, string Parent, string TypedKey, string ExtraKey, string Expected) Placement(string owner) => owner switch
     {
         nameof(Options) => (
-            new BarChartConfig { Options = new Options { ExtraOptions = new() { ["layout"] = new { padding = 24 } } } },
-            "options", "responsive", "layout", """{"padding":24}"""),
+            new BarChartConfig { Options = new Options { ExtraOptions = new() { ["datasets"] = new { bar = new { categoryPercentage = 0.5 } } } } },
+            "options", "responsive", "datasets", """{"bar":{"categoryPercentage":0.5}}"""),
 
         nameof(RadarOptions) => (
             new RadarChartConfig
@@ -242,6 +242,57 @@ public class ExtraOptionsTests
         Assert.Equal(
             """{"CaretSize":1,"padding":{"top":2,"bottom":2},"animation":{"Duration":null}}""",
             ChartJson.Serialize(tooltip));
+    }
+
+    /// <summary>
+    /// No sample configuration writes one key twice in the same object. A bag entry and a typed
+    /// property for the same key produce exactly that, and nothing else notices: the snapshot
+    /// records it, the key check passes it (both copies are valid keys), and <c>JSON.parse</c>
+    /// quietly keeps one. Typed properties keep landing for keys the fixtures reach through a
+    /// bag, so this is the check that says a bag entry has to move when they do.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(SampleConfigs.AllKinds), MemberType = typeof(SampleConfigs))]
+    public void No_sample_configuration_writes_a_key_twice_in_one_object(string kind)
+    {
+        foreach (var (shape, config) in new[]
+                 {
+                     ("empty", SampleConfigs.Empty(kind)),
+                     ("minimal", SampleConfigs.Minimal(kind)),
+                     ("rich", SampleConfigs.Rich(kind)),
+                 })
+        {
+            using var document = ChartJson.SerializeToDocument(config);
+            var duplicates = new List<string>();
+            CollectDuplicateKeys(document.RootElement, "$", duplicates);
+
+            Assert.True(duplicates.Count == 0,
+                $"{kind}.{shape} writes a key twice — a bag entry now repeats a typed property, so move "
+                + "the entry to the property or to a key that is still untyped:" + Environment.NewLine + "  "
+                + string.Join($"{Environment.NewLine}  ", duplicates));
+        }
+    }
+
+    private static void CollectDuplicateKeys(JsonElement element, string pointer, List<string> duplicates)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                var seen = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var property in element.EnumerateObject())
+                {
+                    if (!seen.Add(property.Name))
+                        duplicates.Add($"{pointer}.{property.Name}");
+                    CollectDuplicateKeys(property.Value, $"{pointer}.{property.Name}", duplicates);
+                }
+                break;
+
+            case JsonValueKind.Array:
+                var index = 0;
+                foreach (var item in element.EnumerateArray())
+                    CollectDuplicateKeys(item, $"{pointer}[{index++}]", duplicates);
+                break;
+        }
     }
 
     /// <summary>Walks a dotted path through objects; a <c>[0]</c> suffix steps into an array.</summary>

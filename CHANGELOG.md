@@ -16,6 +16,28 @@ and would drop them.
 
 #### Unreleased
 
+##### Added
+
+- `LineDataset` gained the line and point styling Chart.js reads on a line dataset
+  ([#8](https://github.com/erkantaylan/BlazorChartjs/issues/8), upstream
+  [#95](https://github.com/erossini/BlazorChartjs/issues/95), which asked for dashes because
+  series in similar colours could not be told apart):
+  - the line — `BorderDash` (`List<decimal>?`), `BorderDashOffset`, `BorderCapStyle` and
+    `BorderJoinStyle` (new string-enum classes, with `BorderCapStyleString` and
+    `BorderJoinStyleString` twins), `SpanGaps`, `ShowLine`, and `HoverBackgroundColor`,
+    `HoverBorderColor` and `HoverBorderWidth`;
+  - the points — `PointBackgroundColor`, `PointBorderColor`, `PointHoverBackgroundColor` and
+    `PointHoverBorderColor` as `List<string>?`, one colour per point, and `PointBorderWidth`,
+    `PointHitRadius`, `PointHoverRadius`, `PointHoverBorderWidth` and `PointRotation` as `int?`;
+  - placement — `XAxisId` (`xAxisID`), `Stack`, `Clip` and `DrawActiveElementsOnTop`.
+
+  Every one is nullable and omitted when unset. Two keep only one form of a Chart.js union:
+  `SpanGaps` is `bool?`, with no numeric largest-gap form, and `Clip` is a pixel count for every
+  side, with no `false` and no per-side object. `segment`, `hidden`, `indexAxis`, the
+  `hoverBorderDash`/`hoverBorderDashOffset`/`hoverBorderCapStyle`/`hoverBorderJoinStyle` group,
+  fill targets and `pointStyle: false` still have no property. The demo has a new *Line Styling*
+  page, and the *Step Line* page compares the step modes.
+
 ##### Changed
 
 - `README.md` is a short front page now — installation, a quick start, the implemented charts and
@@ -34,6 +56,11 @@ and would drop them.
   gone: it repeated this file, and the four things it said that this file did not — the UMD build
   name, the patched moment adapter, the crosshair redraw batching and the tick snap-to-zero
   threshold — are in the `1.0.0` entry now.
+- `LineDataset.SteppedString` is renamed `StepModeString`, the `<Property>String` name every other
+  string-enum twin in the library uses. Code that assigns `StepMode` is unaffected; code that set
+  the raw string needs the new name: `SteppedString = "middle"` becomes
+  `StepModeString = "middle"`. The rename comes with the `stepped` fix under *Fixed*, and
+  `"true"` and `"false"` assigned to the twin directly are sent as booleans too.
 
 ##### Fixed
 
@@ -46,6 +73,14 @@ and would drop them.
   same holders, and the README's Credits section names ChartJs.Blazor and its contributors. Upstream
   [#84](https://github.com/erossini/BlazorChartjs/issues/84) asked for this and was closed without
   it.
+- `StepMode.False` draws straight lines. Every `StepMode` went out as a string, so `False` sent
+  `"stepped": "false"`. Chart.js tests `stepped` for truthiness, and a non-empty string is truthy,
+  so the line was drawn stepped, in `before` mode. That was the value meant to turn stepping off,
+  or to override a chart-level `stepped`. `False` and `True` are now sent as the JSON booleans
+  `false` and `true`; `Before`, `After` and `Middle` stay strings. `True` was only ever right
+  because `"true"` is truthy too. The feature coverage table had listed the property as `Stepped`
+  and as working; it is `StepMode`, and it works now
+  ([#8](https://github.com/erkantaylan/BlazorChartjs/issues/8)).
 
 ##### Removed
 

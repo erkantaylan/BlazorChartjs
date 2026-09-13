@@ -84,7 +84,7 @@ These are reference types, so unlike [the eighteen above](#eighteen-properties-a
 + LegendPosition position = legend.Position ?? LegendPosition.Bottom;
 ```
 
-And the reason it matters: **assigning `null` used to throw.** Each of these facades mirrors its value into a `*String` twin that is what actually serializes, and the setter read `value.Value` without checking — so `Position = null`, the obvious way to clear one back to the Chart.js default, raised a `NullReferenceException`. Nine properties had it, the five above plus `LineDataset.CubicInterpolationMode`, `LineDataset.PointStyle`, `LineDataset.Stepped` and `ScatterDataset.PointStyle` (those four were already nullable and needed only the setter fix). All nine accept `null` now and clear the serialized key with it.
+And the reason it matters: **assigning `null` used to throw.** Each of these facades mirrors its value into a `*String` twin that is what actually serializes, and the setter read `value.Value` without checking — so `Position = null`, the obvious way to clear one back to the Chart.js default, raised a `NullReferenceException`. Nine properties had it, the five above plus `LineDataset.CubicInterpolationMode`, `LineDataset.PointStyle`, `LineDataset.StepMode` and `ScatterDataset.PointStyle` (those four were already nullable and needed only the setter fix). All nine accept `null` now and clear the serialized key with it.
 
 ### Dataset colour lists start out null
 

@@ -64,6 +64,30 @@ way to set one.
   `hoverBorderDash`/`hoverBorderDashOffset`/`hoverBorderCapStyle`/`hoverBorderJoinStyle` group,
   fill targets and `pointStyle: false` still have no property. The demo has a new *Line Styling*
   page, and the *Step Line* page compares the step modes.
+- `BarDataset` gained the options Chart.js reads on a bar dataset
+  ([#7](https://github.com/erkantaylan/BlazorChartjs/issues/7)). Before this it had six, so
+  rounded, thin, ungrouped or axis-bound bars needed a custom options class:
+  - width — `BarThickness`, `MaxBarThickness` and `MinBarLength`, and `BarPercentage` and
+    `CategoryPercentage` (`decimal?`);
+  - shape — `BorderRadius` and `HoverBorderRadius`, `BorderSkipped` (a string-enum class with a
+    `BorderSkippedString` twin), `InflateAmount`, and `HoverBorderColor` (`List<string>?`, one
+    colour per bar) and `HoverBorderWidth`;
+  - layout — `Grouped`, `SkipNull`, `Base`, `Clip` and `PointStyle`;
+  - axes — `XAxisId` (`xAxisID`), `YAxisId` (`yAxisID`) and a per-dataset `IndexAxis`, so a bar
+    dataset can be pinned to a named axis, or laid along the y axis on its own.
+
+  Four of these are unions in Chart.js, and each gets a small type that writes the shape Chart.js
+  reads. `BorderRadius` (in `Models.Common`, for reuse by other chart types) takes one radius
+  (`BorderRadius = 8`, sent as a number) or named corners (`new BorderRadius { TopLeft = 8 }`, sent
+  as an object of the corners set). `BarThickness` is pixels or `BarThickness.Flex`, and
+  `InflateAmount` is pixels or `InflateAmount.Auto`; both are assigned a number directly.
+  `BorderSkipped.False` and `.True` go out as JSON booleans, as `StepMode`'s do. Every option is
+  nullable and omitted when unset, so `BorderRadius = 0`, `Grouped = false` and `MinBarLength = 0`
+  are sent. Still missing: floating bars, `hidden`, the per-side object form of `borderWidth`,
+  and the `false` and per-side object forms of `clip`. The demo has a new *Bar Styling* page, and
+  `docs/styling.md` a *Bar datasets* section. The feature coverage table had called `indexAxis`
+  Full while only the chart-wide `Options.IndexAxis` existed; it is Partial now, because
+  `LineDataset` still has none.
 
 ##### Changed
 
@@ -94,6 +118,10 @@ way to set one.
   the raw string needs the new name: `SteppedString = "middle"` becomes
   `StepModeString = "middle"`. The rename comes with the `stepped` fix under *Fixed*, and
   `"true"` and `"false"` assigned to the twin directly are sent as booleans too.
+- `StepModeJsonConverter` is renamed `BooleanStringJsonConverter` and moved to a file of its own in
+  `Erkan.Blazor.Chartjs.Models.Common.StringEnums`. It now serves `BarDataset.BorderSkippedString`
+  as well as `LineDataset.StepModeString`, and behaves as before. Only code that named the
+  converter itself needs the new name.
 
 ##### Fixed
 
@@ -127,6 +155,13 @@ way to set one.
   package vendors but has never registered, and no configuration referenced the class, so it could
   not reach a chart at all. Chart.js 4's built-in `colors` plugin does the same job: use
   `Plugins.Colors`. The vendored bundle stays under `lib/`.
+- `BarDataset.Fill` removed ([#7](https://github.com/erkantaylan/BlazorChartjs/issues/7)). `fill`
+  is a line and radar option, and a bar has nothing to fill. The key passed the key-validation
+  tests only because they union the dataset options of all chart types, and the feature coverage
+  table listed it as a bar property. Delete the assignment. The one place it did anything was a
+  dataset with `Type = "line"` inside a `BarChartConfig`, as on the demo's *Mixed graphs* page. There
+  `Fill = false` repeats Chart.js's line default, so removing it changes nothing. A line-typed
+  dataset in a bar chart can no longer turn its fill on.
 
 #### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
 

@@ -164,7 +164,7 @@ For what each type's model actually exposes, and where it stops, see [Feature co
 - [Updating data](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/updating-data.md) — `AddData`, `AddDataset<T>` and `ClearData` on a chart that has already rendered
 - [Callbacks and events](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/callbacks-and-events.md) — tooltip, tick and legend callbacks, `OnClickAsync`, `OnHoverAsync` and the component's event parameters
 - [Chart options](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/chart-options.md) — size and aspect ratio, layout padding, hover and the events a chart listens to
-- [Styling](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/styling.md) — legend label styling, the chart's own colours, the default colour palette, line dataset styling (dashes, gaps, point colours, step modes) and the axis border
+- [Styling](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/styling.md) — legend label styling, the chart's own colours, the default colour palette, line dataset styling (dashes, gaps, point colours, step modes), bar dataset styling (thickness, rounded corners, skipped edges, grouping, axes) and the axis border
 - [Plugins](https://github.com/erkantaylan/BlazorChartjs/blob/main/docs/plugins.md) — data labels, zoom and pan
 - [Changelog](https://github.com/erkantaylan/BlazorChartjs/blob/main/CHANGELOG.md)
 

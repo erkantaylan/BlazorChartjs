@@ -135,6 +135,52 @@ _config.Data.Datasets.Add(new LineDataset()
 
 As everywhere else, an unset property is not serialized and Chart.js keeps its own default. The *Line Styling* and *Step Line* pages of the [live demo](https://erkantaylan.github.io/BlazorChartjs/) show dashes, gaps, per-point colours and the four step modes.
 
+## Bar datasets
+
+Rounded corners, thin bars, a bar drawn over another rather than beside it, and a dataset pinned to a named axis. `BarDataset` covers the options Chart.js reads on a bar dataset ([#7](https://github.com/erkantaylan/BlazorChartjs/issues/7)):
+
+```csharp
+_config.Options.Scales = new Dictionary<string, Axis>()
+{
+    { "months", new Axis() { Position = Position.Bottom } },
+    { "revenue", new Axis() { Position = Position.Left, BeginAtZero = true } }
+};
+
+_config.Data.Datasets.Add(new BarDataset()
+{
+    Label = "Actual",
+    Data = actual,
+    BarThickness = 14,                          // pixels; or BarThickness.Flex
+    BorderRadius = 7,                           // one radius for every corner
+    BorderSkipped = BorderSkipped.False,        // no skipped edge, so all four corners round
+    Grouped = false,                            // drawn over the other datasets, not beside them
+    XAxisId = "months",
+    YAxisId = "revenue",
+    Order = 1
+});
+
+_config.Data.Datasets.Add(new BarDataset()
+{
+    Label = "Target",
+    Data = target,
+    BorderRadius = new BorderRadius { TopLeft = 6, TopRight = 6 },
+    Grouped = false,
+    CategoryPercentage = 0.6m,
+    BarPercentage = 1,
+    XAxisId = "months",
+    YAxisId = "revenue",
+    Order = 2
+});
+```
+
+- **Width.** By default Chart.js makes each category `CategoryPercentage` (0.8) of the room it has, and each bar `BarPercentage` (0.9) of its slot in that. `BarThickness = 14` fixes the width in pixels and ignores both percentages, `MaxBarThickness` caps the width however much room there is, and `BarThickness.Flex` sizes each category from the distance to its neighbours, which suits an unevenly spaced axis. `MinBarLength` keeps a bar for a value close to zero at least that many pixels long.
+- **Rounded corners.** `BorderRadius = 8` is one radius, sent as a number. `new BorderRadius { TopLeft = 8, TopRight = 8 }` rounds only the corners it names and is sent as an object; a corner it leaves out stays square. A corner on the edge `BorderSkipped` skips is never rounded, and that is the edge the bar grows from unless you say otherwise. So `BorderRadius = 8` on its own rounds the two corners away from the axis, and `BorderSkipped = BorderSkipped.False` rounds all four. In a stack a single radius only rounds the bars at either end, while a per-corner `BorderRadius` rounds every bar. `HoverBorderRadius` takes the same two forms.
+- **Skipped edges.** `BorderSkipped` is `Start` (the default), `End`, `Middle`, `Bottom`, `Left`, `Top`, `Right`, `False` or `True`. `Middle` drops the border wherever stacked bars meet, so a stack is outlined as one. `False` and `True` are sent as the JSON booleans Chart.js tests for, the same way `StepMode` is: `False` borders every edge, and `True` borders none and rounds no corners. `BorderSkippedString` takes a raw value.
+- **Grouping.** `Grouped = false` takes the dataset out of the group. Its bars are centred on the category, at the width a whole group would have, and drawn over the other datasets' bars. `Order` decides which is on top: a lower `Order` is drawn later. `SkipNull = true` leaves no gap for a `null` value, so the other datasets' bars in that category share the room. Set it on every dataset in the group.
+- **Placement.** `XAxisId` and `YAxisId` bind the dataset to named axes in `Options.Scales`. `IndexAxis = Axes.Y` lays this one dataset along the y axis, whatever `Options.IndexAxis` says. `Base` starts every bar at a value other than zero, so `Base = 50` draws a bar from 50 up or down to its value. `InflateAmount` is how many pixels each bar is drawn beyond its edges. The default, `InflateAmount.Auto`, is 0.33 pixels when the bars have a fixed `BarThickness` or both percentages are `1`, which hides the hairline gap between bars that touch, and nothing otherwise. `InflateAmount = 0` draws every bar at its exact size.
+
+`BarDataset.Fill` is gone. `fill` is a line and radar option, and a bar has nothing to fill. The *Bar Styling* page of the [live demo](https://erkantaylan.github.io/BlazorChartjs/) shows thin, rounded and ungrouped bars on named axes, a stack outlined as one, and `SkipNull`.
+
 ## Axis border
 
 Chart.js 4 moved the axis border out of `grid` into a scale option of its own, so `Grid.DrawBorder` is gone. Use `Axis.Border`:

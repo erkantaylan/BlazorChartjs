@@ -1,7 +1,7 @@
 namespace Erkan.Blazor.Chartjs.Models.Common
 {
     /// <summary>
-    /// Padding around a chart title.
+    /// Padding around a chart title, subtitle or legend title.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -11,6 +11,11 @@ namespace Erkan.Blazor.Chartjs.Models.Common
     /// laid out across the full chart width and a vertical one across the full height, so there
     /// is no horizontal extent for a left or right padding to occupy. Passing <c>left</c> or
     /// <c>right</c> is silently discarded, which is why they are not offered here.
+    /// </para>
+    /// <para>
+    /// The subtitle is the same plugin. The legend title is typed as taking all four sides, but
+    /// the legend reads the same two — <c>padding.top</c> to place the text and
+    /// <c>padding.height</c> to size the space it takes — so it takes this class too.
     /// </para>
     /// <para>
     /// Chart.js also accepts a single number for all four sides. Since the title discards the

@@ -154,12 +154,28 @@
           "useBorderRadius": true,
           "borderRadius": 4
         },
+        "maxHeight": 64,
+        "maxWidth": 480,
         "position": "bottom",
         "reverse": false,
         "rtl": false,
         "textDirection": "ltr",
+        "title": {
+          "color": "#3e4c59",
+          "display": true,
+          "font": {
+            "size": 12,
+            "weight": "600"
+          },
+          "padding": {
+            "top": 4,
+            "bottom": 4
+          },
+          "position": "start",
+          "text": "Series"
+        },
         "hasLegendClick": false,
-        "maxHeight": 64
+        "weight": 1000
       },
       "tooltip": {
         "enabled": true,
@@ -236,8 +252,23 @@
         "weight": 2000
       },
       "subtitle": {
+        "align": "start",
+        "color": "#52606d",
         "display": true,
-        "text": "through Plugins.ExtraOptions"
+        "fullSize": true,
+        "position": "top",
+        "text": "Sample data",
+        "padding": {
+          "bottom": 12
+        },
+        "font": {
+          "size": 13,
+          "style": "italic"
+        },
+        "weight": 1500
+      },
+      "filler": {
+        "propagate": true
       }
     },
     "resizeDelay": 0,

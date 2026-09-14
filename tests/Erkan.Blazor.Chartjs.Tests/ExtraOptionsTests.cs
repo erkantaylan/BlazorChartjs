@@ -106,16 +106,16 @@ public class ExtraOptionsTests
         nameof(Plugins) => (
             new BarChartConfig
             {
-                Options = new Options { Plugins = new Plugins { ExtraOptions = new() { ["subtitle"] = new { display = true } } } },
+                Options = new Options { Plugins = new Plugins { ExtraOptions = new() { ["filler"] = new { propagate = false } } } },
             },
-            "options.plugins", "legend", "subtitle", """{"display":true}"""),
+            "options.plugins", "legend", "filler", """{"propagate":false}"""),
 
         nameof(Legend) => (
             new BarChartConfig
             {
-                Options = new Options { Plugins = new Plugins { Legend = new Legend { ExtraOptions = new() { ["maxHeight"] = 60 } } } },
+                Options = new Options { Plugins = new Plugins { Legend = new Legend { ExtraOptions = new() { ["weight"] = 500 } } } },
             },
-            "options.plugins.legend", "hasLegendClick", "maxHeight", "60"),
+            "options.plugins.legend", "hasLegendClick", "weight", "500"),
 
         nameof(Tooltip) => (
             new BarChartConfig
@@ -134,11 +134,11 @@ public class ExtraOptionsTests
                 {
                     Plugins = new Plugins
                     {
-                        Title = new Title { Display = true, ExtraOptions = new() { ["text"] = new[] { "First line", "Second line" } } },
+                        Title = new Title { Display = true, ExtraOptions = new() { ["weight"] = 2000 } },
                     },
                 },
             },
-            "options.plugins.title", "display", "text", """["First line","Second line"]"""),
+            "options.plugins.title", "display", "weight", "2000"),
 
         nameof(Axis) => (
             new BarChartConfig

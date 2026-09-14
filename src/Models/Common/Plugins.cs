@@ -64,6 +64,17 @@
         public Title? Title { get; set; }
 
         /// <summary>
+        /// Gets or sets the subtitle.
+        /// </summary>
+        /// <value>
+        /// A second title, drawn directly below <see cref="Title"/> and configured the same way.
+        /// Chart.js's default is <c>display: false</c>, so a subtitle needs <c>Display = true</c>.
+        /// </value>
+        [JsonPropertyName("subtitle")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Title? Subtitle { get; set; }
+
+        /// <summary>
         /// Gets or sets the zoom.
         /// </summary>
         /// <value>
@@ -89,7 +100,7 @@
         /// </summary>
         /// <value>
         /// Each entry becomes one key, spelled exactly as given and usually named after a plugin's
-        /// <c>id</c>: <c>["subtitle"] = new { display = true, text = "…" }</c>.
+        /// <c>id</c>: <c>["filler"] = new { propagate = false }</c>.
         /// A key must not repeat one a property of this class already writes.
         /// </value>
         [JsonExtensionData]

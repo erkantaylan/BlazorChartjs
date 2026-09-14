@@ -1,8 +1,13 @@
 ﻿namespace Erkan.Blazor.Chartjs.Models.Common
 {
     /// <summary>
-    /// Title
+    /// A chart title, written to <c>options.plugins.title</c> as <see cref="Plugins.Title"/> and to
+    /// <c>options.plugins.subtitle</c> as <see cref="Plugins.Subtitle"/>.
     /// </summary>
+    /// <remarks>
+    /// Chart.js's title and subtitle plugins read the same options, so one class serves both. The
+    /// subtitle is drawn directly below the title.
+    /// </remarks>
     public class Title
     {
         /// <summary>
@@ -117,14 +122,51 @@
         public string? PositionString { get; set; }
 
         /// <summary>
-        /// Gets or sets the text.
+        /// Gets or sets the text, on one line.
         /// </summary>
         /// <value>
-        /// The Title text to display. If specified as an array, text is rendered on multiple lines
+        /// The title text. Assigning a value clears <see cref="TextLines"/>: the text assigned last
+        /// is the one written to <c>text</c>.
         /// </value>
+        [JsonIgnore]
+        public string? Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                if (value is not null) _textLines = null;
+            }
+        }
+        private string? _text;
+
+        /// <summary>
+        /// Gets or sets the text as several lines, the first drawn on top.
+        /// </summary>
+        /// <value>
+        /// One entry per line, written to <c>text</c> as an array. Assigning a list clears
+        /// <see cref="Text"/>: the text assigned last is the one written.
+        /// </value>
+        [JsonIgnore]
+        public List<string>? TextLines
+        {
+            get => _textLines;
+            set
+            {
+                _textLines = value;
+                if (value is not null) _text = null;
+            }
+        }
+        private List<string>? _textLines;
+
+        /// <summary>
+        /// The one <c>text</c> key, from whichever of <see cref="Text"/> and <see cref="TextLines"/>
+        /// is set. At most one ever is.
+        /// </summary>
+        [JsonInclude]
         [JsonPropertyName("text")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Text { get; set; }
+        private object? TextValue => (object?)_textLines ?? _text;
 
         /// <summary>
         /// Gets or sets the padding.
@@ -149,12 +191,10 @@
 
         /// <summary>
         /// Gets or sets title options this class has no property for, written into
-        /// <c>options.plugins.title</c> next to the typed keys.
+        /// <c>options.plugins.title</c> or <c>options.plugins.subtitle</c> next to the typed keys.
         /// </summary>
         /// <value>
-        /// Each entry becomes one key, spelled exactly as given. It is also how a multi-line
-        /// title is written while <see cref="Text"/> is a single string: leave <see cref="Text"/>
-        /// unset and add <c>["text"] = new[] { "First line", "Second line" }</c>.
+        /// Each entry becomes one key, spelled exactly as given: <c>["weight"] = 2000</c>.
         /// A key must not repeat one a property of this class already writes.
         /// </value>
         [JsonExtensionData]

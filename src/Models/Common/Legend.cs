@@ -66,6 +66,28 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public LegendLabels? Labels { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum height of the legend.
+        /// </summary>
+        /// <value>
+        /// The largest height, in pixels, the legend box may take. Unset, it may take all the height
+        /// the layout offers it, which is what Chart.js also does with <c>0</c>.
+        /// </value>
+        [JsonPropertyName("maxHeight")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? MaxHeight { get; set; }
+
+        /// <summary>
+        /// Gets or sets the maximum width of the legend.
+        /// </summary>
+        /// <value>
+        /// The largest width, in pixels, the legend box may take. Unset, it may take all the width
+        /// the layout offers it, which is what Chart.js also does with <c>0</c>.
+        /// </value>
+        [JsonPropertyName("maxWidth")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? MaxWidth { get; set; }
+
+        /// <summary>
         /// Gets or sets the position.
         /// </summary>
         /// <value>
@@ -133,6 +155,16 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public string? TextDirectionString { get; set; }
 
         /// <summary>
+        /// Gets or sets the title drawn above the legend items.
+        /// </summary>
+        /// <value>
+        /// The legend title. Chart.js draws none unless <see cref="LegendTitle.Display"/> is <c>true</c>.
+        /// </value>
+        [JsonPropertyName("title")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public LegendTitle? Title { get; set; }
+
+        /// <summary>
         /// Gets a value indicating whether this instance has legend click.
         /// </summary>
         /// <value><c>true</c> if this instance has legend click; otherwise, <c>false</c>.</value>
@@ -152,7 +184,7 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// <c>options.plugins.legend</c> next to the typed keys.
         /// </summary>
         /// <value>
-        /// Each entry becomes one key, spelled exactly as given: <c>["maxHeight"] = 60</c>.
+        /// Each entry becomes one key, spelled exactly as given: <c>["weight"] = 500</c>.
         /// A key must not repeat one a property of this class already writes.
         /// </value>
         [JsonExtensionData]

@@ -24,7 +24,7 @@ namespace Erkan.Blazor.Chartjs.Tests.Infrastructure;
 ///   <item><c>Minimal</c> — the least a working chart needs: labels, one dataset, and an
 ///   options object. This is where a stray <c>[]</c>, a bare <c>null</c> or a leaked
 ///   wrapper-internal marker shows up, because nothing here asked for any of them.</item>
-///   <item><c>Rich</c> — what a real consumer sets: scales, legend, title, the tooltip's styling,
+///   <item><c>Rich</c> — what a real consumer sets: scales, legend and its title, title and subtitle, the tooltip's styling,
 ///   placement and layout, datalabels, zoom and the chart-level layout, sizing, colour, hover and events options,
 ///   exercised as widely as each chart type's options class allows, plus an
 ///   <c>ExtraOptions</c> entry on every class that has the bag. Each of those entries is a key
@@ -201,7 +201,7 @@ public static class SampleConfigs
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "unknown chart type"),
     };
 
-    /// <summary>Legend, title, tooltip and datalabels, configured the way an app that themes its charts would.</summary>
+    /// <summary>Legend, title, subtitle, tooltip and datalabels, configured the way an app that themes its charts would.</summary>
     /// <param name="title">The title text.</param>
     /// <param name="colors">The built-in colors plugin's options, or <c>null</c> to leave it unconfigured.</param>
     private static Plugins StyledPlugins(string title, Colors? colors = null) => new()
@@ -230,7 +230,19 @@ public static class SampleConfigs
                 UseBorderRadius = true,
                 BorderRadius = 4,
             },
-            ExtraOptions = new() { ["maxHeight"] = 64 },
+            MaxWidth = 480,
+            MaxHeight = 64,
+            Title = new LegendTitle
+            {
+                Display = true,
+                Text = "Series",
+                Position = Align.Start,
+                Color = "#3e4c59",
+                Font = new Font { Size = 12, Weight = "600" },
+                Padding = new TitlePadding(4),
+            },
+            // maxHeight is typed on Legend now; the legend's layout weight is not
+            ExtraOptions = new() { ["weight"] = 1000 },
         },
         Title = new Title
         {
@@ -243,6 +255,18 @@ public static class SampleConfigs
             Font = new Font { Family = "Inter", Size = 18, Weight = "700" },
             Padding = new TitlePadding { Top = 8, Bottom = 16 },
             ExtraOptions = new() { ["weight"] = 2000 },
+        },
+        Subtitle = new Title
+        {
+            Display = true,
+            Text = "Sample data",
+            Align = Align.Start,
+            Position = Position.Top,
+            Color = "#52606d",
+            FullSize = true,
+            Font = new Font { Size = 13, Style = "italic" },
+            Padding = new TitlePadding { Bottom = 12 },
+            ExtraOptions = new() { ["weight"] = 1500 },
         },
         Tooltip = new Tooltip
         {
@@ -308,10 +332,10 @@ public static class SampleConfigs
             textShadowBlur = 2,
             TextShadowColor = "rgba(0,0,0,0.25)",
         },
-        // plugins.subtitle has no typed model; the bag reaches it
+        // plugins.subtitle is typed now (Subtitle above); the filler plugin's options are not
         ExtraOptions = new()
         {
-            ["subtitle"] = new { display = true, text = "through Plugins.ExtraOptions" },
+            ["filler"] = new { propagate = true },
         },
     };
 
@@ -526,6 +550,8 @@ public static class SampleConfigs
     {
         var plugins = StyledPlugins("Latency over time");
         plugins.Zoom = FullZoom();
+        // a two-line title: the lines replace the single Text StyledPlugins set
+        plugins.Title!.TextLines = ["Latency over time", "p99 and errors"];
 
         var scales = CartesianScales();
         scales["x"] = new Axis

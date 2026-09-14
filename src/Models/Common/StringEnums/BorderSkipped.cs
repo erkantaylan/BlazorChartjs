@@ -32,8 +32,10 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public static BorderSkipped End { get { return new BorderSkipped("end"); } }
 
         /// <summary>
-        /// In a stack, the edges where bars meet, so the stack is outlined as one; the two outer
-        /// ends keep their border. Outside a stack, no edge.
+        /// In a stack, the edges where bars meet, so the stack is outlined as one, and every bar in
+        /// it can be rounded; the two outer ends keep their border. Outside a stack, no edge.
+        /// Chart.js 4.5.1 finds the bottom of a stack of positive values by dataset index 0, so in
+        /// a stack that does not start with the first dataset the base edge is skipped as well.
         /// </summary>
         /// <value>middle.</value>
         public static BorderSkipped Middle { get { return new BorderSkipped("middle"); } }

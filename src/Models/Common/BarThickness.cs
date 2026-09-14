@@ -20,7 +20,8 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// <summary>
         /// Sizes each category from the distance to its neighbours instead of the smallest gap on
         /// the axis, so bars on an unevenly spaced axis fill the room they have.
-        /// <c>categoryPercentage</c> and <c>barPercentage</c> still apply.
+        /// <c>categoryPercentage</c> and <c>barPercentage</c> still apply. Chart.js 4.5.1 computes no
+        /// width for it on a dataset with <c>grouped: false</c>, and draws nothing.
         /// </summary>
         public static BarThickness Flex => new BarThickness(null);
 

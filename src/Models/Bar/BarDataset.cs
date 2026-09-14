@@ -145,9 +145,11 @@ namespace Erkan.Blazor.Chartjs.Models.Bar
         /// Gets or sets whether the bars take a slot beside the other datasets' bars in each category.
         /// </summary>
         /// <value>
-        /// <c>false</c> centres this dataset's bars on the category, over the other datasets', at
-        /// the width a whole group would have; <c>null</c> leaves the Chart.js default (<c>true</c>)
-        /// in place.
+        /// <c>false</c> centres this dataset's bars on the category, overlapping the other datasets'
+        /// bars, at the width one bar would have alone in the category; <see cref="Dataset.Order"/>
+        /// decides which is drawn on top. <c>null</c> leaves the Chart.js default (<c>true</c>) in
+        /// place. Chart.js 4.5.1 draws no bars at all for <c>false</c> together with
+        /// <see cref="Common.BarThickness.Flex"/>.
         /// </value>
         [JsonPropertyName("grouped")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -198,8 +200,10 @@ namespace Erkan.Blazor.Chartjs.Models.Bar
         /// Gets or sets the index axis of this dataset.
         /// </summary>
         /// <value>
-        /// <see cref="Enums.Axes.Y"/> draws this dataset's bars horizontally even when the chart's
-        /// <c>Options.IndexAxis</c> does not; <c>null</c> follows the chart.
+        /// <see cref="Enums.Axes.Y"/> draws this dataset's bars horizontally when the chart's
+        /// <c>Options.IndexAxis</c> does not; <c>null</c> follows the chart. Chart.js builds the
+        /// default scales from the first dataset that uses them, so beside vertical datasets this one
+        /// needs axes of its own, named with <see cref="XAxisId"/> and <see cref="YAxisId"/>.
         /// </value>
         [JsonPropertyName("indexAxis")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -209,8 +213,8 @@ namespace Erkan.Blazor.Chartjs.Models.Bar
         /// Gets or sets how far each bar is drawn beyond its own edges.
         /// </summary>
         /// <value>
-        /// Pixels (<c>InflateAmount = 0</c> draws bars at their exact size), or
-        /// <see cref="Common.InflateAmount.Auto"/>, the Chart.js default.
+        /// Pixels as an <c>int</c> or <c>decimal</c> (<c>InflateAmount = 0</c> draws bars at their
+        /// exact size), or <see cref="Common.InflateAmount.Auto"/>, the Chart.js default.
         /// </value>
         [JsonPropertyName("inflateAmount")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -268,9 +272,10 @@ namespace Erkan.Blazor.Chartjs.Models.Bar
         /// Gets or sets whether a <c>null</c> value keeps its slot in the group.
         /// </summary>
         /// <value>
-        /// <c>true</c> closes the gap: in a category where this dataset has no value, the other
-        /// datasets' bars share the room. <c>null</c> leaves the Chart.js default (<c>false</c>) in
-        /// place.
+        /// <c>true</c> places this dataset's bars as if the datasets with a <c>null</c> in that
+        /// category were not there, so no gap is left for them. Each dataset reads its own value, so
+        /// set it on every dataset in the group — on the one with the <c>null</c>s alone it changes
+        /// nothing. <c>null</c> leaves the Chart.js default (<c>false</c>) in place.
         /// </value>
         [JsonPropertyName("skipNull")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

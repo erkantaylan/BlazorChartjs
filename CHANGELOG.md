@@ -74,13 +74,16 @@ way to set one.
     colour per bar) and `HoverBorderWidth`;
   - layout — `Grouped`, `SkipNull`, `Base`, `Clip` and `PointStyle`;
   - axes — `XAxisId` (`xAxisID`), `YAxisId` (`yAxisID`) and a per-dataset `IndexAxis`, so a bar
-    dataset can be pinned to a named axis, or laid along the y axis on its own.
+    dataset can be pinned to a named axis, or laid along the y axis when the rest of the chart is
+    not (on axes of its own, since Chart.js builds the default ones from the first dataset).
 
   Four of these are unions in Chart.js, and each gets a small type that writes the shape Chart.js
   reads. `BorderRadius` (in `Models.Common`, for reuse by other chart types) takes one radius
-  (`BorderRadius = 8`, sent as a number) or named corners (`new BorderRadius { TopLeft = 8 }`, sent
-  as an object of the corners set). `BarThickness` is pixels or `BarThickness.Flex`, and
-  `InflateAmount` is pixels or `InflateAmount.Auto`; both are assigned a number directly.
+  (`BorderRadius = 8`, sent as a number) or corners (`new BorderRadius { TopLeft = 8 }`, sent as an
+  object of the corners set, even when all four agree — on a stacked axis Chart.js applies a number
+  only to the outermost bar, and an object to every bar). `BarThickness` is pixels or
+  `BarThickness.Flex`, assigned an `int` directly, and `InflateAmount` is pixels or
+  `InflateAmount.Auto`, assigned an `int` or a `decimal`.
   `BorderSkipped.False` and `.True` go out as JSON booleans, as `StepMode`'s do. Every option is
   nullable and omitted when unset, so `BorderRadius = 0`, `Grouped = false` and `MinBarLength = 0`
   are sent. Still missing: floating bars, `hidden`, the per-side object form of `borderWidth`,
@@ -159,9 +162,9 @@ way to set one.
   is a line and radar option, and a bar has nothing to fill. The key passed the key-validation
   tests only because they union the dataset options of all chart types, and the feature coverage
   table listed it as a bar property. Delete the assignment. The one place it did anything was a
-  dataset with `Type = "line"` inside a `BarChartConfig`, as on the demo's *Mixed graphs* page. There
-  `Fill = false` repeats Chart.js's line default, so removing it changes nothing. A line-typed
-  dataset in a bar chart can no longer turn its fill on.
+  dataset with `Type = "line"` inside a `BarChartConfig`, as on the demo's *Mixed graphs* page.
+  There `Fill = false` repeats Chart.js's line default, so removing it changes nothing. A
+  line-typed dataset in a bar chart can no longer turn its fill on.
 
 #### [2.0.0](https://github.com/erkantaylan/BlazorChartjs/compare/v1.0.0...v2.0.0)
 

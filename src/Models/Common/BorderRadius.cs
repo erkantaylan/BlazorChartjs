@@ -8,15 +8,17 @@ namespace Erkan.Blazor.Chartjs.Models.Common
     /// <remarks>
     /// <para>
     /// Chart.js reads <c>borderRadius</c> as <c>number | { topLeft, topRight, bottomLeft, bottomRight }</c>.
-    /// <see cref="BorderRadiusJsonConverter"/> writes the number when all four corners are set to the
-    /// same value, and otherwise an object of the corners that are set; a corner left out of the
-    /// object is square.
+    /// <see cref="BorderRadiusJsonConverter"/> writes <see cref="Radius"/> alone as the number, and
+    /// anything with a corner set as an object of the corners that have a value; a corner left out
+    /// of the object is square.
     /// </para>
     /// <para>
-    /// The two forms are not quite equivalent. In a stacked bar a number rounds only the bars at
-    /// the two ends of the stack, while an object rounds every bar in it. Either way a corner on
-    /// an edge <c>borderSkipped</c> skips stays square — and <c>borderSkipped</c> skips the base
-    /// edge by default, so <c>BorderRadius = 8</c> alone rounds the two corners away from it.
+    /// The two forms are not equivalent, which is why four equal corners are still sent as an
+    /// object. On a stacked scale Chart.js applies a number only to the outermost bar on each side
+    /// of zero, and an object to every bar in the stack — unless <c>borderSkipped</c> is
+    /// <c>'middle'</c>, which rounds them all. Either way a corner on an edge <c>borderSkipped</c>
+    /// skips stays square, and by default that is the edge the bar grows from, so
+    /// <c>BorderRadius = 8</c> alone rounds the two corners away from it.
     /// </para>
     /// </remarks>
     [JsonConverter(typeof(BorderRadiusJsonConverter))]
@@ -28,20 +30,18 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         public BorderRadius() { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BorderRadius"/> class with the same radius
-        /// on all four corners, written as a bare number.
+        /// Initializes a new instance of the <see cref="BorderRadius"/> class with one radius for
+        /// every corner, written as a bare number.
         /// </summary>
         /// <param name="radius">The radius, in pixels.</param>
         public BorderRadius(int radius)
         {
-            TopLeft = radius;
-            TopRight = radius;
-            BottomLeft = radius;
-            BottomRight = radius;
+            Radius = radius;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BorderRadius"/> class corner by corner.
+        /// Initializes a new instance of the <see cref="BorderRadius"/> class corner by corner,
+        /// written as an object even when the four agree.
         /// </summary>
         /// <param name="topLeft">The top left radius.</param>
         /// <param name="topRight">The top right radius.</param>
@@ -56,56 +56,74 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         }
 
         /// <summary>
-        /// The same radius on all four corners: <c>BorderRadius = 8</c>.
+        /// One radius for every corner, written as a bare number: <c>BorderRadius = 8</c>.
         /// </summary>
         /// <param name="radius">The radius, in pixels.</param>
         public static implicit operator BorderRadius(int radius) => new BorderRadius(radius);
 
         /// <summary>
+        /// Gets or sets the one radius for every corner.
+        /// </summary>
+        /// <value>
+        /// The radius, in pixels, sent as a bare number while no corner is set. A corner set as well
+        /// overrides it for that corner and makes the value an object: <c>new BorderRadius(8) { BottomLeft = 0 }</c>
+        /// sends all four corners.
+        /// </value>
+        /// <remarks>
+        /// <see cref="BorderRadiusJsonConverter"/> writes it. The <c>[JsonIgnore]</c> is for the model
+        /// walk the key-validation tests make: the object form has no <c>radius</c> key, so this
+        /// property must not look like one.
+        /// </remarks>
+        [JsonIgnore]
+        public int? Radius { get; set; }
+
+        /// <summary>
         /// Gets or sets the top left radius.
         /// </summary>
-        /// <value>The radius, in pixels.</value>
+        /// <value>The radius, in pixels; unset, <see cref="Radius"/>.</value>
         [JsonPropertyName("topLeft")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? TopLeft { get; set; }
+        public int? TopLeft { get => _topLeft ?? Radius; set => _topLeft = value; }
+        private int? _topLeft;
 
         /// <summary>
         /// Gets or sets the top right radius.
         /// </summary>
-        /// <value>The radius, in pixels.</value>
+        /// <value>The radius, in pixels; unset, <see cref="Radius"/>.</value>
         [JsonPropertyName("topRight")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? TopRight { get; set; }
+        public int? TopRight { get => _topRight ?? Radius; set => _topRight = value; }
+        private int? _topRight;
 
         /// <summary>
         /// Gets or sets the bottom left radius.
         /// </summary>
-        /// <value>The radius, in pixels.</value>
+        /// <value>The radius, in pixels; unset, <see cref="Radius"/>.</value>
         [JsonPropertyName("bottomLeft")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? BottomLeft { get; set; }
+        public int? BottomLeft { get => _bottomLeft ?? Radius; set => _bottomLeft = value; }
+        private int? _bottomLeft;
 
         /// <summary>
         /// Gets or sets the bottom right radius.
         /// </summary>
-        /// <value>The radius, in pixels.</value>
+        /// <value>The radius, in pixels; unset, <see cref="Radius"/>.</value>
         [JsonPropertyName("bottomRight")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? BottomRight { get; set; }
+        public int? BottomRight { get => _bottomRight ?? Radius; set => _bottomRight = value; }
+        private int? _bottomRight;
 
         /// <summary>
-        /// The radius shared by all four corners, or <c>null</c> when any corner is unset or they differ.
+        /// Whether any corner has been set on its own, which makes the value an object.
         /// </summary>
-        internal int? Uniform =>
-            TopLeft.HasValue && TopLeft == TopRight && TopLeft == BottomLeft && TopLeft == BottomRight
-                ? TopLeft
-                : null;
+        internal bool HasCorners =>
+            _topLeft.HasValue || _topRight.HasValue || _bottomLeft.HasValue || _bottomRight.HasValue;
     }
 
     /// <summary>
-    /// Writes <see cref="BorderRadius"/> in the shape Chart.js reads: a number when the four corners
-    /// agree, otherwise <c>{"topLeft":…,"topRight":…,"bottomLeft":…,"bottomRight":…}</c> with every
-    /// unset corner omitted.
+    /// Writes <see cref="BorderRadius"/> in the shape Chart.js reads: <see cref="BorderRadius.Radius"/>
+    /// alone as a number, otherwise <c>{"topLeft":…,"topRight":…,"bottomLeft":…,"bottomRight":…}</c>
+    /// with every corner that has no value omitted.
     /// </summary>
     /// <remarks>
     /// The object form's keys are the names of <see cref="BorderRadius"/>'s own properties, so the
@@ -170,7 +188,7 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// <inheritdoc />
         public override void Write(Utf8JsonWriter writer, BorderRadius value, JsonSerializerOptions options)
         {
-            if (value.Uniform is int radius)
+            if (!value.HasCorners && value.Radius is int radius)
             {
                 writer.WriteNumberValue(radius);
                 return;

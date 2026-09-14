@@ -84,11 +84,26 @@ public class BarDatasetOptionTests
     // ------------------------------------------------------------- borderRadius
 
     [Fact]
-    public void BorderRadius_with_four_equal_corners_is_written_as_a_number()
+    public void A_single_radius_is_written_as_a_number()
     {
         Assert.Equal("""{"borderRadius":8}""", ChartJson.Serialize(new BarDataset { BorderRadius = 8 }));
-        Assert.Equal("""{"borderRadius":8}""", ChartJson.Serialize(new BarDataset { BorderRadius = new BorderRadius(8, 8, 8, 8) }));
+        Assert.Equal("""{"borderRadius":8}""", ChartJson.Serialize(new BarDataset { BorderRadius = new BorderRadius(8) }));
     }
+
+    /// <summary>
+    /// On a stacked scale Chart.js applies a number only to the outermost bar and an object to every
+    /// bar, so corners that happen to agree must not collapse into a number.
+    /// </summary>
+    [Fact]
+    public void Corners_are_written_as_an_object_even_when_they_agree() =>
+        Assert.Equal("""{"borderRadius":{"topLeft":8,"topRight":8,"bottomLeft":8,"bottomRight":8}}""",
+            ChartJson.Serialize(new BarDataset { BorderRadius = new BorderRadius(8, 8, 8, 8) }));
+
+    /// <summary>A corner set on top of a single radius overrides that corner and keeps the rest.</summary>
+    [Fact]
+    public void A_corner_set_on_a_single_radius_turns_it_into_an_object() =>
+        Assert.Equal("""{"borderRadius":{"topLeft":8,"topRight":8,"bottomLeft":0,"bottomRight":8}}""",
+            ChartJson.Serialize(new BarDataset { BorderRadius = new BorderRadius(8) { BottomLeft = 0 } }));
 
     /// <summary>Only the corners that are set go out: a missing corner is square to Chart.js.</summary>
     [Fact]
@@ -112,9 +127,12 @@ public class BarDatasetOptionTests
     [Fact]
     public void Both_borderRadius_shapes_read_back()
     {
-        Assert.Equal(12, Read("""{"borderRadius":12}""").BorderRadius!.BottomRight);
+        var single = Read("""{"borderRadius":12}""").BorderRadius!;
+        Assert.Equal(12, single.Radius);
+        Assert.Equal("""{"borderRadius":12}""", ChartJson.Serialize(new BarDataset { BorderRadius = single }));
 
         var corners = Read("""{"borderRadius":{"topLeft":4,"bottomRight":2,"outerStart":9}}""").BorderRadius!;
+        Assert.Null(corners.Radius);
         Assert.Equal(4, corners.TopLeft);
         Assert.Null(corners.TopRight);
         Assert.Null(corners.BottomLeft);
@@ -151,8 +169,9 @@ public class BarDatasetOptionTests
 
     /// <summary>
     /// The key check walks the CLR shape of each type, not the converter. <c>BorderRadius</c>'s
-    /// properties are exactly its object form, so they may only produce the four corner paths; the
-    /// two structs are leaves and may produce nothing beneath their own key.
+    /// serialized properties are exactly its object form — <c>Radius</c>, which only ever goes out
+    /// as the bare number, is ignored — so they may only produce the four corner paths; the two
+    /// structs are leaves and may produce nothing beneath their own key.
     /// </summary>
     [Fact]
     public void The_union_types_add_only_real_paths_to_the_model_graph()

@@ -166,19 +166,29 @@ public static class ModelGraph
     }
 
     /// <summary>
-    /// The properties <c>System.Text.Json</c> would write under a key of their own: public, with
-    /// a public getter, not unconditionally ignored, and not a <c>[JsonExtensionData]</c> bag.
+    /// The properties <c>System.Text.Json</c> would write under a key of their own: a public
+    /// getter, or any getter marked <c>[JsonInclude]</c>; not unconditionally ignored; and not a
+    /// <c>[JsonExtensionData]</c> bag.
     /// </summary>
     /// <remarks>
+    /// <para>
+    /// A non-public <c>[JsonInclude]</c> property is written like any other, so it is walked like
+    /// any other. <c>Title</c> has one: <c>Text</c> and <c>TextLines</c> are two ways to set the
+    /// single <c>text</c> key, and a private property writes it. Leaving it out would take
+    /// <c>plugins.title.text</c> off the declared surface without failing anything.
+    /// </para>
+    /// <para>
     /// An <c>ExtraOptions</c> bag writes its entries inline beside the typed keys and never
     /// writes <c>extraOptions</c> itself, so walking it as a property would report a path no
     /// configuration can emit. Its entries are chosen by the caller at runtime; the ones the
     /// sample configurations set are checked where every runtime key is, on the emitted JSON.
+    /// </para>
     /// </remarks>
     public static IEnumerable<PropertyInfo> SerializedProperties(Type type) =>
-        type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+        type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
             .Where(p => p.GetIndexParameters().Length == 0)
-            .Where(p => p.GetMethod is { IsPublic: true })
+            .Where(p => p.GetMethod is { IsPublic: true }
+                        || (p.GetMethod is not null && p.GetCustomAttribute<JsonIncludeAttribute>() is not null))
             .Where(p => !IsUnconditionallyIgnored(p))
             .Where(p => !IsExtensionData(p))
             .OrderBy(p => p.Name, StringComparer.Ordinal);

@@ -1,5 +1,14 @@
 ﻿namespace Erkan.Blazor.Chartjs.Models.Common
 {
+    /// <summary>
+    /// Where the legend is placed: one of the four sides of the chart, or inside the chart area.
+    /// </summary>
+    /// <remarks>
+    /// Chart.js types the legend's <c>position</c> as a layout position, which also admits
+    /// <c>'center'</c> and a <c>{ scaleId: value }</c> object. Neither places a legend: Chart.js's
+    /// layout positions a box at those only if the box belongs to an axis, which scales do and the
+    /// legend does not, so the layout never gives such a legend a place. They are not offered here.
+    /// </remarks>
     public class LegendPosition
     {
         /// <summary>
@@ -10,13 +19,13 @@
         { Value = value; }
 
         /// <summary>
-        /// Bar
+        /// Top
         /// </summary>
         /// <value>
-        /// Bar
+        /// Above the chart. This is Chart.js's default.
         /// </value>
-        public static LegendPosition Bar
-        { get { return new LegendPosition("bar"); } }
+        public static LegendPosition Top
+        { get { return new LegendPosition("top"); } }
 
         /// <summary>
         /// Bottom
@@ -31,7 +40,8 @@
         /// Chart area
         /// </summary>
         /// <value>
-        /// Chart area
+        /// Inside the chart area. Chart.js lays the legend out vertically there and does not let
+        /// its place inside the area be configured.
         /// </value>
         public static LegendPosition ChartArea
         { get { return new LegendPosition("chartArea"); } }

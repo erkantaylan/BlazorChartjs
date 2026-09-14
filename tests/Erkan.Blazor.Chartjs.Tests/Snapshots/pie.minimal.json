@@ -23,8 +23,6 @@
     "maintainAspectRatio": false,
     "plugins": {
       "legend": {
-        "display": true,
-        "reverse": false,
         "hasLegendClick": false
       }
     },

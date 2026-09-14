@@ -40,11 +40,12 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// Gets or sets a value indicating whether this <see cref="Legend"/> is display.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if display; otherwise, <c>false</c>.
+        ///   <c>true</c> if display; otherwise, <c>false</c>. <c>null</c>, the default, writes no key
+        ///   and Chart.js shows the legend.
         /// </value>
         [JsonPropertyName("display")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public bool? Display { get; set; } = true;
+        public bool? Display { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether full size.
@@ -94,10 +95,12 @@ namespace Erkan.Blazor.Chartjs.Models.Common
         /// Gets or sets a value indicating that the <see cref="Legend"/> will show in reverse order.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if reverse; otherwise, <c>false</c>.
+        ///   <c>true</c> if reverse; otherwise, <c>false</c>. <c>null</c>, the default, writes no key
+        ///   and Chart.js keeps the dataset order.
         /// </value>
         [JsonPropertyName("reverse")]
-        public bool Reverse { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Reverse { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating if the <see cref="Legend"/> will be rendered from right to left.
